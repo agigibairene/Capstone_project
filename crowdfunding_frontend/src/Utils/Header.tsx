@@ -3,6 +3,7 @@ import logo from "../assets/logo.png";
 import { AnimatePresence, motion } from 'framer-motion';
 import { NavAnimation } from "./animations";
 import { RxHamburgerMenu } from "react-icons/rx";
+import { LiaTimesSolid } from "react-icons/lia";
 import { useState } from "react";
 
 
@@ -44,7 +45,7 @@ export default function Header(){
                                     initial="hidden"
                                     whileInView={"show"}
                                     key={route}
-                                    className="text-white"
+                                    className="text-white font-text"
                                 >
                                     <NavLink className={({ isActive }) =>isActive ? "text-limeTxt font-bold border-b-2 border-limeTxt" : "hover:text-limeTxt transition"} to={route}>
                                         {name}
@@ -59,7 +60,7 @@ export default function Header(){
                 variants={NavAnimation(0.5)}
                 initial="hidden"
                 whileInView={"show"}
-                className="bg-limeTxt px-8 py-2 text-bgColor rounded-tl-3xl font-semibold cursor-pointer rounded-br-3xl hidden sm:block"
+                className="bg-limeTxt px-8 py-2 text-bgColor rounded-tl-3xl font-text font-semibold cursor-pointer rounded-br-3xl hidden sm:block"
             >
                 Sign up
             </motion.button>
@@ -67,7 +68,10 @@ export default function Header(){
 
             {/* SMALLER SCREENS - HAMBURGER & NAVLIST*/}
             <div className="sm:hidden">
-                <RxHamburgerMenu className="text-3xl text-white cursor-pointer" onClick={() => setDropDownMenu(prevState => !prevState)}/>
+                { showDropDownMenu ? 
+                    <LiaTimesSolid className="text-3xl text-white cursor-pointer" onClick={() => setDropDownMenu(prevState => !prevState)}/>:
+                    <RxHamburgerMenu className="text-3xl text-white cursor-pointer" onClick={() => setDropDownMenu(prevState => !prevState)}/>
+                }
                 <AnimatePresence mode="wait">
                     {
                         showDropDownMenu && 
@@ -75,7 +79,8 @@ export default function Header(){
                                 initial={{opacity: 0, y: -100}}
                                 animate={{opacity: 1, y: 0}}
                                 exit={{opacity: 0, y: -100}}
-                                className="absolute top-20 left-0 w-full h-screen z-10"
+                                style={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+                                className="absolute top-20 right-4 rounded-2xl w-[90vw] sm:w-[25rem] h-auto z-10 backdrop-blur-md"
                             >
                                 <div className="font-semibold uppercase dropdown-div text-white py-10 m-6 rounded-3xl">
                                         <ul className="flex flex-col justify-center items-center gap-6 font-inter">
@@ -83,16 +88,22 @@ export default function Header(){
                                                 navList.map(navs =>{
                                                     const { name, route, label } = navs;
                                                     return(
-                                                        <li key={route}>
-                                                            <NavLink className={({isActive})=> isActive ? "px-4 py-2 rounded-full text-white active" : ""}  to={route}>
+                                                        <li key={route} className="font-text">
+                                                            <NavLink className={({ isActive }) =>isActive ? "text-limeTxt font-bold border-b-2 border-limeTxt" : "hover:text-limeTxt transition"}  to={route}>
                                                                 {name}
                                                             </NavLink>
                                                         </li>
                                                     )
                                                 })
                                             }
+                                            <button className="bg-limeTxt px-8 py-2 text-bgColor rounded-tl-3xl font-text font-semibold cursor-pointer rounded-br-3xl">
+                                                Sign up
+                                            </button>
                                         </ul>
-                                    </div>
+                                         
+                                        </div>
+                                       
+                                    
 
                         </motion.div>
                     }  
