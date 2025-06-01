@@ -7,20 +7,21 @@ export default function HomePage(){
             <Header />
 
             <div className="px-8 md:px-12 pt-12 pb-8">
-                <div className="font-Outfit w-[85%] md:w-[70%]">
-                    <p className="text-white text-xl md:text-3xl"><span className="text-limeTxt font-semibold text-xl md:text-5xl">AgriConnect</span> - Where Investments meets Agriculture</p>
-
+                    <div className="font-Outfit w-full md:w-[70%]">
+                        <h1 className="text-white text-xl md:text-3xl">
+                            <span className="text-limeTxt font-semibold text-xl md:text-5xl">AgriConnect</span> - Where Investments meets Agriculture
+                        </h1>
                     <p className="mt-8 text-white">A secure digital ecosystem where farmers showcase viable projects and investors find opportunities. 
                         From farm expansion to sustainable technology adoption - funding agriculture made simple.</p>
                 </div>
 
-                <div className="mt-8 w-full flex justify-center">
+                <div className="mt-8 max-w-full">
                     <img
                         src={homeImg}
                         alt="Farmers and investors connecting"
-                        className="h-[200px] md:h-[350px] w-auto max-w-full object-cover rounded-xl shadow-lg"
+                        className="h-[200px] md:h-[350px] md:w-[90vw] object-contain rounded-xl shadow-lg"
                     />
-               </div>
+                </div>
             </div>
         </section>
     )

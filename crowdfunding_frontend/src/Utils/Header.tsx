@@ -24,7 +24,7 @@ export default function Header(){
     const [showDropDownMenu, setDropDownMenu ] = useState<boolean>(false); 
 
     return(
-        <header className="bg-bgColor flex justify-between items-center h-16 px-8 py-2">
+        <header className="bg-bgColor flex justify-between items-center h-16 px-8 py-8">
             <>
                 <motion.div 
                 initial={{opacity: 0, scale: 0}}
@@ -72,17 +72,23 @@ export default function Header(){
                     <LiaTimesSolid className="text-3xl text-white cursor-pointer" onClick={() => setDropDownMenu(prevState => !prevState)}/>:
                     <RxHamburgerMenu className="text-3xl text-white cursor-pointer" onClick={() => setDropDownMenu(prevState => !prevState)}/>
                 }
-                <AnimatePresence mode="wait">
+                <AnimatePresence>
                     {
                         showDropDownMenu && 
                             <motion.div
-                                initial={{opacity: 0, y: -100}}
-                                animate={{opacity: 1, y: 0}}
-                                exit={{opacity: 0, y: -100}}
+                                initial={{opacity: 0}}
+                                animate={{opacity: 1}}
+                                exit={{opacity: 0}}
                                 style={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
                                 className="absolute top-20 right-4 rounded-2xl w-[90vw] sm:w-[25rem] h-auto z-10 backdrop-blur-md"
                             >
-                                <div className="font-semibold uppercase dropdown-div text-white py-10 m-6 rounded-3xl">
+                                <motion.div
+                                    initial={{scale: 0.9, opacity: 0}}
+                                    animate={{scale: 1, opacity: 1}}
+                                    exit={{scale: 0.9, opacity: 0}}
+                                    transition={{ type: "spring", stiffness: 200, damping: 25}} 
+                                    className="font-semibold uppercase dropdown-div text-white py-10 m-6 rounded-3xl"
+                                >
                                         <ul className="flex flex-col justify-center items-center gap-6 font-inter">
                                             {
                                                 navList.map(navs =>{
@@ -99,9 +105,8 @@ export default function Header(){
                                             <button className="bg-limeTxt px-8 py-2 text-bgColor rounded-tl-3xl font-text font-semibold cursor-pointer rounded-br-3xl">
                                                 Sign up
                                             </button>
-                                        </ul>
-                                         
-                                        </div>
+                                        </ul>     
+                                </motion.div>
                                        
                                     
 
