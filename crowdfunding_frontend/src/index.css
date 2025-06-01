@@ -1,1 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=DynaPuff:wght@400..700&display=swap');
 @import "tailwindcss";
+
+@theme {
+    --color-limeTxt: #C9FF30;
+    --color-bgColor: #032B22;
+    --font-logo: "DynaPuff", system-ui;
+}
