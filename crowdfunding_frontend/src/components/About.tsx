@@ -43,25 +43,26 @@ export default function About(){
     return(
         
     <div className="px-6 py-12 bg-white md:px-12 lg:px-24">
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-8 lg:grid-cols-2">
         <div className="flex flex-col justify-between bg-white">
           <div>
+             <button className="mb-6 px-6 py-2 bg-limeTxt text-bgColor font-Outfit font-semibold rounded-full transition">
+              Who are we
+            </button>
             <h2 className="text-3xl font-bold text-bgColor md:text-5xl">
-              Creating a platform <br />for <span className="text-lime-500"> investors </span>and farmers
+              Creating a platform <br />for <span className="text-limeTxt"> investors </span>and farmers
             </h2>
             <p className="mt-4 text-gray-600 font-Outfit">
               Empowering farmers with tools, knowledge, and access for smarter and more sustainable agriculture.
               Whether it's hands-on training, field devices, or a shared digital workspace, we’re designed for continuous growth.
             </p>
-            <button className="mt-6 px-6 py-2 bg-limeTxt text-bgColor font-Outfit font-semibold rounded-full transition">
-              Learn more about us
-            </button>
+           
           </div>
         </div>
         {
             details.map((card)=>{
                 const { title, description, image } = card;
-                return <div className="bg-bgColor text-white rounded-xl p-4 flex flex-col">
+                return <div className="bg-bgColor font-Outfit text-white rounded-xl p-4 flex flex-col">
                         <h3 className="text-2xl font-semibold mb-2">{title}</h3>
                         <p className="text-sm mb-4">{description}</p>
                         <img
