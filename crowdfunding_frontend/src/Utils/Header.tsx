@@ -14,7 +14,7 @@ interface NavList{
 }
 
 const navList: NavList[] = [
-    {name: "Home", route: "/home", label: "gome"},
+    {name: "Home", route: "/home", label: "home"},
     {name: "About Us", route: "/about", label: "about"},
     {name: 'Grants', route: '/grants', label: "grants"}
 ]
@@ -44,7 +44,7 @@ export default function Header(){
                                     variants={NavAnimation(0.2*index)}
                                     initial="hidden"
                                     whileInView={"show"}
-                                    key={route}
+                                    key={label}
                                     className="text-white font-text"
                                 >
                                     <NavLink className={({ isActive }) =>isActive ? "text-limeTxt font-bold border-b-2 border-limeTxt" : "hover:text-limeTxt transition"} to={route}>
@@ -94,7 +94,7 @@ export default function Header(){
                                                 navList.map(navs =>{
                                                     const { name, route, label } = navs;
                                                     return(
-                                                        <li key={route} className="font-text">
+                                                        <li key={label} className="font-text">
                                                             <NavLink className={({ isActive }) =>isActive ? "text-limeTxt font-bold border-b-2 border-limeTxt" : "hover:text-limeTxt transition"}  to={route}>
                                                                 {name}
                                                             </NavLink>
