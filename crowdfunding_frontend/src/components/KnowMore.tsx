@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import image from '../assets/Animation.json';
+// import image from '../assets/Animation.json';
+import faq from "../assets/planb.png"
 import { Minus, Plus } from 'lucide-react';
 import Lottie from 'lottie-react';
 
@@ -57,12 +58,15 @@ export default function KnowMore() {
             need to know when you sign up as a farmer and investor, to satisfy
             all your curious questions.
           </p>
-          {/* <img
-            src={image}
-            alt="know more"
-            className="w-full max-w-md md:max-w-lg lg:max-w-xl"
-          /> */}
-        <Lottie animationData={image} loop={true} className=""/>
+         <div className="w-[250px] h-[200px] md:w-[350px] md:h-[350px] lg:w-[400px] lg:h-[400px]">
+  <img
+    src={faq}
+    alt="know more"
+    className="w-full h-full object-contain"
+  />
+</div>
+
+        {/* <Lottie animationData={image} loop={true} className=""/> */}
 
         </div>
 
