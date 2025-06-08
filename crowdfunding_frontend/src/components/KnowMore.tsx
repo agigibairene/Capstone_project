@@ -62,7 +62,7 @@ export default function KnowMore() {
             alt="know more"
             className="w-full max-w-md md:max-w-lg lg:max-w-xl"
           /> */}
-        <Lottie animationData={image} loop={true} className="w-full max-w-md md:max-w-lg lg:max-w-x"/>
+        <Lottie animationData={image} loop={true} className=""/>
 
         </div>
 
