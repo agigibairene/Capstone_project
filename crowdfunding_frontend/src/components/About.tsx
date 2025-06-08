@@ -40,9 +40,8 @@ export default function About(){
         }
     ]
 
-    return(
-        
-    <div className="px-6 py-12 bg-white md:px-12 lg:px-24">
+    return(     
+    <section className="px-6 py-12 bg-white md:px-12 lg:px-24">
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="flex flex-col justify-between bg-white">
           <div>
@@ -62,7 +61,7 @@ export default function About(){
         {
             details.map((card)=>{
                 const { title, description, image } = card;
-                return <div className="bg-bgColor font-Outfit text-white rounded-xl p-4 flex flex-col">
+                return <div key={title} className="bg-bgColor font-Outfit text-white rounded-xl p-4 flex flex-col">
                         <h3 className="text-2xl font-semibold mb-2">{title}</h3>
                         <p className="text-sm mb-4">{description}</p>
                         <img
@@ -74,7 +73,7 @@ export default function About(){
                 })
         }
       </div>
-    </div>
+    </section>
   );
     
 }
