@@ -4,6 +4,10 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import KnowMore from "./components/KnowMore";
 import Footer from "./components/Footer";
 import Reviews from "./components/Reviews";
+import ScrollToTop from "react-scroll-to-top";
+import { FaArrowUp } from "react-icons/fa";
+
+
 
 function App() {
   return (
@@ -12,6 +16,13 @@ function App() {
       <About />
       <KnowMore />
       <Reviews />
+      <ScrollToTop
+        smooth
+        className="scrollToTop"
+        // style={{backgroundColor:"#9333ea"}}
+        
+        component={<FaArrowUp className="animate-arrow text-bgColor" style={{ fontSize: "20px", color: "" }} />}
+      />
       <Footer />
     </>
   );

@@ -6,7 +6,6 @@ export default function Reviews() {
   interface Review {
     name: string;
     role: string;
-    rating: number;
     message: string;
     imageUrl: string;
   }
@@ -15,7 +14,6 @@ export default function Reviews() {
     {
       name: "Kwame Asante",
       role: "Investor",
-      rating: 5,
       message:
         "The platform made it easy to discover high-impact agricultural projects. I'm proud to support Ghanaian farmers!",
       imageUrl: "https://randomuser.me/api/portraits/men/32.jpg",
@@ -23,7 +21,6 @@ export default function Reviews() {
     {
       name: "Ama Serwaa",
       role: "Farmer",
-      rating: 4,
       message:
         "Thanks to the crowdfunding support, I was able to upgrade my irrigation system and increase my yields.",
       imageUrl: "https://randomuser.me/api/portraits/women/65.jpg",
@@ -31,7 +28,6 @@ export default function Reviews() {
     {
       name: "Nana Kofi",
       role: "Agribusiness Owner",
-      rating: 5,
       message:
         "Very professional experience and transparent transactions. The investor dashboard is super helpful.",
       imageUrl: "https://randomuser.me/api/portraits/men/45.jpg",
@@ -39,7 +35,6 @@ export default function Reviews() {
     {
       name: "Akosua Dapaah",
       role: "Investor",
-      rating: 4,
       message:
         "Love the idea of supporting sustainable agriculture. I would love to see more local projects added soon.",
       imageUrl: "https://randomuser.me/api/portraits/women/40.jpg",
@@ -47,7 +42,6 @@ export default function Reviews() {
     {
       name: "Yaw Owusu",
       role: "Farmer",
-      rating: 5,
       message:
         "Getting funding used to be hard, but this platform opened new doors for me. Highly recommended!",
       imageUrl: "https://randomuser.me/api/portraits/men/18.jpg",
@@ -85,7 +79,7 @@ export default function Reviews() {
 
         <div
           ref={carouselRef}
-          className="flex overflow-x-auto no-scrollbar space-x-6 md:h-[250px]"
+          className="flex overflow-x-auto no-scrollbar space-x-6 h-[250px]"
         >
           {reviews.concat(reviews).map((author, index) => {
             const { imageUrl, name, role, message } = author;
