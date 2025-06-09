@@ -13,7 +13,7 @@ export default function Login() {
         </div>
 
         {/* Title */}
-        <h2 className="text-2xl font-semibold mb-6">Login</h2>
+        <h2 className="text-2xl font-semibold mb-6">Welcome back!!</h2>
 
         {/* Form */}
         <form className="space-y-4 text-left">

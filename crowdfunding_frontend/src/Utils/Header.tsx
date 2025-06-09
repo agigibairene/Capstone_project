@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { NavAnimation } from "./animations";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { LiaTimesSolid } from "react-icons/lia";
-import { useState } from "react";
+import { useState, type RefObject } from "react";
 
 
 export interface NavList{
@@ -14,20 +14,41 @@ export interface NavList{
 }
 
 export const navList: NavList[] = [
-    {name: "Home", route: "/home", label: "home"},
+    {name: "Home", route: "/", label: "home"},
     {name: "About Us", route: "/about", label: "about"},
     {name: "FAQs", route: "/faq", label:"faqs"},
     {name: "Reviews", route: "/reviews", label: "reviews"},
     {name: 'Grants', route: '/grants', label: "grants"}
 ]
 
-export default function Header(){
+type RefProps = { 
+    refs: { 
+        home: RefObject<HTMLDivElement | null>,
+        about: RefObject<HTMLDivElement | null>,
+        reviews: RefObject<HTMLDivElement | null>,
+        faqs: RefObject<HTMLDivElement | null>
+    }
+}
+
+
+export default function Header({refs} : RefProps){
 
     const [showDropDownMenu, setDropDownMenu ] = useState<boolean>(false); 
     const navigate = useNavigate();
 
+    const scrollToSection = (label: keyof RefProps["refs"]) => {
+        const elementRef = refs[label];
+        if (elementRef && elementRef.current) {
+            window.scrollTo({
+                top: elementRef.current.offsetTop - 50 , 
+                behavior: 'smooth'
+            });
+        }
+        setDropDownMenu(false);
+    };
+        
     return(
-        <header className="bg-bgColor flex justify-between items-center h-16 px-8 py-8">
+        <header className="bg-bgColor sticky top-0 z-100 flex justify-between items-center h-16 px-8 py-8">
             <>
                 <motion.div 
                 initial={{opacity: 0, scale: 0}}
@@ -48,8 +69,13 @@ export default function Header(){
                                         whileInView={"show"}
                                         key={label}
                                         className="text-white font-text"
+                                        onClick={()=>scrollToSection(label as 'home' | 'about' | 'reviews' | 'faqs')}
                                     >
-                                        <NavLink className={({ isActive }) =>isActive ? "text-limeTxt font-bold border-b-2 border-limeTxt" : "hover:text-limeTxt transition"} to={route}>
+                                        <NavLink 
+
+                                            className={({ isActive }) =>isActive ? "text-limeTxt font-bold border-b-2 border-limeTxt" : 
+                                            "hover:text-limeTxt transition"} to={route}
+                                        >
                                             {name}
                                         </NavLink>
                                     </motion.li>
@@ -63,7 +89,7 @@ export default function Header(){
                     initial="hidden"
                     whileInView={"show"}
                     onClick={()=>navigate('/signup')}
-                    className="bg-limeTxt px-8 py-2 text-bgColor rounded-tl-3xl font-text font-semibold cursor-pointer rounded-br-3xl hidden sm:block"
+                    className="bg-limeTxt px-8 py-2 text-bgColor rounded-tl-3xl font-text font-semibold cursor-pointer rounded-br-3xl hidden sm:block shadow-md hover:scale-105 transition-transform"
                 >
                     Sign up
                 </motion.button>
@@ -97,7 +123,11 @@ export default function Header(){
                                                 navList.map(navs =>{
                                                     const { name, route, label } = navs;
                                                     return(
-                                                        <li key={label} className="font-text">
+                                                        <li 
+                                                            key={label} 
+                                                            className="font-text" 
+                                                            onClick={()=>scrollToSection(label as 'home' | 'about' | 'reviews' | 'faqs')}
+                                                        >
                                                             <NavLink className={({ isActive }) =>isActive ? "text-limeTxt font-bold border-b-2 border-limeTxt" : "hover:text-limeTxt transition"}  to={route}>
                                                                 {name}
                                                             </NavLink>

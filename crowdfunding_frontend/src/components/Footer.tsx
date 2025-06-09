@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 
 
 export default function Footer() {
+    
     const iconStyle ="p-2 bg-gray-950 text-white rounded-md cursor-pointer hover:text-limeTxt";
     
     return (

@@ -1,26 +1,25 @@
 import { useState } from "react";
 
 interface Details{
-    title: string,
-    description: string
+  title: string,
+  description: string
 }
 
 const miniDetails: Details[] = [
-    {
-        title: "Upload Proposal and Documentation", 
-        description: `Each project listing provides detailed information about the project, 
-        including its goals, budget, expected returns and risks`
-    },
-    {
-        title: "Protects intellectual property",
-        description: `Investors must sign a Non-Disclosure Agreement (NDA) and also farmers view other farmers ideas to reduce theft`
-    },
-    {
-        title: "Project Screening",
-        description: `Before projects are listed on the platform, they undergo a 
-        screening process to assess their feasibility and impact. 
-        `
-    }
+  {
+    title: "Upload Proposal and Documentation", 
+    description: `Each project listing provides detailed information about the project, 
+    including its goals, budget, expected returns and risks`
+  },
+  {
+    title: "Protects intellectual property",
+    description: `Investors must sign a Non-Disclosure Agreement (NDA) and also farmers view other farmers ideas to reduce theft`
+  },
+  {
+    title: "Project Screening",
+    description: `Before projects are listed on the platform, they undergo a 
+    screening process to assess their feasibility and impact. `
+  }
 ]
 
 
@@ -102,143 +101,142 @@ export default function Signup() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 py-8 font-Outfit">
-      <div className="w-[80%] max-w-6xl bg-gray-200 p-4 rounded-2xl shadow-md grid grid-cols-1 md:grid-cols-[40%_60%] overflow-hidden">
+  <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 py-8 font-Outfit">
+    <div className="w-full max-w-6xl bg-gray-200 p-4 sm:p-6 md:p-8 rounded-2xl shadow-md grid grid-cols-1 md:grid-cols-[40%_60%] gap-4">
 
-        {/* LEFT SIDE */}
-        <div className="bg-gray-200 p-8 space-y-6">
-          <div className="text-xl font-semibold text-teal-700">Agriconnect</div>
-          <h2 className="text-2xl font-bold text-bgColor">
-            We create a platform for farmers & investors to connect
-          </h2>
-          <ul className="space-y-4 text-gray-700 text-sm">
-            {miniDetails.map(({ title, description }) => (
-              <li key={title}>
-                <span className="font-semibold text-teal-700">• {title}</span> <br />
-                {description}
-              </li>
-            ))}
-          </ul>
-          <div className="text-xs text-gray-500 pt-10">
-            © {new Date().getFullYear()} Agriconnect – <a href="#" className="underline">Privacy & Terms</a>
-          </div>
-        </div>
-
-        {/* RIGHT SIDE */}
-        <div className="p-12 rounded-lg bg-white">
-          <h2 className="text-xl font-semibold text-teal-700">Sign Up for Agriconnect</h2>
-          <p className="text-sm text-gray-500 mb-6">Sign up to see more amazing features</p>
-
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <div className="flex space-x-2">
-              <div className="w-1/2">
-                <input
-                  name="firstName"
-                  type="text"
-                  placeholder="First Name"
-                  value={userInput.firstName}
-                  onChange={handleUserInput}
-                  className="input w-full"
-                />
-                {errors.firstName && <p className="text-sm text-red-500">{errors.firstName}</p>}
-              </div>
-
-              <div className="w-1/2">
-                <input
-                  name="lastName"
-                  type="text"
-                  placeholder="Last Name"
-                  value={userInput.lastName}
-                  onChange={handleUserInput}
-                  className="input w-full"
-                />
-                {errors.lastName && <p className="text-sm text-red-500">{errors.lastName}</p>}
-              </div>
-            </div>
-
-            <div className="flex space-x-2">
-              <div className="w-1/2">
-                <input
-                  name="email"
-                  type="email"
-                  placeholder="Enter your Email"
-                  value={userInput.email}
-                  onChange={handleUserInput}
-                  className="input w-full"
-                />
-                {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
-              </div>
-
-              <div className="w-1/2">
-                <select
-                  name="role"
-                  value={userInput.role}
-                  onChange={handleUserInput}
-                  className="input px-4 py-2 bg-white w-full focus:ring-2 focus:ring-teal-500"
-                >
-                  <option value="" disabled>Select role</option>
-                  <option value="Farmer">Farmer</option>
-                  <option value="Investor">Investor</option>
-                </select>
-                {errors.role && <p className="text-sm text-red-500">{errors.role}</p>}
-              </div>
-            </div>
-
-            <div className="flex flex-col">
-              <input
-                name="phoneNumber"
-                type="tel"
-                placeholder="Phone Number"
-                value={userInput.phoneNumber}
-                onChange={handleUserInput}
-                className="input w-full"
-              />
-              {errors.phoneNumber && <p className="text-sm text-red-500">{errors.phoneNumber}</p>}
-            </div>
-
-            {userInput.role === "Investor" && (
-              <>
-                <div>
-                  <select
-                    name="investorType"
-                    value={userInput.investorType}
-                    onChange={handleUserInput}
-                    className="input px-4 py-2 bg-white w-full focus:ring-2 focus:ring-teal-500"
-                  >
-                    <option value="" disabled>Select investor type</option>
-                    <option value="Organization">Organization</option>
-                    <option value="Individual">Individual</option>
-                  </select>
-                  {errors.investorType && <p className="text-sm text-red-500">{errors.investorType}</p>}
-                </div>
-              </>
-            )}
-
-            <div>
-              <input
-                name="password"
-                type="password"
-                placeholder="Password"
-                value={userInput.password}
-                onChange={handleUserInput}
-                className="input w-full"
-              />
-              {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-lime-400 hover:bg-lime-600 text-white font-semibold py-2 rounded-md transition"
-            >
-              Create My Account
-            </button>
-
-            <p className="text-sm text-gray-600 text-center">
-              Already have an account? <a href="#" className="text-blue-700">Login</a>
-            </p>
-          </form>
+      {/* LEFT SIDE */}
+      <div className="bg-gray-200 p-4 sm:p-6 md:p-8 space-y-6">
+        <div className="text-xl font-semibold text-teal-700">Agriconnect</div>
+        <h2 className="text-2xl font-bold text-bgColor">
+          We create a platform for farmers & investors to connect
+        </h2>
+        <ul className="space-y-4 text-gray-700 text-sm">
+          {miniDetails.map(({ title, description }) => (
+            <li key={title}>
+              <span className="font-semibold text-teal-700">• {title}</span> <br />
+              {description}
+            </li>
+          ))}
+        </ul>
+        <div className="text-xs text-gray-500 pt-10">
+          © {new Date().getFullYear()} Agriconnect – <a href="#" className="underline">Privacy & Terms</a>
         </div>
       </div>
+
+      {/* RIGHT SIDE */}
+      <div className="p-4 sm:p-6 md:p-12 rounded-lg bg-white">
+        <h2 className="text-xl font-semibold text-teal-700">Sign Up for Agriconnect</h2>
+        <p className="text-sm text-gray-500 mb-6">Sign up to see more amazing features</p>
+
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
+            <div className="w-full sm:w-1/2">
+              <input
+                name="firstName"
+                type="text"
+                placeholder="First Name"
+                value={userInput.firstName}
+                onChange={handleUserInput}
+                className="input w-full"
+              />
+              {errors.firstName && <p className="text-sm text-red-500">{errors.firstName}</p>}
+            </div>
+
+            <div className="w-full sm:w-1/2">
+              <input
+                name="lastName"
+                type="text"
+                placeholder="Last Name"
+                value={userInput.lastName}
+                onChange={handleUserInput}
+                className="input w-full"
+              />
+              {errors.lastName && <p className="text-sm text-red-500">{errors.lastName}</p>}
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
+            <div className="w-full sm:w-1/2">
+              <input
+                name="email"
+                type="email"
+                placeholder="Enter your Email"
+                value={userInput.email}
+                onChange={handleUserInput}
+                className="input w-full"
+              />
+              {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
+            </div>
+
+            <div className="w-full sm:w-1/2">
+              <select
+                name="role"
+                value={userInput.role}
+                onChange={handleUserInput}
+                className="input px-4 py-2 bg-white w-full focus:ring-2 focus:ring-teal-700"
+              >
+                <option value="" disabled>Select role</option>
+                <option value="Farmer">Farmer</option>
+                <option value="Investor">Investor</option>
+              </select>
+              {errors.role && <p className="text-sm text-red-500">{errors.role}</p>}
+            </div>
+          </div>
+
+          <div>
+            <input
+              name="phoneNumber"
+              type="tel"
+              placeholder="Phone Number"
+              value={userInput.phoneNumber}
+              onChange={handleUserInput}
+              className="input w-full"
+            />
+            {errors.phoneNumber && <p className="text-sm text-red-500">{errors.phoneNumber}</p>}
+          </div>
+
+          {userInput.role === "Investor" && (
+            <div>
+              <select
+                name="investorType"
+                value={userInput.investorType}
+                onChange={handleUserInput}
+                className="input px-4 py-2 bg-white w-full focus:ring-2 focus:ring-teal-700"
+              >
+                <option value="" disabled>Select investor type</option>
+                <option value="Organization">Organization</option>
+                <option value="Individual">Individual</option>
+              </select>
+              {errors.investorType && <p className="text-sm text-red-500">{errors.investorType}</p>}
+            </div>
+          )}
+
+          <div>
+            <input
+              name="password"
+              type="password"
+              placeholder="Password"
+              value={userInput.password}
+              onChange={handleUserInput}
+              className="input w-full"
+            />
+            {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-lime-400 hover:bg-lime-600 text-white font-semibold py-2 rounded-md transition"
+          >
+            Create My Account
+          </button>
+
+          <p className="text-sm text-gray-600 text-center">
+            Already have an account? <a href="#" className="text-blue-700">Login</a>
+          </p>
+        </form>
+      </div>
     </div>
-  );
+  </div>
+);
+
 }

@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import Header from "../Utils/Header";
 import homeImg from "../assets/home-img.png";
 
 export default function HomePage(){
@@ -8,8 +7,6 @@ export default function HomePage(){
 
     return(
         <section className="bg-bgColor max-h-full">
-            <Header />
-
             <div className="px-8 md:px-12 pt-12 pb-8">
                     <div className="font-Outfit w-full md:w-[80%]">
                         <h1 className="text-white text-xl md:text-3xl">
