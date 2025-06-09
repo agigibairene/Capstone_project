@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 
 export default function Footer() {
     const iconStyle ="p-2 bg-gray-950 text-white rounded-md cursor-pointer hover:text-limeTxt";
+    
     return (
         <footer className=" text-white bg-bgColor font-Outfit py-11 px-6 md:px-20 rounded-tl-3xl rounded-tr-3xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between gap-10">

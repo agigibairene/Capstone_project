@@ -1,6 +1,7 @@
 import about from '../assets/who_are_we.jpg';
 import vision from '../assets/vision.jpg';
 import mission from '../assets/mission.jpg';
+import BlockCarousel from './BlockCarousel';
 
 export default function About(){
     type detailsObj = {
@@ -46,7 +47,7 @@ export default function About(){
         <div className="flex flex-col justify-between bg-white">
           <div>
              <button className="mb-6 px-6 py-2 bg-limeTxt text-bgColor font-Outfit font-semibold rounded-full transition">
-              Who are we
+              Learn more about us
             </button>
             <h2 className="text-3xl font-bold text-bgColor md:text-5xl">
              We Create a platform <br />for <span className="text-limeTxt"> investors </span>and farmers
@@ -59,7 +60,7 @@ export default function About(){
           </div>
         </div>
         {
-            details.map((card)=>{
+          details.map((card)=>{
                 const { title, description, image } = card;
                 return <div key={title} className="bg-bgColor font-Outfit text-white rounded-xl p-4 flex flex-col">
                         <h3 className="text-2xl font-semibold mb-2">{title}</h3>
@@ -70,9 +71,11 @@ export default function About(){
                             className="rounded-xl h-48 w-full bg-cover mt-auto"
                         />
                     </div>
-                })
+          })
         }
+
       </div>
+        <BlockCarousel />
     </section>
   );
     
