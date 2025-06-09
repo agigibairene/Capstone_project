@@ -105,14 +105,11 @@ export default function Header(){
                                                     )
                                                 })
                                             }
-                                            <button className="bg-limeTxt px-8 py-2 text-bgColor rounded-tl-3xl font-text font-semibold cursor-pointer rounded-br-3xl">
+                                            <button onClick={()=>navigate('/signup')} className="bg-limeTxt px-8 py-2 text-bgColor rounded-tl-3xl font-text font-semibold cursor-pointer rounded-br-3xl">
                                                 Sign up
                                             </button>
                                         </ul>     
                                 </motion.div>
-                                       
-                                    
-
                         </motion.div>
                     }  
                 </AnimatePresence>      
