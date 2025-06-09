@@ -54,16 +54,16 @@ export default function About(){
               Learn more about us
             </motion.button>
             <motion.h2 
-              variants={SlideRight(0.6)}
-              initial="hidden"
-              animate="visible"
+                initial={{opacity: 0, x:-200}}
+                whileInView={{ opacity: 1, x: 0}}
+                transition={{ duration: 1, delay: 0.6}}
               className="text-3xl font-bold text-bgColor md:text-5xl">
              We Create a platform <br />for <span className="text-limeTxt"> investors </span>and farmers
             </motion.h2>
             <motion.p 
-              variants={SlideRight(0.9)}
-              initial="hidden"
-              animate="visible"
+                initial={{opacity: 0, x:-200}}
+                whileInView={{ opacity: 1, x: 0}}
+                transition={{ duration: 1, delay: 0.9}}
               className="mt-4 text-gray-600 font-Outfit"
             >
               Empowering farmers with tools, knowledge, and access for smarter and more sustainable agriculture.

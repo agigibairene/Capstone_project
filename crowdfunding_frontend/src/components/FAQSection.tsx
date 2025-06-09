@@ -81,7 +81,7 @@ export default function FAQSection() {
                   onClick={() =>
                     setSelectedIndex((prev) => (prev === index ? null : index))
                   }
-                  className="flex w-full items-center justify-between bg-transparent outline-none"
+                  className="flex w-full items-center justify-between bg-transparent outline-none cursor-pointer"
                 >
                   <h4 className="text-base md:text-lg font-semibold text-gray-700 text-left">
                     {title}
