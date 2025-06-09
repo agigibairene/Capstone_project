@@ -1,7 +1,11 @@
+import { useNavigate } from "react-router-dom";
 import Header from "../Utils/Header";
 import homeImg from "../assets/home-img.png";
 
 export default function HomePage(){
+
+    const navigate = useNavigate();
+
     return(
         <section className="bg-bgColor max-h-full">
             <Header />
@@ -17,7 +21,7 @@ export default function HomePage(){
                     </div>
 
                 <div className="mt-8 relative w-full">
-                    <button className="absolute cursor-pointer
+                    <button onClick={()=>navigate('/login')} className="absolute cursor-pointer
                         -top-2 md:-top-[5px] 
                         left-[22%] md:left-8 
                         transform -translate-x-1/2 md:translate-x-0

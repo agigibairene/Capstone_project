@@ -55,3 +55,7 @@
   color: transparent;
 }
     
+
+.input {
+  @apply border border-gray-300 rounded-md px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-lime-400;
+}

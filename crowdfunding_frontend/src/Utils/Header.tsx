@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import { AnimatePresence, motion } from 'framer-motion';
 import { NavAnimation } from "./animations";
@@ -24,6 +24,7 @@ export const navList: NavList[] = [
 export default function Header(){
 
     const [showDropDownMenu, setDropDownMenu ] = useState<boolean>(false); 
+    const navigate = useNavigate();
 
     return(
         <header className="bg-bgColor flex justify-between items-center h-16 px-8 py-8">
@@ -31,41 +32,41 @@ export default function Header(){
                 <motion.div 
                 initial={{opacity: 0, scale: 0}}
                 whileInView={{ opacity: 1, scale: 1}}
-                className="flex items-center"
-            >
-                <img src={logo} alt="" />
-                <span className="ml-2 font-logo text-xl text-limeTxt cursor-pointer">AgriConnect</span>
-            </motion.div>
-            <nav className="hidden sm:block">
-                <ul className="flex gap-8">
-                    {
-                        navList.map((item, index)=>{
-                            const {name, route, label} = item;
-                            return(
-                                <motion.li 
-                                    variants={NavAnimation(0.2*index)}
-                                    initial="hidden"
-                                    whileInView={"show"}
-                                    key={label}
-                                    className="text-white font-text"
-                                >
-                                    <NavLink className={({ isActive }) =>isActive ? "text-limeTxt font-bold border-b-2 border-limeTxt" : "hover:text-limeTxt transition"} to={route}>
-                                        {name}
-                                    </NavLink>
-                                </motion.li>
-                            )
-                        })
-                    }
-                </ul>
-            </nav>
-            <motion.button 
-                variants={NavAnimation(0.5)}
-                initial="hidden"
-                whileInView={"show"}
-                className="bg-limeTxt px-8 py-2 text-bgColor rounded-tl-3xl font-text font-semibold cursor-pointer rounded-br-3xl hidden sm:block"
-            >
-                Sign up
-            </motion.button>
+                className="flex items-center">
+                    <img src={logo} alt="" />
+                    <span className="ml-2 font-logo text-xl text-limeTxt cursor-pointer">AgriConnect</span>
+                </motion.div>
+                <nav className="hidden sm:block">
+                    <ul className="flex gap-8">
+                        {
+                            navList.map((item, index)=>{
+                                const {name, route, label} = item;
+                                return(
+                                    <motion.li 
+                                        variants={NavAnimation(0.2*index)}
+                                        initial="hidden"
+                                        whileInView={"show"}
+                                        key={label}
+                                        className="text-white font-text"
+                                    >
+                                        <NavLink className={({ isActive }) =>isActive ? "text-limeTxt font-bold border-b-2 border-limeTxt" : "hover:text-limeTxt transition"} to={route}>
+                                            {name}
+                                        </NavLink>
+                                    </motion.li>
+                                )
+                            })
+                        }
+                    </ul>
+                </nav>
+                <motion.button 
+                    variants={NavAnimation(0.5)}
+                    initial="hidden"
+                    whileInView={"show"}
+                    onClick={()=>navigate('/signup')}
+                    className="bg-limeTxt px-8 py-2 text-bgColor rounded-tl-3xl font-text font-semibold cursor-pointer rounded-br-3xl hidden sm:block"
+                >
+                    Sign up
+                </motion.button>
             </>
 
             {/* SMALLER SCREENS - HAMBURGER & NAVLIST*/}

@@ -4,32 +4,32 @@ import mission from '../assets/mission.jpg';
 import BlockCarousel from './BlockCarousel';
 
 export default function About(){
-    type detailsObj = {
-        title: string,
-        description: string,
-        image: string
-    }
+  type detailsObj = {
+    title: string,
+    description: string,
+    image: string
+  }
 
-    const details: detailsObj[] = [
-        {
-            title: "Our Mission", 
-            description: `To bridge the gap between innovative 
+  const details: detailsObj[] = [
+    {
+      title: "Our Mission", 
+      description: `To bridge the gap between innovative 
             agricultural entrepreneurs and impact-driven investors 
             through a secure, transparent digital marketplace that drives 
             sustainable agricultural development and rural economic growth.
             `, 
-            image: mission
-        },
-        {
-            title: "Who are we", 
-            description: `
+      image: mission
+    },
+    {
+      title: "Who are we", 
+      description: `
             We are a technology-driven agricultural finance company 
             that connects farmers, agricultural entrepreneurs, and 
             socially conscious investors through a comprehensive 
             digital ecosystem focused on security, transparency, and positive impact.
             `, 
-            image: about
-        },
+      image: about
+    },
         {
             title: "Our Vision", 
             description: `
@@ -39,9 +39,9 @@ export default function About(){
             `, 
             image: vision
         }
-    ]
+  ]
 
-    return(     
+  return(     
     <section className="px-6 py-12 bg-white md:px-12 lg:px-24">
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="flex flex-col justify-between bg-white">
