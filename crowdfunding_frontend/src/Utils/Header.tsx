@@ -7,15 +7,17 @@ import { LiaTimesSolid } from "react-icons/lia";
 import { useState } from "react";
 
 
-interface NavList{
+export interface NavList{
     name: string
     route: string
     label: string
 }
 
-const navList: NavList[] = [
+export const navList: NavList[] = [
     {name: "Home", route: "/home", label: "home"},
     {name: "About Us", route: "/about", label: "about"},
+    {name: "FAQs", route: "/faq", label:"faqs"},
+    {name: "Reviews", route: "/reviews", label: "reviews"},
     {name: 'Grants', route: '/grants', label: "grants"}
 ]
 

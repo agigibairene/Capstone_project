@@ -49,7 +49,7 @@ export default function About(){
               Who are we
             </button>
             <h2 className="text-3xl font-bold text-bgColor md:text-5xl">
-              Creating a platform <br />for <span className="text-limeTxt"> investors </span>and farmers
+             We Create a platform <br />for <span className="text-limeTxt"> investors </span>and farmers
             </h2>
             <p className="mt-4 text-gray-600 font-Outfit">
               Empowering farmers with tools, knowledge, and access for smarter and more sustainable agriculture.

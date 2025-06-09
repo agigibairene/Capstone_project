@@ -71,7 +71,7 @@ export default function Reviews() {
     <div className="pt-14">
       <div className="container mx-auto px-4">
         <div className="text-left mb-10 max-w-[600px]">
-          <h1 className="text-3xl md:text-4xl font-bold text-bgColor">Read Our impact Stories</h1>
+          <h1 className="text-3xl md:text-4xl font-text font-bold text-bgColor">Read Our Impact Stories</h1>
           <p className="text-gray-600 mt-2">
             Hear what our community of investors and farmers are saying.
           </p>
@@ -92,7 +92,7 @@ export default function Reviews() {
                   min-w-[350px] sm:min-w-[300px] md:min-w-[320px] h-[200px]
                   flex flex-col justify-between rounded-2xl p-6
                   transition-transform duration-300 ease-in-out transform
-                  hover:-translate-y-2 review-shadow mt-2
+                  hover:-translate-y-2 review-shadow mt-2 font-text
                   ${isGreen ? "bg-bgColor text-white" : "bg-white text-gray-900"}
                     border border-gray-200 
                 `}
@@ -104,11 +104,10 @@ export default function Reviews() {
                     className="w-16 h-16 rounded-full object-cover"
                   />
                   <div>
-                    <p className="text-lg font-semibold text-limeTxt">{name}</p>
+                    <p className={`text-lg font-semibold ${isGreen ? "text-limeTxt" : "text-bgColor"}`}>{name}</p>
                     <p className={`text-sm ${isGreen ? "text-gray-200" : "text-gray-500"}`}>{role}</p>
                   </div>
                 </div>
-
                 <div className={`mt-4 text-sm line-clamp-5 ${isGreen ? "text-gray-100" : "text-gray-700"}`}>{message}</div>
               </div>
             );
