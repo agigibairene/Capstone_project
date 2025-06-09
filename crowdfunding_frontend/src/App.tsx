@@ -33,7 +33,7 @@ function App() {
         className="scrollToTop"        
         component={<FaArrowUp className="animate-arrow text-bgColor" style={{ fontSize: "20px", color: "" }} />}
       />
-      <Footer />
+      <Footer refs={refs}/>
     </>
   );
 }

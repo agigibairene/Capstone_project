@@ -2,12 +2,22 @@ import { IoLocationOutline } from "react-icons/io5";
 import { MdOutlineMail } from "react-icons/md";
 import { FaInstagram, FaLinkedinIn, FaPhoneAlt, FaFacebookF } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
-import { navList } from "../Utils/Header";
+import { navList, type RefProps } from "../Utils/Header";
 import { Link } from "react-router-dom";
 
 
 
-export default function Footer() {
+export default function Footer({refs} : RefProps) {
+
+    const scrollToSection = (label: keyof RefProps["refs"]) => {
+        const elementRef = refs[label];
+        if (elementRef && elementRef.current) {
+            window.scrollTo({
+                top: elementRef.current.offsetTop - 50 , 
+                behavior: 'smooth'
+            });
+        }
+    };
     
     const iconStyle ="p-2 bg-gray-950 text-white rounded-md cursor-pointer hover:text-limeTxt";
     
@@ -39,7 +49,10 @@ export default function Footer() {
                             navList.map(item =>{
                                 const {name, route, label} = item;
                                 return (
-                                    <li className="text-gray-300" key={route}>
+                                    <li 
+                                        onClick={()=>scrollToSection(label as 'home' | 'about' | 'reviews' | 'faqs')}
+                                        className="text-gray-300" key={route}
+                                    >
                                         <Link to={label}>{name}</Link>
                                     </li>
                                 )

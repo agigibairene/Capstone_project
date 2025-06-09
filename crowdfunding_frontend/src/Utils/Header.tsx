@@ -21,7 +21,7 @@ export const navList: NavList[] = [
     {name: 'Grants', route: '/grants', label: "grants"}
 ]
 
-type RefProps = { 
+export type RefProps = { 
     refs: { 
         home: RefObject<HTMLDivElement | null>,
         about: RefObject<HTMLDivElement | null>,

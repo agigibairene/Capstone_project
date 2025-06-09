@@ -15,6 +15,7 @@ export const FadeUp = (delay : number) =>{
     }
 }
 
+
 export const SlideLeft = (delay: number) =>{
     return{
         hidden: {
@@ -64,3 +65,5 @@ export const NavAnimation = (delay: number) =>({
         }
     }
 })
+
+
