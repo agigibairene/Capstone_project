@@ -1,8 +1,11 @@
 # Capstone_project
 
-
 ## Prerequisites
 1. [Docker](https://www.docker.com/get-started/)
+2. [Python]()
+
+## Visit Frontend here  
+👉 [Visit UI](https://capstone-frontend-opal.vercel.app/)
 
 ## Technologies and Packages used
 ```
