@@ -9,6 +9,7 @@ import HomePage from './components/HomePage.tsx';
 import About from './components/About.tsx';
 import FAQSection from './components/FAQSection.tsx';
 import Reviews from './components/Reviews.tsx';
+import Grants from './components/Grants.tsx';
 
 
 const routes = createBrowserRouter([
@@ -41,7 +42,12 @@ const routes = createBrowserRouter([
   {
     path: '/login',
     element: <Login />
+  },
+  {
+    path: '/grants',
+    element: <Grants />
   }
+
 ])
 
 
