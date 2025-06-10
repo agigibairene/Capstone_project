@@ -64,7 +64,10 @@ export default function Footer({refs} : RefProps) {
                 <div className="space-y-4">
                     <p className="font-bold text-xl text-limeTxt">About Agriconnect</p>
                     <p className="text-gray-300 max-w-lg">
-                        Discover your next favorite book with ease! Our platform connects readers with a vast collection of titles, offering personalized recommendations and seamless browsing to spark your literary journey.
+                        Empowering agriculture, this platform connects farmers with investors, 
+                        facilitating secure funding for sustainable growth. It offers robust project screening,
+                        detailed documentation, and ongoing monitoring to ensure transparency and trust, 
+                        fostering a vital community for agricultural advancement
                     </p>
                     <div className="flex gap-4">
                         <FaInstagram size={35} className={iconStyle} />
