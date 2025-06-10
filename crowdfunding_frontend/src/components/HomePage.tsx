@@ -10,7 +10,6 @@ export default function HomePage() {
     return (
         <section className="bg-bgColor max-h-full">
             <div className="px-8 md:px-12 pt-12 pb-8">
-                {/* Mobile/Tablet - Single column layout */}
                 <div className="md:hidden">
                     <div className="font-Outfit w-full">
                         <h1 className="text-white text-xl">
