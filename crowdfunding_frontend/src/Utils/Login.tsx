@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import logo from '../assets/logo.png';
+import { Link } from 'react-router-dom';
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -42,7 +43,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 font-Outfit">
-      <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-md text-center">
+      <div className="w-[90%] max-w-md p-8 bg-white rounded-xl shadow-md text-center">
         <div className="mb-6">
           <div className="flex items-center justify-center text-2xl font-bold text-teal-800">
             <img src={logo} alt="" />
@@ -50,10 +51,8 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Title */}
         <h2 className="text-2xl font-semibold mb-6">Welcome back!!</h2>
 
-        {/* Form */}
         <form className="space-y-4 text-left" onSubmit={handleSubmit} noValidate>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
@@ -100,7 +99,7 @@ export default function Login() {
           </button>
         </form>
         <p className="mt-6 text-sm text-gray-600">
-          Do not have an account? <a href="#" className="text-teal-700 hover:underline">Sign up</a>
+          Do not have an account? <Link to='/signup' className="text-teal-700 hover:underline">Sign up</Link>
         </p>
       </div>
     </div>

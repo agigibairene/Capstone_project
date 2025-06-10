@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import logo from "../assets/logo.png";
 
 interface Details{
   title: string,
@@ -106,7 +108,10 @@ export default function Signup() {
 
       {/* LEFT SIDE */}
       <div className="bg-gray-200 p-4 sm:p-6 md:p-8 space-y-6">
-        <div className="text-xl font-semibold text-teal-700">Agriconnect</div>
+        <div className="flex gap-2 items-center text-xl font-semibold text-teal-700">
+          <img src={logo} alt="" />
+          Agriconnect
+        </div>
         <h2 className="text-2xl font-bold text-bgColor">
           We create a platform for farmers & investors to connect
         </h2>
@@ -225,13 +230,13 @@ export default function Signup() {
 
           <button
             type="submit"
-            className="w-full bg-lime-400 hover:bg-lime-600 text-white font-semibold py-2 rounded-md transition"
+            className="w-full bg-teal-600 hover:bg-bgColor text-white font-semibold py-2 rounded-md transition"
           >
             Create My Account
           </button>
 
           <p className="text-sm text-gray-600 text-center">
-            Already have an account? <a href="#" className="text-blue-700">Login</a>
+            Already have an account? <Link to='/login' className="text-teal-500">Login</Link>
           </p>
         </form>
       </div>

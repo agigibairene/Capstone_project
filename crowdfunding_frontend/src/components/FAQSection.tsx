@@ -2,6 +2,8 @@ import { useState } from 'react';
 // import image from '../assets/Animation.json';
 import faq from "../assets/planb.png"
 import { Minus, Plus } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { FadeUp } from '../Utils/animations';
 // import Lottie from 'lottie-react';
 
 
@@ -73,7 +75,10 @@ export default function FAQSection() {
             const { title, content } = item;
             const isOpen = selectedIndex === index;
             return (
-              <div
+              <motion.div
+                variants={FadeUp(0.2*index)}
+                initial={"hidden"}
+                whileInView="visible"
                 key={title}
                 className="bg-white my-4 rounded-lg border border-gray-300 px-4 py-4"
               >
@@ -93,7 +98,7 @@ export default function FAQSection() {
                 {isOpen && (
                   <p className="mt-2 text-bgColor text-sm md:text-base">{content}</p>
                 )}
-              </div>
+              </motion.div>
             );
           })}
         </div>

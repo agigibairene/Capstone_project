@@ -2,7 +2,6 @@ import about from '../assets/who_are_we.jpg';
 import vision from '../assets/vision.jpg';
 import mission from '../assets/mission.jpg';
 import BlockCarousel from './BlockCarousel';
-import { SlideLeft, SlideRight } from "../Utils/animations";
 import { motion } from "framer-motion";
 
 export default function About(){
@@ -74,16 +73,16 @@ export default function About(){
         </div>
         {
           details.map((card)=>{
-                const { title, description, image } = card;
-                return <div 
+              const { title, description, image } = card;
+              return <div 
                   key={title} 
                   className="bg-bgColor overflow-x-hidden font-Outfit text-white rounded-xl p-4 flex flex-col">
                         <h3 className="text-2xl font-semibold mb-2">{title}</h3>
                         <p className="text-sm mb-4">{description}</p>
                         <img
-                            src={image}
-                            alt="Modern Farming Tools"
-                            className="rounded-xl h-48 w-full bg-cover mt-auto"
+                          src={image}
+                          alt="Modern Farming Tools"
+                          className="rounded-xl h-48 w-full bg-cover mt-auto"
                         />
                     </div>
           })
