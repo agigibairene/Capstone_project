@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import homeImg from "../assets/home-img.png";
-import animation from "../assets/home-animation.json";
-import Lottie from "lottie-react";
+// import animation from "../assets/home-animation.json";
+// import Lottie from "lottie-react";
 import img1 from '../assets/image.png';
 
 export default function HomePage() {
