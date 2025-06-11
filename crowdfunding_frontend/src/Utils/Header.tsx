@@ -16,7 +16,7 @@ export interface NavList{
 export const navList: NavList[] = [
     {name: "Home", route: "/", label: "home"},
     {name: "About Us", route: "/about", label: "about"},
-    {name: "FAQs", route: "/faq", label:"faqs"},
+    {name: "FAQs", route: "/faqs", label:"faqs"},
     {name: "Reviews", route: "/reviews", label: "reviews"},
     {name: 'Grants', route: '/grants', label: "grants"}
 ]

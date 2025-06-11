@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import logo from "../assets/logo.png";
+import logo from "../assets/green_logo.png";
 
 interface Details{
   title: string,
@@ -84,7 +84,7 @@ export default function Signup() {
     // Password validation
     if (!userInput.password) {
       newErrors.password = "Password is required";
-    } else if (userInput.password.length < 6) {
+    }else if (userInput.password.length < 6) {
       newErrors.password = "Password must be at least 6 characters";
     }
 
@@ -109,7 +109,7 @@ export default function Signup() {
       {/* LEFT SIDE */}
       <div className="bg-gray-200 p-4 sm:p-6 md:p-8 space-y-6">
         <div className="flex gap-2 items-center text-xl font-semibold text-teal-700">
-          <img src={logo} alt="" />
+          <img src={logo} className="w-[26px]" alt="" />
           Agriconnect
         </div>
         <h2 className="text-2xl font-bold text-bgColor">
