@@ -122,9 +122,7 @@ export default function Grants() {
             </div>
 
             <div className="text-sm text-gray-600 mb-4">
-              <p>
-                <strong>Team:</strong> {selected.team || "N/A"}
-              </p>
+              
               <p>
                 <strong>Type:</strong> {selected.type}
               </p>
