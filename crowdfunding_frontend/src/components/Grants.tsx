@@ -7,7 +7,7 @@ export default function Grants() {
 
   return (
     <section className="px-4 py-10 md:px-8 lg:px-16 bg-gray-50 min-h-screen relative">
-      <h1 className={`text-center text-3xl md:text-4xl font-bold text-gray-800 mb-12 ${
+      <h1 className={`text-center text-3xl md:text-4xl font-bold text-bgColor mb-12 ${
         selected ? "hidden md:block" : "block"
       }`}>
         Grants & Opportunities
@@ -48,7 +48,7 @@ export default function Grants() {
                       S
                     </div>
                     <div>
-                      <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
+                      <h2 className="text-lg font-semibold text-bgColor">{title}</h2>
                       <p className="text-sm text-gray-500">{organization}</p>
                     </div>
                   </div>
@@ -155,7 +155,7 @@ export default function Grants() {
               S
             </div>
             <div className="text-center">
-              <h3 className="text-xl font-semibold text-gray-800">{selected.title}</h3>
+              <h3 className="text-xl font-semibold text-bgColor">{selected.title}</h3>
               <p className="text-sm text-gray-500">
                 {selected.organization}, {selected.location}
               </p>
