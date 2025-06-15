@@ -53,7 +53,7 @@ export default function Footer({refs} : RefProps) {
                                         onClick={()=>scrollToSection(label as 'home' | 'about' | 'reviews' | 'faqs')}
                                         className="text-gray-300" key={route}
                                     >
-                                        <Link to={label}>{name}</Link>
+                                        <Link to={label} className="hover:text-limeTxt">{name}</Link>
                                     </li>
                                 )
                             })
