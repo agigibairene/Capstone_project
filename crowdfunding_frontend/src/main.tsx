@@ -10,6 +10,7 @@ import About from './components/About.tsx';
 import FAQSection from './components/FAQSection.tsx';
 import Reviews from './components/Reviews.tsx';
 import Grants from './components/Grants.tsx';
+import JobSearchApp from './components/Jobs.tsx';
 
 
 const routes = createBrowserRouter([
@@ -45,7 +46,8 @@ const routes = createBrowserRouter([
   },
   {
     path: '/grants',
-    element: <Grants />
+    // element: <Grants />
+    element: <JobSearchApp />
   }
 
 ])

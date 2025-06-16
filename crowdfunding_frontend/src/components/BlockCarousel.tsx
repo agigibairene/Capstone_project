@@ -29,8 +29,8 @@ export default function BlockCarousel(){
     return(
         <div ref={carouselRef} className="flex overflow-x-auto no-scrollbar font-text mt-4 space-x-6 pb-3">           
            {
-                [...words,...words].map((word)=>
-                    <div className="text-5xl md:text-6xl font-extrabold text-transparent stroke-black">
+                [...words,...words].map((word, index)=>
+                    <div key={index} className="text-5xl md:text-6xl font-extrabold text-transparent stroke-black">
                         {word}
                     </div>
                 )
