@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Search, MapPin, DollarSign, Heart, MoreHorizontal, Filter } from 'lucide-react';
+import { Search, MapPin, DollarSign, Heart, MoreHorizontal } from 'lucide-react';
 
 export default function JobSearchApp() {
   const [searchTerm, setSearchTerm] = useState('');
   const [location, setLocation] = useState('');
   const [salaryRange, setSalaryRange] = useState('');
-  
+
   const [filters, setFilters] = useState({
     jobType: {
       fullTime: true,
@@ -99,7 +99,7 @@ export default function JobSearchApp() {
     overSix: 192
   };
 
-  const handleFilterChange = (category, filter) => {
+  const handleFilterChange = (category: string, filter: string) => {
     setFilters(prev => ({
       ...prev,
       [category]: {
@@ -131,9 +131,9 @@ export default function JobSearchApp() {
         <div className="bg-white rounded-2xl p-8 mb-8 shadow-sm">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Let's find your dream job</h2>
           <p className="text-gray-500 mb-8">540,000 available job vacancies here</p>
-          
-          <div className="flex items-center space-x-4">
-            <div className="flex-1 relative">
+
+          <div className="flex flex-wrap gap-4">
+            <div className="flex-1 min-w-[200px] relative">
               <Search className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 transform -translate-y-1/2" />
               <input
                 type="text"
@@ -143,7 +143,7 @@ export default function JobSearchApp() {
                 className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div className="flex-1 relative">
+            <div className="flex-1 min-w-[200px] relative">
               <MapPin className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 transform -translate-y-1/2" />
               <input
                 type="text"
@@ -153,7 +153,7 @@ export default function JobSearchApp() {
                 className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div className="flex-1 relative">
+            <div className="flex-1 min-w-[200px] relative">
               <DollarSign className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 transform -translate-y-1/2" />
               <input
                 type="text"
@@ -172,10 +172,11 @@ export default function JobSearchApp() {
           </div>
         </div>
 
-        <div className="flex gap-8">
-          {/* Job Listings */}
-          <div className="flex-1">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Fixed Layout */}
+        <div className="flex flex-col lg:flex-row gap-8 h-[calc(100vh-250px)]">
+          {/* Job Listings (Scrollable) */}
+          <div className="flex-1 overflow-y-auto pr-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-8">
               {jobs.map((job) => (
                 <div key={job.id} className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex items-start justify-between mb-4">
@@ -197,11 +198,7 @@ export default function JobSearchApp() {
                       </button>
                     </div>
                   </div>
-                  
-                  <p className="text-gray-600 text-sm mb-4 leading-relaxed">
-                    {job.description}
-                  </p>
-                  
+                  <p className="text-gray-600 text-sm mb-4">{job.description}</p>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-1">
                       <DollarSign className="w-4 h-4 text-gray-400" />
@@ -217,9 +214,9 @@ export default function JobSearchApp() {
             </div>
           </div>
 
-          {/* Filters Sidebar */}
-          <div className="w-80">
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
+          {/* Filters (Fixed) */}
+          <div className="w-full lg:w-80 flex-shrink-0">
+            <div className="bg-white rounded-2xl p-6 shadow-sm h-full overflow-hidden">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-semibold text-gray-900">Job Filter</h3>
                 <button className="text-blue-600 text-sm hover:text-blue-700">Clear all</button>
@@ -227,106 +224,40 @@ export default function JobSearchApp() {
 
               {/* Job Type Filter */}
               <div className="mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-medium text-gray-900">Job Type</h4>
-                  <button className="text-blue-600 text-sm hover:text-blue-700">Clear</button>
-                </div>
-                <div className="space-y-3">
-                  <label className="flex items-center justify-between">
+                <h4 className="font-medium text-gray-900 mb-4">Job Type</h4>
+                {['fullTime', 'freelance', 'partTime'].map((key) => (
+                  <label key={key} className="flex items-center justify-between mb-3">
                     <div className="flex items-center">
                       <input
                         type="checkbox"
-                        checked={filters.jobType.fullTime}
-                        onChange={() => handleFilterChange('jobType', 'fullTime')}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        checked={filters.jobType[key as keyof typeof filters.jobType]}
+                        onChange={() => handleFilterChange('jobType', key)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded"
                       />
-                      <span className="ml-3 text-gray-700">Full Time</span>
+                      <span className="ml-3 text-gray-700 capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
                     </div>
-                    <span className="text-gray-500 text-sm">{jobCounts.fullTime} Jobs</span>
+                    <span className="text-gray-500 text-sm">{jobCounts[key as keyof typeof jobCounts]} Jobs</span>
                   </label>
-                  <label className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={filters.jobType.freelance}
-                        onChange={() => handleFilterChange('jobType', 'freelance')}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      />
-                      <span className="ml-3 text-gray-700">Freelance</span>
-                    </div>
-                    <span className="text-gray-500 text-sm">{jobCounts.freelance} Jobs</span>
-                  </label>
-                  <label className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={filters.jobType.partTime}
-                        onChange={() => handleFilterChange('jobType', 'partTime')}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      />
-                      <span className="ml-3 text-gray-700">Part Time</span>
-                    </div>
-                    <span className="text-gray-500 text-sm">{jobCounts.partTime} Jobs</span>
-                  </label>
-                </div>
+                ))}
               </div>
 
               {/* Experience Filter */}
               <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-medium text-gray-900">Experience</h4>
-                  <button className="text-blue-600 text-sm hover:text-blue-700">Clear</button>
-                </div>
-                <div className="space-y-3">
-                  <label className="flex items-center justify-between">
+                <h4 className="font-medium text-gray-900 mb-4">Experience</h4>
+                {['under1', 'oneToTwo', 'twoToSix', 'overSix'].map((key) => (
+                  <label key={key} className="flex items-center justify-between mb-3">
                     <div className="flex items-center">
                       <input
                         type="checkbox"
-                        checked={filters.experience.under1}
-                        onChange={() => handleFilterChange('experience', 'under1')}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        checked={filters.experience[key as keyof typeof filters.experience]}
+                        onChange={() => handleFilterChange('experience', key)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded"
                       />
-                      <span className="ml-3 text-gray-700">Under 1 Year</span>
+                      <span className="ml-3 text-gray-700 capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
                     </div>
-                    <span className="text-gray-500 text-sm">{jobCounts.under1} Jobs</span>
+                    <span className="text-gray-500 text-sm">{jobCounts[key as keyof typeof jobCounts]} Jobs</span>
                   </label>
-                  <label className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={filters.experience.oneToTwo}
-                        onChange={() => handleFilterChange('experience', 'oneToTwo')}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      />
-                      <span className="ml-3 text-gray-700">1 - 2 Year</span>
-                    </div>
-                    <span className="text-gray-500 text-sm">{jobCounts.oneToTwo} Jobs</span>
-                  </label>
-                  <label className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={filters.experience.twoToSix}
-                        onChange={() => handleFilterChange('experience', 'twoToSix')}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      />
-                      <span className="ml-3 text-gray-700">2 - 6 Year</span>
-                    </div>
-                    <span className="text-gray-500 text-sm">{jobCounts.twoToSix} Jobs</span>
-                  </label>
-                  <label className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={filters.experience.overSix}
-                        onChange={() => handleFilterChange('experience', 'overSix')}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      />
-                      <span className="ml-3 text-gray-700">Over 6 Years</span>
-                    </div>
-                    <span className="text-gray-500 text-sm">{jobCounts.overSix} Jobs</span>
-                  </label>
-                </div>
+                ))}
               </div>
             </div>
           </div>
