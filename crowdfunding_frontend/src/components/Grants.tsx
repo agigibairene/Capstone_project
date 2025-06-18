@@ -5,7 +5,6 @@ import GrantsHeader from "../Utils/GrantsHeader";
 import { GiTakeMyMoney } from "react-icons/gi";
 import { GrFavorite } from "react-icons/gr";
 
-
 export default function Grants() {
   const [selected, setSelectedOpp] = useState<Opportunity | null>(null);
 
@@ -19,9 +18,7 @@ export default function Grants() {
     overSix: 192
   };
 
-
-
-  const arr= [
+  const arr = [
     {
       title: 'Grants',
       icon: <GiTakeMyMoney size={50} className="text-limeTxt" />,
@@ -44,28 +41,38 @@ export default function Grants() {
     }
   ]
 
-
   return (
    <section>
     <GrantsHeader />
      <div className="px-4 py-10 md:px-8 lg:px-16 bg-gray-50 min-h-screen relative font-Outfit">
-      <h1 className={`text-left text-3xl md:text-4xl font-bold text-bgColor mb-12 ${
+      <h1 className={`text-left text-2xl sm:text-3xl md:text-4xl font-bold text-bgColor mb-8 md:mb-12 ${
         selected ? "hidden md:block" : "block"
       }`}>
         Grants & Opportunities
       </h1>
 
-      <div className="flex gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-8">
         {
-          arr.map((item)=>{
+          arr.map((item) => {
             const {title, icon, value} = item;
-            return <div key={title} className="bg-white w-[15rem] p-8 shadow-md rounded-xl flex items-center justify-between mb-6">
-              <div className="flex flex-col">
-                <p className="text-teal-500 text-3xl font-bold hover:text-teal-700 cursor-pointer">{value}</p>
-                <h3 className="font-semibold text-bgColor">{title}</h3>
+            return (
+              <div 
+                key={title} 
+                className="bg-white min-w-0 p-4 sm:p-6 lg:p-8 shadow-md rounded-xl flex items-center justify-between"
+              >
+                <div className="flex flex-col min-w-0 flex-1 mr-2">
+                  <p className="text-teal-500 text-xl sm:text-2xl lg:text-3xl font-bold hover:text-teal-700 cursor-pointer truncate">
+                    {value}
+                  </p>
+                  <h3 className="font-semibold text-bgColor text-sm sm:text-base truncate">
+                    {title}
+                  </h3>
+                </div>
+                <div className="flex-shrink-0">
+                  {icon}
+                </div>
               </div>
-              {icon}
-             </div>
+            );
           })
         }
       </div>
@@ -174,7 +181,7 @@ export default function Grants() {
                   <button className="text-teal-500 text-sm hover:text-teal-700 cursor-pointer">Clear all</button>
                 </div>
 
-                {/* Opportunties Filter */}
+                {/* Opportunities Filter */}
                 <div className="bg-white p-6 shadow-md rounded-xl mb-6">
                   <h4 className="font-medium text-gray-900 mb-4">Opportunities Type</h4>
                   {['Grants', 'Loans & Funds', 'Hackathons'].map((key) => (
@@ -191,7 +198,7 @@ export default function Grants() {
                   ))}
                 </div>
 
-                {/*  Filter */}
+                {/* Other Filters */}
                 <div className="bg-white p-6 shadow-md rounded-xl">
                   <h4 className="font-medium text-gray-900 mb-4">Other filters</h4>
                   {['Location', 'Amount', 'twoToSix', 'overSix'].map((key) => (
@@ -213,38 +220,77 @@ export default function Grants() {
         )}
       </div>
 
-      {/* Mobile Detail View */}
+      {/* Mobile Detail View - Responsive */}
       {selected && (
-        <div className="fixed inset-0 bg-white z-50 p-6 overflow-y-auto md:hidden">
-          <button
-            onClick={() => setSelectedOpp(null)}
-            className="text-gray-500 hover:text-gray-700 mb-4"
-          >
-            ← Back
-          </button>
+        <div className="fixed inset-0 bg-white z-50 overflow-y-auto md:hidden">
+          <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 sm:px-6 sm:py-4">
+            <button
+              onClick={() => setSelectedOpp(null)}
+              className="flex items-center text-gray-500 hover:text-gray-700 text-sm sm:text-base"
+            >
+              ← Back to Opportunities
+            </button>
+          </div>
 
-          <div className="flex flex-col items-center gap-3 mb-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white text-lg font-bold">
-              S
+          {/* Content */}
+          <div className="px-4 py-6 sm:px-6 sm:py-8">
+            <div className="flex flex-col items-center gap-4 mb-6 sm:mb-8">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center text-white text-xl sm:text-2xl font-bold">
+                S
+              </div>
+              <div className="text-center">
+                <h3 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-bgColor mb-1 sm:mb-2">
+                  {selected.title}
+                </h3>
+                <p className="text-sm sm:text-base text-gray-500">
+                  {selected.organization}, {selected.location}
+                </p>
+              </div>
             </div>
-            <div className="text-center">
-              <h3 className="text-xl font-semibold text-bgColor">{selected.title}</h3>
-              <p className="text-sm text-gray-500">
-                {selected.organization}, {selected.location}
+
+            {/* Details Section */}
+            <div className="bg-gray-50 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm sm:text-base">
+                <div>
+                  <p className="text-gray-500 mb-1">Type</p>
+                  <p className="font-medium text-gray-800">{selected.type}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500 mb-1">Funding Amount</p>
+                  <p className="font-medium text-green-600">{selected.amount}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mb-6 sm:mb-8">
+              <h4 className="text-lg sm:text-xl font-semibold text-bgColor mb-3 sm:mb-4">
+                Description
+              </h4>
+              <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
+                {selected.fullDescription}
               </p>
             </div>
+
+            <div className="mb-6 sm:mb-8">
+              <h4 className="text-lg sm:text-xl font-semibold text-bgColor mb-3 sm:mb-4">
+                Tags
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {["Nature", "Funding", "Agriculture"].map(tag => (
+                  <span key={tag} className="bg-teal-200 text-bgColor py-2 px-3 sm:py-2 sm:px-4 rounded-full text-xs sm:text-sm font-medium">
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Apply Button */}
+            <div className="sticky bottom-0 bg-white pt-4 sm:pt-6 pb-4 sm:pb-6 border-t border-gray-200 -mx-4 sm:-mx-6 px-4 sm:px-6">
+              <button className="w-full cursor-pointer bg-teal-700 hover:bg-teal-900 text-white py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-colors">
+                Apply Now
+              </button>
+            </div>
           </div>
-
-          <div className="text-sm text-gray-600 mb-4">
-            <p><strong>Type:</strong> {selected.type}</p>
-            <p><strong>Funding Amount:</strong> {selected.amount}</p>
-          </div>
-
-          <p className="text-gray-700 text-sm mb-6">{selected.fullDescription}</p>
-
-          <button className="w-full cursor-pointer bg-teal-700 hover:bg-teal-700 text-white py-2 rounded-md font-semibold">
-            Apply Now
-          </button>
         </div>
       )}
     </div>
