@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { opportunities } from "../data/opportunities";
 import type { Opportunity } from "../data/opportunities";
+import GrantsHeader from "../Utils/GrantsHeader";
+import { GiTakeMyMoney } from "react-icons/gi";
+import { GrFavorite } from "react-icons/gr";
+
 
 export default function Grants() {
   const [selected, setSelectedOpp] = useState<Opportunity | null>(null);
@@ -15,20 +19,62 @@ export default function Grants() {
     overSix: 192
   };
 
+
+
+  const arr= [
+    {
+      title: 'Grants',
+      icon: <GiTakeMyMoney size={50} className="text-limeTxt" />,
+      value: 531
+    },
+    {
+      title: 'Hackthons',
+      icon: <GiTakeMyMoney size={50} className="text-limeTxt" />,
+      value: 531
+    },
+    {
+      title: 'Conferences',
+      icon: <GiTakeMyMoney size={50} className="text-limeTxt"/>,
+      value: 531
+    },
+    {
+      title: 'Favorites',
+      icon: <GrFavorite size={50} className="text-limeTxt" />,
+      value: 0
+    }
+  ]
+
+
   return (
-    <section className="px-4 py-10 md:px-8 lg:px-16 bg-gray-50 min-h-screen relative">
-      <h1 className={`text-center text-3xl md:text-4xl font-bold text-bgColor mb-12 ${
+   <section>
+    <GrantsHeader />
+     <div className="px-4 py-10 md:px-8 lg:px-16 bg-gray-50 min-h-screen relative font-Outfit">
+      <h1 className={`text-left text-3xl md:text-4xl font-bold text-bgColor mb-12 ${
         selected ? "hidden md:block" : "block"
       }`}>
         Grants & Opportunities
       </h1>
 
+      <div className="flex gap-6 mb-8">
+        {
+          arr.map((item)=>{
+            const {title, icon, value} = item;
+            return <div key={title} className="bg-white w-[15rem] p-8 shadow-md rounded-xl flex items-center justify-between mb-6">
+              <div className="flex flex-col">
+                <p className="text-teal-500 text-3xl font-bold hover:text-teal-700 cursor-pointer">{value}</p>
+                <h3 className="font-semibold text-bgColor">{title}</h3>
+              </div>
+              {icon}
+             </div>
+          })
+        }
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Left & Middle Columns - Cards */}
         <div className={`${selected ? "md:col-span-1" : "md:col-span-2"} lg:col-span-2 grid gap-6 ${
           selected ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2"
         } lg:grid-cols-2`}>
-          {[...opportunities].map((item, index) => {
+          {[...opportunities, ...opportunities].map((item, index) => {
             const isSelected = selected === item;
 
             return (
@@ -124,31 +170,31 @@ export default function Grants() {
             <div className="sticky top-20 rounded-xl h-fit">
               <div className="px-6 pb-4 h-full overflow-hidden">
                 <div className="bg-white p-6 shadow-md rounded-xl flex items-center justify-between mb-6">
-                  <h3 className="font-semibold text-gray-900">Job Filter</h3>
-                  <button className="text-blue-600 text-sm hover:text-blue-700">Clear all</button>
+                  <h3 className="font-semibold text-gray-900">Opportunities Filter</h3>
+                  <button className="text-teal-500 text-sm hover:text-teal-700 cursor-pointer">Clear all</button>
                 </div>
 
-                {/* Job Type Filter */}
+                {/* Opportunties Filter */}
                 <div className="bg-white p-6 shadow-md rounded-xl mb-6">
-                  <h4 className="font-medium text-gray-900 mb-4">Job Type</h4>
-                  {['fullTime', 'freelance', 'partTime'].map((key) => (
+                  <h4 className="font-medium text-gray-900 mb-4">Opportunities Type</h4>
+                  {['Grants', 'Loans & Funds', 'Hackathons'].map((key) => (
                     <label key={key} className="flex items-center justify-between mb-3">
                       <div className="flex items-center">
                         <input
                           type="checkbox"
-                          className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+                          className="w-4 h-4 text-teal-600 border-gray-300 rounded"
                         />
                         <span className="ml-3 text-gray-700 capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
                       </div>
-                      <span className="text-gray-500 text-sm">{jobCounts[key as keyof typeof jobCounts]} Jobs</span>
+                      <span className="text-gray-500 text-sm">{jobCounts[key as keyof typeof jobCounts]} Opportunities</span>
                     </label>
                   ))}
                 </div>
 
-                {/* Experience Filter */}
+                {/*  Filter */}
                 <div className="bg-white p-6 shadow-md rounded-xl">
-                  <h4 className="font-medium text-gray-900 mb-4">Experience</h4>
-                  {['under1', 'oneToTwo', 'twoToSix', 'overSix'].map((key) => (
+                  <h4 className="font-medium text-gray-900 mb-4">Other filters</h4>
+                  {['Location', 'Amount', 'twoToSix', 'overSix'].map((key) => (
                     <label key={key} className="flex items-center justify-between mb-3">
                       <div className="flex items-center">
                         <input
@@ -201,6 +247,7 @@ export default function Grants() {
           </button>
         </div>
       )}
-    </section>
+    </div>
+   </section>
   );
 }
