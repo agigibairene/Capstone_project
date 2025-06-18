@@ -26,7 +26,7 @@ const miniDetails: Details[] = [
 
 
 export default function Signup() {
-  const [userInput, setUserInput] = useState({
+  const [userInput, setUserInput] = useState<{[key: string] : string}>({
     firstName: "",
     lastName: "",
     email: "",
@@ -230,7 +230,7 @@ export default function Signup() {
 
           <button
             type="submit"
-            className="w-full bg-teal-600 hover:bg-bgColor text-white font-semibold py-2 rounded-md transition"
+            className="w-full bg-teal-700 hover:bg-teal-900 cursor-pointer text-white font-semibold py-2 rounded-md transition"
           >
             Create My Account
           </button>

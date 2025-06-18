@@ -18,7 +18,7 @@ function App() {
   const reviews = useRef<HTMLDivElement|null>(null);
   const faqs = useRef<HTMLDivElement|null>(null);
 
-  const refs = {home, about, reviews, faqs}
+ const refs = {home, about, reviews, faqs}
 
 
   return (

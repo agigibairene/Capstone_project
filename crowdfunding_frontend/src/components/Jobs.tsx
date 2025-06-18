@@ -99,15 +99,17 @@ export default function JobSearchApp() {
     overSix: 192
   };
 
-  const handleFilterChange = (category: string, filter: string) => {
-    setFilters(prev => ({
-      ...prev,
-      [category]: {
-        ...prev[category],
-        [filter]: !prev[category][filter]
-      }
-    }));
-  };
+
+
+  // const handleFilterChange = (category: string, filter: string) => {
+  //   setFilters(prev => ({
+  //     ...prev,
+  //     [category]: {
+  //       ...prev[category],
+  //       [filter]: !prev[category][filter]
+  //     }
+  //   }));
+  // };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -231,7 +233,7 @@ export default function JobSearchApp() {
                       <input
                         type="checkbox"
                         checked={filters.jobType[key as keyof typeof filters.jobType]}
-                        onChange={() => handleFilterChange('jobType', key)}
+                        // onChange={() => handleFilterChange('jobType', key)}
                         className="w-4 h-4 text-blue-600 border-gray-300 rounded"
                       />
                       <span className="ml-3 text-gray-700 capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
@@ -250,7 +252,7 @@ export default function JobSearchApp() {
                       <input
                         type="checkbox"
                         checked={filters.experience[key as keyof typeof filters.experience]}
-                        onChange={() => handleFilterChange('experience', key)}
+                        // onChange={() => handleFilterChange('experience', key)}
                         className="w-4 h-4 text-blue-600 border-gray-300 rounded"
                       />
                       <span className="ml-3 text-gray-700 capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
