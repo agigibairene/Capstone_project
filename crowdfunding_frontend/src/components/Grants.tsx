@@ -21,22 +21,22 @@ export default function Grants() {
   const arr = [
     {
       title: 'Grants',
-      icon: <GiTakeMyMoney size={50} className="text-limeTxt" />,
+      icon: <GiTakeMyMoney size={50} className="text-white" />,
       value: 531
     },
     {
       title: 'Hackthons',
-      icon: <GiTakeMyMoney size={50} className="text-limeTxt" />,
+      icon: <GiTakeMyMoney size={50} className="text-white" />,
       value: 531
     },
     {
       title: 'Conferences',
-      icon: <GiTakeMyMoney size={50} className="text-limeTxt"/>,
+      icon: <GiTakeMyMoney size={50} className="text-white"/>,
       value: 531
     },
     {
       title: 'Favorites',
-      icon: <GrFavorite size={50} className="text-limeTxt" />,
+      icon: <GrFavorite size={50} className="text-white" />,
       value: 0
     }
   ]
@@ -51,20 +51,20 @@ export default function Grants() {
         Grants & Opportunities
       </h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-8">
+      <div className="grid grid-cols-1 w-[80%] mx-auto lg:mx-0 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-8">
         {
           arr.map((item) => {
             const {title, icon, value} = item;
             return (
               <div 
                 key={title} 
-                className="bg-white min-w-0 p-4 sm:p-6 lg:p-8 shadow-md rounded-xl flex items-center justify-between"
+                className="bg-bgColor min-w-0 transition hover:-translate-y-1 hover:shadow-xl cursor-pointer p-4 sm:p-6 lg:p-8 shadow-lg rounded-xl flex items-center justify-between"
               >
                 <div className="flex flex-col min-w-0 flex-1 mr-2">
                   <p className="text-teal-500 text-xl sm:text-2xl lg:text-3xl font-bold hover:text-teal-700 cursor-pointer truncate">
                     {value}
                   </p>
-                  <h3 className="font-semibold text-bgColor text-sm sm:text-base truncate">
+                  <h3 className="font-semibold text-limeTxt text-sm sm:text-base truncate">
                     {title}
                   </h3>
                 </div>
@@ -91,7 +91,6 @@ export default function Grants() {
                   isSelected ? "border-2 border-limeTxt" : "border"
                 } border-gray-200 transition hover:-translate-y-1 hover:shadow-xl flex flex-col justify-between`}
               >
-                {/* Header */}
                 <div className="flex justify-between items-start mb-5">
                   <div className="flex gap-3">
                     <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center text-white font-bold text-lg">
