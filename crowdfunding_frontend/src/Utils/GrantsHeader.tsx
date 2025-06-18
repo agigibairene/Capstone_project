@@ -7,7 +7,7 @@ export default function GrantsHeader(){
 
     return(
         <header className="bg-bgColor sticky z-10 top-0">
-            <nav className="px-4 flex justify-between items-center font-Kumbh py-4">
+            <nav className="px-8 flex justify-between items-center font-Kumbh py-4">
                 <motion.div 
                 initial={{opacity: 0, scale: 0}}
                 whileInView={{ opacity: 1, scale: 1}}
@@ -20,7 +20,8 @@ export default function GrantsHeader(){
                     whileInView={{ opacity: 1, scale: 1}}
                     className="flex items-center gap-4"
                 >
-                    <NavLink className="font-bold text-xl px-3 py-2 text-white rounded-lg" to="/">Home</NavLink>
+                    <i className="text-2xl text-white bi bi-house-heart"></i>
+                    <NavLink className="font-bold font-text text-xl text-white rounded-lg" to="/">Home</NavLink>
                     
                 </motion.div>
 

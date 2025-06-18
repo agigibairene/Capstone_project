@@ -87,7 +87,7 @@ export default function Grants() {
                 {/* Header */}
                 <div className="flex justify-between items-start mb-5">
                   <div className="flex gap-3">
-                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center text-white font-bold text-lg">
                       S
                     </div>
                     <div>
@@ -142,7 +142,7 @@ export default function Grants() {
               </div>
 
               <div className="flex flex-col items-center gap-3 mb-4">
-                <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white text-lg font-bold">
+                <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center text-white text-lg font-bold">
                   S
                 </div>
                 <div className="text-center">
