@@ -2,13 +2,13 @@ FROM node:24-alpine3.21
 
 WORKDIR /app
 
-COPY package.json .
+COPY package.json package-lock.json* ./
 
 RUN npm install
 
 COPY . .
 
-EXPOSE 5173
+EXPOSE 8080
 
 CMD [ "npm", "run", "dev" ]
 
