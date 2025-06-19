@@ -12,6 +12,11 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 8080,
-    strictPort: true
+    strictPort: true,
+    allowedHosts: [
+      'capstone-g7gbz.ondigitalocean.app', 
+      'localhost',
+      '.vercel.app'
+    ]
   }
 })
