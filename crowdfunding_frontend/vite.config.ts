@@ -25,6 +25,7 @@ export default defineConfig(({ mode }) => ({
     host: true,
     port: 8080,
     strictPort: true,
+    allowedHosts: ['capstone-rxaal.ondigitalocean.app', '.ondigitalocean.app'],
     hmr: mode === 'development' ? {
       port: 8080,
       host: 'localhost'
