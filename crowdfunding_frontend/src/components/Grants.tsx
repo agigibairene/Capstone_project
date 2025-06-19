@@ -4,6 +4,8 @@ import type { Opportunity } from "../data/opportunities";
 import GrantsHeader from "../Utils/GrantsHeader";
 import { GiTakeMyMoney } from "react-icons/gi";
 import { GrFavorite } from "react-icons/gr";
+import ScrollToTop from "react-scroll-to-top";
+import { FaArrowUp } from "react-icons/fa";
 
 export default function Grants() {
   const [selected, setSelectedOpp] = useState<Opportunity | null>(null);
@@ -293,6 +295,11 @@ export default function Grants() {
         </div>
       )}
     </div>
+     <ScrollToTop
+        smooth
+        className="scrollToTop"
+        component={<FaArrowUp className="animate-arrow text-bgColor" style={{ fontSize: "20px" }} />}
+      />
    </section>
   );
 }

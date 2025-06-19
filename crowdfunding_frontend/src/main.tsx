@@ -5,11 +5,8 @@ import App from './App.tsx'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Signup from './Utils/Signup.tsx';
 import Login from './Utils/Login.tsx';
-import HomePage from './components/HomePage.tsx';
-import About from './components/About.tsx';
-import FAQSection from './components/FAQSection.tsx';
-import Reviews from './components/Reviews.tsx';
 import Grants from './components/Grants.tsx';
+import LandingPage from './Utils/LandingPage.tsx';
 
 
 const routes = createBrowserRouter([
@@ -17,23 +14,23 @@ const routes = createBrowserRouter([
     path: '/',
     element: <App />,
     children: [
-      {
-        index: true,
-        element: <HomePage />
-      },
-      {
-        path: "/about",
-        element: <About />
-      },
-      {
-        path: '/faqs',
-        element: <FAQSection />
-      },
-      {
-        path: "/reviews",
-        element: <Reviews />
-      }
-    ]
+    {
+      path: '/',
+      element: <LandingPage />,
+    },
+    {
+      path: '/about',
+      element: <LandingPage />,
+    },
+    {
+      path: '/faqs',
+      element: <LandingPage />,
+    },
+    {
+      path: '/reviews',
+      element: <LandingPage />,
+    }
+  ]
   },
   {
     path: '/signup',
@@ -46,7 +43,6 @@ const routes = createBrowserRouter([
   {
     path: '/grants',
     element: <Grants />
-    // element: <JobSearchApp />
   }
 
 ])

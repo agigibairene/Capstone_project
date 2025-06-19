@@ -22,13 +22,14 @@ export const navList: NavList[] = [
     {name: 'Grants', route: '/grants', label: "grants"}
 ]
 
-export type RefProps = { 
-    refs: { 
-        home: RefObject<HTMLDivElement | null>,
-        about: RefObject<HTMLDivElement | null>,
-        reviews: RefObject<HTMLDivElement | null>,
-        faqs: RefObject<HTMLDivElement | null>
-    }
+export type RefProps =  {
+  refs: {
+    home: RefObject<HTMLDivElement>;
+    about: RefObject<HTMLDivElement>;
+    reviews: RefObject<HTMLDivElement>;
+    faqs: RefObject<HTMLDivElement>;
+  };
+  scrollToSection: (name: 'home' | 'about' | 'reviews' | 'faqs') => void;
 }
 
 
