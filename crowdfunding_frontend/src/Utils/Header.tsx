@@ -4,7 +4,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { NavAnimation } from "./animations";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { LiaTimesSolid } from "react-icons/lia";
-import { useState, type RefObject } from "react";
+import { useState } from "react";
+import type { RefObject } from "react";
 
 
 export interface NavList{
