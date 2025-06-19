@@ -1,10 +1,10 @@
+import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import { AnimatePresence, motion } from 'framer-motion';
 import { NavAnimation } from "./animations";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { LiaTimesSolid } from "react-icons/lia";
-import { useState } from "react";
 import type { RefObject } from "react";
 
 
