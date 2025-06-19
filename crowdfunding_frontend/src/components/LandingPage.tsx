@@ -1,11 +1,11 @@
 import ScrollToTop from "react-scroll-to-top";
-import About from "../components/About";
-import FAQSection from "../components/FAQSection";
-import HomePage from "../components/HomePage";
-import Reviews from "../components/Reviews";
+import About from "./About";
+import FAQSection from "./FAQSection";
+import HomePage from "./HomePage";
+import Reviews from "./Reviews";
 import Header from "../Utils/Header";
 import { FaArrowUp } from "react-icons/fa";
-import Footer from "../components/Footer";
+import Footer from "./Footer";
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -17,22 +17,22 @@ export default function LandingPage() {
   const faqs = useRef<HTMLDivElement>(null!);
 
   const location = useLocation();
-  
+
   const refs = {
     home,
     about,
     reviews,
-    faqs
+    faqs,
   };
 
   useEffect(() => {
     const path = location.pathname;
 
     const scrollMap: Record<string, React.RefObject<HTMLDivElement>> = {
-      '/': home,
-      '/about': about,
-      '/reviews': reviews,
-      '/faqs': faqs
+      "/": home,
+      "/about": about,
+      "/reviews": reviews,
+      "/faqs": faqs,
     };
 
     const scrollTo = scrollMap[path];
@@ -40,7 +40,7 @@ export default function LandingPage() {
     if (scrollTo?.current) {
       window.scrollTo({
         top: scrollTo.current.offsetTop - 90,
-        behavior: "smooth"
+        behavior: "smooth",
       });
     }
   }, [location.pathname]);
@@ -49,8 +49,8 @@ export default function LandingPage() {
     const elementRef = refs[name];
     if (elementRef?.current) {
       window.scrollTo({
-        top: elementRef.current.offsetTop - 90, 
-        behavior: 'smooth'
+        top: elementRef.current.offsetTop - 90,
+        behavior: "smooth",
       });
     }
   };
@@ -58,14 +58,27 @@ export default function LandingPage() {
   return (
     <>
       <Header refs={refs} scrollToSection={scrollToSection} />
-      <div ref={home}><HomePage /></div>
-      <div ref={about}><About /></div>
-      <div ref={faqs}><FAQSection /></div>
-      <div ref={reviews}><Reviews /></div>
+      <div ref={home}>
+        <HomePage />
+      </div>
+      <div ref={about}>
+        <About />
+      </div>
+      <div ref={faqs}>
+        <FAQSection />
+      </div>
+      <div ref={reviews}>
+        <Reviews />
+      </div>
       <ScrollToTop
         smooth
         className="scrollToTop"
-        component={<FaArrowUp className="animate-arrow text-bgColor" style={{ fontSize: "20px" }} />}
+        component={
+          <FaArrowUp
+            className="animate-arrow text-bgColor"
+            style={{ fontSize: "20px" }}
+          />
+        }
       />
       <Footer refs={refs} scrollToSection={scrollToSection} />
     </>
