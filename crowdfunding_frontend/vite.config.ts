@@ -26,10 +26,7 @@ export default defineConfig(({ mode }) => {
         '.vercel.app',
       ],
       ...(mode === 'development' && {
-        hmr: {
-          protocol: 'ws',
-          host: 'localhost',
-        },
+        hmr: false,
       }),
     },
   };
