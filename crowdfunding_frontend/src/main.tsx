@@ -1,4 +1,3 @@
-import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
@@ -10,7 +9,6 @@ import About from './components/About.tsx';
 import FAQSection from './components/FAQSection.tsx';
 import Reviews from './components/Reviews.tsx';
 import Grants from './components/Grants.tsx';
-// import JobSearchApp from './components/Jobs.tsx';
 
 
 const routes = createBrowserRouter([
@@ -54,7 +52,5 @@ const routes = createBrowserRouter([
 
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
     <RouterProvider router={routes}/>
-  </StrictMode>,
 )
