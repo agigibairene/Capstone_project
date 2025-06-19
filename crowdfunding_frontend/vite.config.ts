@@ -18,7 +18,8 @@ export default defineConfig(({ mode }) => ({
         manualChunks: undefined,
       }
     },
-    minify: mode === 'production' ? 'terser' : false,
+    // Use esbuild for minification (faster and included by default)
+    minify: mode === 'production' ? 'esbuild' : false,
   },
   server: {
     host: true,
