@@ -1,13 +1,29 @@
 import { Search } from "lucide-react";
 import SideBar from "../Utils/SideBar";
 import InvestorMainContent from "../Investor/InvestorMainContent";
+import { menuItems } from "../data/data";
+import { useState, type JSX } from "react";
 import CreateProject from "../Farmer/CreateProject";
 
+type MainContentMap = {
+  [key: string]: JSX.Element;
+};
+
+
 export default function InvestorDashboard(){
+
+    const [activeItem, setActiveItem] = useState("Dashboard");
+    
+    
+    const mainContent: MainContentMap = {
+        Dashboard: <InvestorMainContent />,
+        'Create Project': <CreateProject />
+    }
+
     return(
         <section className="min-h-screen font-Outfit bg-gradient-to-br from-emerald-700 via-bgColor to-teal-900 p-2">
             <div className="flex">
-                <SideBar />
+                <SideBar menuItems={menuItems} activeItem={activeItem} setActiveItem={setActiveItem}/>
 
                 {/* Main Content */}
                  <div className="flex-1 ml-72">
@@ -38,8 +54,7 @@ export default function InvestorDashboard(){
                     </header>
 
                     <main className="mt-2">
-                        {/* <InvestorMainContent/> */}
-                        <CreateProject />
+                        {mainContent[activeItem]}
                     </main>
                  </div>
             </div>

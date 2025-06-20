@@ -8,7 +8,7 @@ import Login from "./Utils/Login.tsx";
 import Grants from "./components/Grants.tsx";
 import LandingPage from "./components/LandingPage.tsx";
 import InvestorDashboard from "./Dashboards/InvestorDashboard.tsx";
-import Trial from "./Dashboards/Trial.tsx";
+import FarmerDashboard from "./Dashboards/FarmerDashboard.tsx";
 
 const routes = createBrowserRouter([
   {
@@ -42,13 +42,16 @@ const routes = createBrowserRouter([
     element: <Login />,
   },
   {
-    path: "/grants",
+    path: "grants",
     element: <Grants />,
   },
   {
     path: 'investor',
     element: <InvestorDashboard />
-    // element: <Trial/>
+  },
+  {
+    path: 'farmer',
+    element: <FarmerDashboard/>
   }
 ]);
 
