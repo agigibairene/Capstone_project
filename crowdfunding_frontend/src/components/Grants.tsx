@@ -126,7 +126,7 @@ export default function Grants() {
                   <span className="text-green-600 font-semibold text-sm">{item.amount}</span>
                   <button
                     onClick={() => setSelectedOpp(item)}
-                    className="bg-teal-700 cursor-pointer hover:bg-teal-900 text-white py-2 px-4 rounded-md text-sm font-medium"
+                    className="bg-bgColor cursor-pointer hover:bg-teal-900 text-white py-2 px-4 rounded-md text-sm font-medium"
                   >
                     Apply Now
                   </button>
@@ -168,7 +168,7 @@ export default function Grants() {
 
               <p className="text-gray-700 text-sm mb-6">{selected.fullDescription}</p>
 
-              <button className="w-full cursor-pointer bg-teal-700 hover:bg-teal-900 text-white py-2 rounded-md font-semibold">
+              <button className="w-full cursor-pointer bg-bgColor hover:bg-teal-900 text-white py-2 rounded-md font-semibold">
                 Apply Now
               </button>
             </div>
@@ -287,7 +287,7 @@ export default function Grants() {
 
             {/* Apply Button */}
             <div className="sticky bottom-0 bg-white pt-4 sm:pt-6 pb-4 sm:pb-6 border-t border-gray-200 -mx-4 sm:-mx-6 px-4 sm:px-6">
-              <button className="w-full cursor-pointer bg-teal-700 hover:bg-teal-900 text-white py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-colors">
+              <button className="w-full cursor-pointer bg-bgColor hover:bg-teal-900 text-white py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-colors">
                 Apply Now
               </button>
             </div>

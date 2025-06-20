@@ -7,6 +7,8 @@ import Signup from "./Utils/Signup.tsx";
 import Login from "./Utils/Login.tsx";
 import Grants from "./components/Grants.tsx";
 import LandingPage from "./components/LandingPage.tsx";
+import InvestorDashboard from "./Dashboards/InvestorDashboard.tsx";
+import Trial from "./Dashboards/Trial.tsx";
 
 const routes = createBrowserRouter([
   {
@@ -43,6 +45,11 @@ const routes = createBrowserRouter([
     path: "/grants",
     element: <Grants />,
   },
+  {
+    path: 'investor',
+    element: <InvestorDashboard />
+    // element: <Trial/>
+  }
 ]);
 
 createRoot(document.getElementById("root")!).render(
