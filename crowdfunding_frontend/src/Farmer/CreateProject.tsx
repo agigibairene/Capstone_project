@@ -1,12 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import InputField from "../Utils/InputField";
 import Loader from "../Utils/Loader";
 
 
 
 export default function CreateProject(){
-  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [form, setForm] = useState({
     name: '',
@@ -21,7 +19,8 @@ export default function CreateProject(){
   });
 
   function handleFormFieldChange( fieldName: keyof typeof form, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
-    setForm({ ...form, [fieldName]: e.target.value })
+    setForm({ ...form, [fieldName]: e.target.value });
+    setIsLoading(false)
   }
 
 //   const handleSubmit = async (e) => {

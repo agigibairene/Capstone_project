@@ -4,6 +4,7 @@ import SideBar from "../Utils/SideBar";
 import CreateProject from "../Farmer/CreateProject";
 import { farmerMenuItems } from "../data/data";
 import InvestorMainContent from "../Investor/InvestorMainContent";
+import ChatBot from "../chatbot/ChatBot";
 
 type MainContentMap = {
   [key: string]: JSX.Element;
@@ -15,7 +16,8 @@ export default function FarmerDashboard(){
 
     const mainContent: MainContentMap = {
         Dashboard: <InvestorMainContent />,
-        'Create Project': <CreateProject />
+        'Create Project': <CreateProject />,
+        ChatBot: <ChatBot />
     }
 
     return(

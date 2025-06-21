@@ -9,6 +9,7 @@ import {
   PenLine,
   MessagesSquare,  
   GraduationCap,
+  Bot,
 } from "lucide-react";
 
 export const menuItems = [
@@ -77,7 +78,7 @@ export const farmerMenuItems = [
     },
     {
       name: "ChatBot",
-      icon:  MessagesSquare,
+      icon:  Bot,
       color: "bg-green-500",
       active: false,
     },
