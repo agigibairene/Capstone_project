@@ -152,12 +152,6 @@ export default function ChatBot(): JSX.Element {
     setEditTitle("");
   };
 
-  useEffect(() => {
-    if (chats.length === 0) {
-      createNewChat();
-    }
-  }, []);
-
   return (
     <div className="flex h-[75vh] w-[90%] mx-auto bg-white/20 backdrop-blur-sm border-r rounded-lg border-white/30">
       {/* Sidebar */}
@@ -185,7 +179,7 @@ export default function ChatBot(): JSX.Element {
             >
               <MessageCircle
                 size={16}
-                className={currentChatId === chat.id ? "text-teal-600" : "text-gray-400"}
+                className={currentChatId === chat.id ? "text-bgColor" : "text-gray-400"}
               />
               <div className="flex-1 min-w-0">
                 {editingChatId === chat.id ? (
@@ -207,7 +201,7 @@ export default function ChatBot(): JSX.Element {
                 ) : (
                   <div>
                     <p className="text-sm font-medium text-gray-900 truncate">{chat.title}</p>
-                    <p className="text-xs text-gray-500">{chat.messages.length} messages</p>
+                    <p className="text-xs text-gray-900">{chat.messages.length} messages</p>
                   </div>
                 )}
               </div>
@@ -236,7 +230,7 @@ export default function ChatBot(): JSX.Element {
         </div>
       </div>
 
-      {/* Chat Area */}
+      {/* Main Chat Area */}
       <div className="flex-1 flex flex-col">
         {currentChat ? (
           <>
@@ -301,7 +295,7 @@ export default function ChatBot(): JSX.Element {
           <div className="flex-1 flex items-center justify-center bg-gray-50">
             <div className="text-center">
               <div className="w-16 h-16 rounded-full bg-teal-100 flex items-center justify-center mx-auto mb-4">
-                <MessageCircle size={32} className="text-limeTxt" />
+                <MessageCircle size={32} className="text-bgColor" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No chat selected</h3>
               <p className="text-gray-500 mb-4">
@@ -309,7 +303,7 @@ export default function ChatBot(): JSX.Element {
               </p>
               <button
                 onClick={createNewChat}
-                className="px-4 py-2 bg-bgColor text-white rounded-lg hover:bg-teal-700 transition-colors duration-200"
+                className="px-4 py-2 bg-bgColor text-white rounded-lg hover:bg-teal-900 transition-colors duration-200"
               >
                 Start New Chat
               </button>

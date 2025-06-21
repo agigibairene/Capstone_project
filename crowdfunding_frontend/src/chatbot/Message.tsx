@@ -22,7 +22,7 @@ export default function Message({ chat }:Props) {
         className={`px-4 py-3 max-w-[75%] break-words whitespace-pre-line text-sm ${
           chat.role === "model"
             ? "bg-purple-50 text-gray-800 rounded-2xl rounded-bl-sm"
-            : "bg-teal-600 text-white rounded-2xl rounded-br-sm"
+            : "bg-bgColor text-white rounded-2xl rounded-br-sm"
         }`}
       >
         {chat.text}
