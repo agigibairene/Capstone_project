@@ -7,6 +7,9 @@
 ## Visit Frontend here  
 👉 [Visit UI](https://capstone-frontend-opal.vercel.app/)
 
+## GitHuB Repository URL
+[GITHUB LINK](https://github.com/agigibairene/Capstone_project)
+
 ## Demo video
 📍 [CLICK TO WATCH DEMO VIDEO](https://www.loom.com/share/5e027842763741d6aebc4da3163e8cfe?sid=5afbc6d4-5d16-4e61-9193-e8c01e7a49a6)
 

@@ -25,7 +25,6 @@ export default function FarmerDashboard(){
             <div className="flex">
                 <SideBar menuItems={farmerMenuItems} activeItem={activeItem} setActiveItem={setActiveItem}/>
 
-                {/* Main Content */}
                  <div className="flex-1 ml-72">
                     <header className="rounded-lg backdrop-blur-lg border-b border-white/30 p-6">
                         <div className="flex items-center justify-between">

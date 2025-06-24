@@ -7,7 +7,6 @@ import {
   DollarSign,
   TrendingUp,
   PenLine,
-  MessagesSquare,  
   GraduationCap,
   Bot,
 } from "lucide-react";

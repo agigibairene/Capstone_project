@@ -10,6 +10,7 @@ import LandingPage from "./components/LandingPage.tsx";
 import InvestorDashboard from "./Dashboards/InvestorDashboard.tsx";
 import FarmerDashboard from "./Dashboards/FarmerDashboard.tsx";
 
+
 const routes = createBrowserRouter([
   {
     path: "/",
