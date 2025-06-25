@@ -4,6 +4,7 @@ import InvestorMainContent from "../Investor/InvestorMainContent";
 import { menuItems } from "../data/data";
 import { useState, type JSX } from "react";
 import CreateProject from "../Farmer/CreateProject";
+import AllProjects from "./AllProjects";
 
 type MainContentMap = {
   [key: string]: JSX.Element;
@@ -17,7 +18,8 @@ export default function InvestorDashboard(){
     
     const mainContent: MainContentMap = {
         Dashboard: <InvestorMainContent />,
-        'Create Project': <CreateProject />
+        'Create Project': <CreateProject />,
+        'Card': <AllProjects />
     }
 
     return(

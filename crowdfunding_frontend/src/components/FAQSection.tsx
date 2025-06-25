@@ -1,10 +1,8 @@
 import { useState } from 'react';
-// import image from '../assets/Animation.json';
 import faq from "../assets/planb.png"
 import { Minus, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { FadeUp } from '../Utils/animations';
-// import Lottie from 'lottie-react';
 
 
 export default function FAQSection() {

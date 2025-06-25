@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "../assets/green_logo.png";
+import { useNavigate } from "react-router-dom";
 
 interface Details{
   title: string,
@@ -36,6 +37,8 @@ export default function Signup() {
     investorType: "",
     password: ""
   });
+
+  const navigate = useNavigate();
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -91,14 +94,50 @@ export default function Signup() {
     return newErrors;
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const foundErrors = validateInput();
     setErrors(foundErrors);
 
     if (Object.keys(foundErrors).length === 0) {
-      console.log("Form submitted:", userInput);
-      alert("Account created successfully!");
+      // setIsLoading(true);
+      
+      try {
+        const response = await fetch('http://localhost:8000/api/signup/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include', 
+          body: JSON.stringify(userInput),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          alert("Account created successfully!");
+          if (userInput.role=== 'farmer'){
+            navigate('/farmer')
+          }
+          else if (userInput.role === 'investor'){
+            navigate('investor')
+          }
+          
+        } else {
+          if (data.errors) {
+            setErrors(data.errors);
+          } else {
+            setErrors({ general: data.message || 'Something went wrong' });
+          }
+        }
+      } catch (error) {
+        console.error('Signup error:', error);
+        setErrors({ 
+          general: 'Network error. Please check your connection and try again.' 
+        });
+      } finally {
+        // setIsLoading(false);
+      }
     }
   }
 

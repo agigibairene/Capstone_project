@@ -10,7 +10,6 @@ import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
 export default function LandingPage() {
-  // Properly type the refs as HTMLDivElement
   const home = useRef<HTMLDivElement>(null!);
   const about = useRef<HTMLDivElement>(null!);
   const reviews = useRef<HTMLDivElement>(null!);

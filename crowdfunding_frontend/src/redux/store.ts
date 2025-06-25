@@ -1,10 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
+import { projectReducer } from './web3Contract';
 
 
 
 const store = configureStore({
     reducer: {
-
+        projectReducer
     }
 });
 

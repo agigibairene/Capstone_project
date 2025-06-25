@@ -118,8 +118,8 @@ export default function CreateProject(){
 
         <div className="flex flex-wrap gap-[40px]">
             <InputField
-                label="Campaign image *"
-                placeholder="Place image URL of your campaign"
+                label="image url *"
+                placeholder="Place image URL of your project"
                 inputType="url"
                 isTextArea={false}
                 value={form.image}

@@ -1,31 +1,18 @@
-import { useState, useEffect } from 'react';
-import ProjectCard from '../Utils/ProjectCard';
+import ProjectCard from "../Utils/ProjectCard";
+import { projects } from "../data/data";
 
-import { useStateContext } from '../context'
-
-export default function AllProjects(){
-  const [isLoading, setIsLoading] = useState(false);
-  const [campaigns, setCampaigns] = useState([]);
-
-  const { address, contract, getUserCampaigns } = useStateContext();
-
-  const fetchAllProjects = async () => {
-    setIsLoading(true);
-    const data = await getUserCampaigns();
-    setCampaigns(data);
-    setIsLoading(false);
-  }
-
-  useEffect(() => {
-    if(contract) fetchAllProjects();
-  }, [address, contract]);
-
-  return (
-    <ProjectCard
-      title=""
-      isLoading={isLoading}
-      campaigns={campaigns}
-    />
-  )
+export default function AllProjects({}){
+    return(
+       <section id="projects">
+            <h2 className="text-center text-2xl md:text-3xl text-limeTxt font-bold mb-10">~ Projects ~</h2>
+            <div className="flex gap-6 flex-wrap">
+                {
+                  projects.map(project =>{
+                    const {name, title, image, brief, target} = project;
+                    return <ProjectCard name={name} image={image} briefDescription={brief} target={target}/> 
+                  })
+                }
+        </div>
+       </section>
+    )
 }
-
