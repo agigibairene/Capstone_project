@@ -8,7 +8,7 @@ import {
   TrendingUp,
   PenLine,
   GraduationCap,
-  Bot,
+  Bot, LogOut
 } from "lucide-react";
 
 import image from '../assets/dp.jpg'
@@ -27,8 +27,8 @@ export const menuItems = [
       active: false,
     },
     {
-      name: "Messenger",
-      icon: MessageCircle,
+      name: "Log Out",
+      icon: LogOut,
       color: "bg-green-500",
       active: false,
     },
@@ -84,8 +84,8 @@ export const farmerMenuItems = [
       active: false,
     },
     {
-      name: "Statistic",
-      icon: BarChart,
+      name: "Log Out",
+      icon: LogOut,
       color: "bg-orange-500",
       active: false,
     },

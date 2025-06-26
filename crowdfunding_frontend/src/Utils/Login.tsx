@@ -1,30 +1,41 @@
 import { useState } from 'react';
 import logo from '../assets/logo.png';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser } from '../redux/login_auth';
+import type { AppDispatch, RootState } from '../redux/store';
+import Loader from './Loader';
+
 
 export default function Login() {
-  const [formData, setFormData] = useState({
+  const [UserInput, setUserInput] = useState({
     email: '',
     password: '',
   });
 
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, error, user } = useSelector((state :RootState)=>state.loginReducer)
+
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [submitted, setSubmitted] = useState(false);
+  const navigate = useNavigate();
+
+  console.log(user)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setUserInput(prev => ({ ...prev, [name]: value }));
     setErrors(prev => ({ ...prev, [name]: undefined }));
   };
 
   const validate = () => {
     const newErrors: { email?: string; password?: string } = {};
 
-    if (!formData.email.trim()) {
+    if (!UserInput.email.trim()) {
       newErrors.email = 'Email is required';
     }
 
-    if (!formData.password.trim()) {
+    if (!UserInput.password.trim()) {
       newErrors.password = 'Password is required';
     }
 
@@ -32,12 +43,29 @@ export default function Login() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  async function handleSubmit(e: React.FormEvent){
     e.preventDefault();
     setSubmitted(true);
 
     if (validate()) {
-      console.log('Form submitted:', formData);
+      try{
+        const response: any = await dispatch(loginUser(UserInput));
+        if (response.payload && response.payload.user){
+        const role = response.payload.user.profile.role;
+          if (role === 'Farmer'){
+            navigate('/farmer');
+          }
+          else if (role === 'Investor'){
+            navigate('/investor')
+          }
+          else{
+            navigate('/')
+          }
+        }
+      }
+      catch(e){
+        console.error('Login failed:', e)
+      }
     }
   };
 
@@ -60,7 +88,7 @@ export default function Login() {
               type="email"
               name="email"
               placeholder="you@example.com"
-              value={formData.email}
+              value={UserInput.email}
               onChange={handleChange}
               className={`w-full px-4 py-2 border rounded-md focus:ring-2 outline-none ${
                 submitted && errors.email ? 'border-red-500 focus:ring-red-300' : 'focus:ring-limeTxt'
@@ -77,7 +105,7 @@ export default function Login() {
               type="password"
               name="password"
               placeholder="********"
-              value={formData.password}
+              value={UserInput.password}
               onChange={handleChange}
               className={`w-full px-4 py-2 border rounded-md focus:ring-2 outline-none ${
                 submitted && errors.password ? 'border-red-500 focus:ring-red-300' : 'focus:ring-limeTxt'
@@ -91,12 +119,13 @@ export default function Login() {
             </div>
           </div>
 
-          <button
+          { loading ? <Loader/> : <button
             type="submit"
             className="w-full bg-teal-700 text-white font-semibold py-2 rounded-md hover:bg-teal-900 transition cursor-pointer"
           >
             Login
-          </button>
+          </button>}
+          {error && <p className='text-center text-red-500'>{error}</p>}
         </form>
         <p className="mt-6 text-sm text-gray-600">
           Do not have an account? <Link to='/signup' className="text-teal-700 hover:underline">Sign up</Link>

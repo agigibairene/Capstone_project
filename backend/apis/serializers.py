@@ -4,6 +4,13 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from .models import UserProfile
 
+# Updated serializers.py
+from rest_framework import serializers
+from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from .models import UserProfile
+
 
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializer for UserProfile model"""
@@ -18,16 +25,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'investor_type': {'required': False, 'allow_blank': True},
         }
 
-
 class UserSerializer(serializers.ModelSerializer):
     """Basic User serializer for responses"""
-    profile = UserProfileSerializer(source='userprofile', read_only=True)
+    # Use the correct related_name from the model
+    profile = UserProfileSerializer(read_only=True)
     
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'date_joined', 'profile']
         read_only_fields = ['id', 'username', 'date_joined']
-
 
 class UserSignUpSerializer(serializers.ModelSerializer):
     """Serializer for user registration"""
@@ -89,17 +95,18 @@ class UserSignUpSerializer(serializers.ModelSerializer):
             password=validated_data['password']
         )
 
-        # Create user profile
-        UserProfile.objects.create(
+        # Create user profile - ENSURE IT'S CREATED
+        profile = UserProfile.objects.create(
             user=user,
             phone_number=phone_number,
             role=role,
             organization=organization,
             investor_type=investor_type
         )
+        
+        print(f"Created profile for user {user.email}: {profile}")  # Debug log
 
         return user
-
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -139,7 +146,7 @@ class PasswordResetSerializer(serializers.Serializer):
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
-    """Serializer for updating user information"""
+    """Serializer for updating user information (role cannot be changed)"""
     profile = UserProfileSerializer(source='userprofile', required=False)
     
     class Meta:
@@ -156,7 +163,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         return value
 
     def update(self, instance, validated_data):
-        """Update user and profile"""
+        """Update user and profile (excluding role)"""
         profile_data = validated_data.pop('userprofile', None)
         
         # Update user fields
@@ -164,9 +171,10 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         
-        # Update profile if provided
         if profile_data:
             profile = instance.userprofile
+            profile_data.pop('role', None)
+            
             for attr, value in profile_data.items():
                 setattr(profile, attr, value)
             profile.save()

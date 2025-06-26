@@ -1,4 +1,3 @@
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
@@ -9,6 +8,9 @@ import Grants from "./components/Grants.tsx";
 import LandingPage from "./components/LandingPage.tsx";
 import InvestorDashboard from "./Dashboards/InvestorDashboard.tsx";
 import FarmerDashboard from "./Dashboards/FarmerDashboard.tsx";
+import { Provider } from 'react-redux';
+import store from "./redux/store.ts";
+import ProtectedRoute from "./Utils/ProtectedRoute.tsx";
 
 
 const routes = createBrowserRouter([
@@ -48,16 +50,24 @@ const routes = createBrowserRouter([
   },
   {
     path: 'investor',
-    element: <InvestorDashboard />
+    element: (
+      <ProtectedRoute>
+        <InvestorDashboard />
+      </ProtectedRoute>
+    )
   },
   {
     path: 'farmer',
-    element: <FarmerDashboard/>
+    element: (
+      <ProtectedRoute>
+        <FarmerDashboard/>
+      </ProtectedRoute>
+    )
   }
 ]);
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
+  <Provider store={store}>
     <RouterProvider router={routes} />
-  </StrictMode>
+  </Provider>
 );

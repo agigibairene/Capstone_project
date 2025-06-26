@@ -1,5 +1,5 @@
-from django.db import models # type: ignore
-from django.contrib.auth.models import User # type: ignore
+from django.db import models
+from django.contrib.auth.models import User
 import uuid
 
 class PasswordReset(models.Model):
@@ -9,7 +9,6 @@ class PasswordReset(models.Model):
 
     def __str__(self):
         return f"Password reset for {self.user.username} at {self.created_when}"
-    
 
 class UserProfile(models.Model):
     ROLE_CHOICES = [

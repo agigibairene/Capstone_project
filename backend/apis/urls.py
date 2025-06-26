@@ -7,8 +7,9 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('forgot-password/', views.forgot_password_view, name='forgot-password'),
-    # path('password-reset-sent/<str:reset_id>/', views.forgot_password_view, name='password-reset-sent'),
     path('reset-password/<str:reset_id>/', views.reset_password_view, name='reset-password'),
     path('token/refresh/', TokenRefreshView.as_view(), name='refresh'),
-    path('token/', TokenObtainPairView.as_view(), name='get_token')
+    path('token/', TokenObtainPairView.as_view(), name='get_token'),
+    path('userprofile/', views.user_profile_view, name='user-profile'),
+    path('userprofile/update/', views.update_profile_view, name='update-profile'),
 ]
