@@ -43,8 +43,8 @@ export default function ForgotPassword() {
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `url(${image})`,
-          filter: 'blur(2px) brightness(0.7)',
-          transform: 'scale(1.1)'
+          filter: 'blur(0.5px) brightness(1.1)',
+          transform: 'scale(1)'
         }}
       />
       <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/30 via-teal-500/20 to-blue-600/40" />

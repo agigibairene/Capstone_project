@@ -60,8 +60,8 @@ export default function ResetPassword() {
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `url(${image})`,
-          filter: 'blur(2px) brightness(0.7)',
-          transform: 'scale(1.1)',
+          filter: 'blur(0.6px) brightness(1)',
+          transform: 'scale(1)'
         }}
       />
       <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/30 via-teal-500/20 to-blue-600/40" />
@@ -72,7 +72,7 @@ export default function ResetPassword() {
             <div className="flex justify-center mb-4">
               <img src={logo} alt="" className="h-10" />
             </div>
-            <h2 className="text-2xl font-semibold text-white mb-2">Reset Password</h2>
+            <h2 className="text-2xl font-semibold text-bgColor mb-2">Reset Password</h2>
             <p className="text-white/70 text-sm">Enter your new password below</p>
           </div>
 
