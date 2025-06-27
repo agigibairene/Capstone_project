@@ -13,6 +13,7 @@ import store from "./redux/store.ts";
 import ProtectedRoute from "./Utils/ProtectedRoute.tsx";
 import ResetPassword from "./Utils/ResetPassword.tsx";
 import ForgotPassword from "./Utils/ForgetPassword.tsx";
+import KYCForm from "./Utils/KYCForm.tsx";
 
 
 const routes = createBrowserRouter([
@@ -73,6 +74,10 @@ const routes = createBrowserRouter([
         <FarmerDashboard/>
       </ProtectedRoute>
     )
+  },
+  {
+    path: "x",
+    element: <KYCForm />
   }
 ]);
 

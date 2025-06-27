@@ -43,7 +43,7 @@ export default function ForgotPassword() {
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `url(${image})`,
-          filter: 'blur(0.5px) brightness(1.1)',
+          filter: 'blur(0.5px) brightness(0.9)',
           transform: 'scale(1)'
         }}
       />

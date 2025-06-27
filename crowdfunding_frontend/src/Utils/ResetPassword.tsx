@@ -60,7 +60,7 @@ export default function ResetPassword() {
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `url(${image})`,
-          filter: 'blur(0.6px) brightness(1)',
+          filter: 'blur(0.6px) brightness(0.9)',
           transform: 'scale(1)'
         }}
       />
