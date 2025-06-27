@@ -11,6 +11,8 @@ import FarmerDashboard from "./Dashboards/FarmerDashboard.tsx";
 import { Provider } from 'react-redux';
 import store from "./redux/store.ts";
 import ProtectedRoute from "./Utils/ProtectedRoute.tsx";
+import ResetPassword from "./Utils/ResetPassword.tsx";
+import ForgotPassword from "./Utils/ForgetPassword.tsx";
 
 
 const routes = createBrowserRouter([
@@ -45,13 +47,21 @@ const routes = createBrowserRouter([
     element: <Login />,
   },
   {
+    path: '/reset/:reset_id',
+    element: <ResetPassword/>
+  },
+  {
+    path: '/forgot-password',
+    element: <ForgotPassword/>
+  },
+  {
     path: "grants",
     element: <Grants />,
   },
   {
     path: 'investor',
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute userRole="Investor">
         <InvestorDashboard />
       </ProtectedRoute>
     )
@@ -59,12 +69,13 @@ const routes = createBrowserRouter([
   {
     path: 'farmer',
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute userRole="Farmer">
         <FarmerDashboard/>
       </ProtectedRoute>
     )
   }
 ]);
+
 
 createRoot(document.getElementById("root")!).render(
   <Provider store={store}>

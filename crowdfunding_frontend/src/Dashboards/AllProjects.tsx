@@ -8,8 +8,8 @@ export default function AllProjects({}){
             <div className="flex gap-6 flex-wrap">
                 {
                   projects.map(project =>{
-                    const {name, title, image, brief, target} = project;
-                    return <ProjectCard name={name} image={image} briefDescription={brief} target={target}/> 
+                    const {name,  brief, target} = project;
+                    return <ProjectCard name={name} briefDescription={brief} target={target}/> 
                   })
                 }
         </div>

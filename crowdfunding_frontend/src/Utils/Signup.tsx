@@ -140,7 +140,6 @@ export default function Signup() {
     }
   }
 
-  // Handle successful signup navigation
   useEffect(() => {
     if (success) {
       if (userInput.role === "Farmer") {
@@ -187,7 +186,7 @@ export default function Signup() {
 
         {/* RIGHT SIDE */}
         <div className="p-4 sm:p-6 md:p-12 rounded-lg bg-white">
-          <h2 className="text-xl font-semibold text-teal-700">Sign Up for Agriconnect</h2>
+          <h2 className="text-xl font-semibold text-teal-700">Create an Account on Agriconnect</h2>
           <p className="text-sm text-gray-500 mb-6">Sign up to see more amazing features</p>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
@@ -335,8 +334,9 @@ export default function Signup() {
             </div>
 
             {errors.general && <p className="text-sm text-red-500">{errors.general}</p>}
-            {error && <p className="text-sm text-red-500">{error}</p>}
-
+            {error && (
+              <div className="bg-red-100 text-red-700 text-sm p-2 rounded">{error}</div>
+            )}
             <button
               type="submit"
               className="w-full cursor-pointer bg-teal-700 hover:bg-teal-900 text-white font-semibold py-2 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"

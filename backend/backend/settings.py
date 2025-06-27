@@ -157,3 +157,9 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend', 
 ]
 
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 465
+EMAIL_USE_SSL=True
+EMAIL_HOST_USER='i.agigiba@alustudent.com'
+EMAIL_HOST_PASSWORD=os.getenv('EMAIL_HOST_PASSWORD')

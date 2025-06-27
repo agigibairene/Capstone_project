@@ -199,7 +199,7 @@ const projectSlice = createSlice({
                 state.loading.creating = true;
                 state.error = null;
             })
-            .addCase(createProject.fulfilled, (state, action) => {
+            .addCase(createProject.fulfilled, (state) => {
                 state.loading.creating = false;
                 // Optionally add the created project to the state
             })

@@ -1,4 +1,3 @@
-// Updated Redux Types and Logic
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 interface Props {
@@ -20,7 +19,7 @@ interface User {
   first_name: string;
   last_name: string;
   date_joined: string;
-  profile: UserProfile; // Changed from userprofile to profile to match backend
+  profile: UserProfile;
 }
 
 interface AuthProps {
@@ -38,6 +37,9 @@ const initialState: AuthProps = {
   loading: false,
   error: null
 }
+
+const ACCESS_TOKEN = 'ACCESS_TOKEN';
+const REFRESH_TOKEN = 'REFRESH_TOKEN';
 
 export const loginUser = createAsyncThunk(
   'auth/loginUser',
@@ -59,8 +61,12 @@ export const loginUser = createAsyncThunk(
 
       const { access, refresh, user } = data;
 
-      localStorage.setItem('ACCESS_TOKEN', access);
-      localStorage.setItem('REFRESH_TOKEN', refresh);
+      // Save tokens
+      localStorage.setItem(ACCESS_TOKEN, access);
+      localStorage.setItem(REFRESH_TOKEN, refresh);
+
+      // Save role for authorization checks
+      localStorage.setItem('role', user.profile.role);
 
       return { user, access, refresh };
     } 
@@ -78,8 +84,9 @@ const loginSlice = createSlice({
       state.user = null;
       state.access = null;
       state.refresh = null;
-      localStorage.removeItem('ACCESS_TOKEN');
-      localStorage.removeItem('REFRESH_TOKEN');
+      localStorage.removeItem(ACCESS_TOKEN);
+      localStorage.removeItem(REFRESH_TOKEN);
+      localStorage.removeItem('role');
     },
   },
   extraReducers: (builder) => {

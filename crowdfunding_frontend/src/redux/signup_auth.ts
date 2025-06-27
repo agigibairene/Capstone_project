@@ -48,44 +48,55 @@ const initialState: AuthState = {
   success: false,
 };
 
-export const signupUser = createAsyncThunk<AuthResponse, SignupProps,
-  { rejectValue: string }
->('auth/signupUser', async (signupData, thunkAPI) => {
-  try {
-    const apiData = {
-      first_name: signupData.first_name,
-      last_name: signupData.last_name,
-      email: signupData.email,
-      password: signupData.password,
-      confirm_password: signupData.confirm_password,
-      role: signupData.role,
-      phone_number: signupData.phone_number,
-      ...(signupData.organization && { organization: signupData.organization }),
-      ...(signupData.investorType && { investor_type: signupData.investorType }),
-    };
+export const signupUser = createAsyncThunk<AuthResponse, SignupProps, { rejectValue: string }>(
+  'auth/signupUser',
+  async (signupData, thunkAPI) => {
+    try {
+      const apiData = {
+        first_name: signupData.first_name,
+        last_name: signupData.last_name,
+        email: signupData.email,
+        password: signupData.password,
+        confirm_password: signupData.confirm_password,
+        role: signupData.role,
+        phone_number: signupData.phone_number,
+        ...(signupData.organization && { organization: signupData.organization }),
+        ...(signupData.investorType && { investor_type: signupData.investorType }),
+      };
 
-    const response = await fetch('http://127.0.0.1:8000/auth/signup/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(apiData),
-    });
+      const response = await fetch('http://127.0.0.1:8000/auth/signup/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(apiData),
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (!response.ok) {
-      return thunkAPI.rejectWithValue(data.detail || data.message || 'Signup failed');
+      if (!response.ok) {
+        const errors = data.errors;
+        if (errors?.email?.length > 0) {
+          return thunkAPI.rejectWithValue(errors.email[0]); 
+        }
+        if (errors?.confirm_password?.length > 0) {
+          return thunkAPI.rejectWithValue(errors.confirm_password[0]);
+        }
+        if (errors?.password?.length > 0) {
+          return thunkAPI.rejectWithValue(errors.password[0]);
+        }
+        return thunkAPI.rejectWithValue(data.detail || data.message || 'Signup failed');
+      }
+
+      const { user, access, refresh } = data;
+      localStorage.setItem('ACCESS_TOKEN', access);
+      localStorage.setItem('REFRESH_TOKEN', refresh);
+
+      return { user, access, refresh };
+    } catch (error) {
+      return thunkAPI.rejectWithValue('Failed to signup');
     }
-
-    const { user, access, refresh } = data;
-
-    localStorage.setItem('ACCESS_TOKEN', access);
-    localStorage.setItem('REFRESH_TOKEN', refresh);
-
-    return { user, access, refresh };
-  } catch (error) {
-    return thunkAPI.rejectWithValue('Failed to signup');
   }
-});
+);
+
 
 const signupSlice = createSlice({
   name: 'signup',

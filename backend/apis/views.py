@@ -19,6 +19,8 @@ from .serializers import (
     UserUpdateSerializer
 )
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.http import HttpResponseRedirect
+
 
 
 @api_view(['POST'])
@@ -54,17 +56,15 @@ def login_view(request):
             login(request, user)
             refresh = RefreshToken.for_user(user)
 
-            # Ensure profile exists
             try:
                 profile = user.profile
                 if not profile:
                     raise UserProfile.DoesNotExist
             except UserProfile.DoesNotExist:
-                # Create a default profile if it doesn't exist
                 UserProfile.objects.create(
                     user=user,
                     phone_number='',
-                    role='Farmer',  # Default role
+                    role='Farmer',  
                     organization='',
                     investor_type=''
                 )
@@ -144,16 +144,17 @@ def forgot_password_view(request):
     }, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['POST'])
+@api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def reset_password_view(request, reset_id):
-    """Password reset confirmation endpoint"""
+    if request.method == 'GET':
+        frontend_url = f"http://localhost:8080/reset/{reset_id}"
+        return HttpResponseRedirect(frontend_url)
+
     serializer = PasswordResetSerializer(data=request.data)
     if serializer.is_valid():
         try:
             reset_instance = PasswordReset.objects.get(reset_id=reset_id)
-            
-            # Check if reset link has expired (10 minutes)
             expiration_time = reset_instance.created_when + timezone.timedelta(minutes=10)
             if timezone.now() > expiration_time:
                 reset_instance.delete()
@@ -162,12 +163,10 @@ def reset_password_view(request, reset_id):
                     'errors': {'general': 'Reset link has expired'}
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-            # Reset password
             user = reset_instance.user
             user.set_password(serializer.validated_data['password'])
             user.save()
             reset_instance.delete()
-            
             return Response({
                 'success': True, 
                 'message': 'Password reset successful'

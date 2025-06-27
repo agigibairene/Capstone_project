@@ -1,81 +1,78 @@
-import { Navigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
-import { useEffect, useState } from "react";
-
-
-interface JwtPayload {
-  exp: number;
-}
+import React, { useEffect, useState } from 'react';
+import { Navigate } from 'react-router-dom';
 
 interface Props {
   children: React.ReactNode;
+  userRole: string;
 }
 
-const API_URL = import.meta.env.VITE_API_URL;
-const ACCESS_TOKEN = 'access'
-const REFRESH_TOKEN = 'refresh'
+function getUserRole(): string | null {
+  return localStorage.getItem('role');
+}
 
-export default function ProtectedRoute({ children }: Props){
-  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+async function refreshAccessToken(): Promise<string | null> {
+  const refresh = localStorage.getItem('REFRESH_TOKEN');
+  if (!refresh) {
+    console.error('No refresh token found');
+    return null;
+  }
+
+  try {
+    const response = await fetch('http://127.0.0.1:8000/auth/token/refresh/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh }),
+    });
+
+    if (!response.ok) {
+      console.error('Refresh token invalid or expired');
+      return null;
+    }
+
+    const data = await response.json();
+    localStorage.setItem('ACCESS_TOKEN', data.access);
+    return data.access;
+  } catch (error) {
+    console.error('Failed to refresh token', error);
+    return null;
+  }
+}
+
+export default function ProtectedRoute({ children, userRole }: Props) {
+  const [authorized, setAuthorized] = useState<boolean | null>(null);
 
   useEffect(() => {
-    checkAuth().catch(() => setIsAuthorized(false));
-  }, []);
+    async function checkAuth() {
+      let access = localStorage.getItem('ACCESS_TOKEN');
 
-  const refreshAccessToken = async () => {
-    const refresh = localStorage.getItem(REFRESH_TOKEN);
-    if (!refresh) {
-      setIsAuthorized(false);
-      return;
-    }
-
-    try {
-      const res = await fetch(`${API_URL}/auth/token/refresh/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ refresh }),
-      });
-
-      if (!res.ok) throw new Error("Failed to refresh token");
-
-      const data = await res.json();
-      localStorage.setItem(ACCESS_TOKEN, data.access);
-      setIsAuthorized(true);
-    } catch (error) {
-      console.error("Refresh token error:", error);
-      setIsAuthorized(false);
-    }
-  };
-
-  const checkAuth = async () => {
-    const access = localStorage.getItem(ACCESS_TOKEN);
-    if (!access) {
-      setIsAuthorized(false);
-      return;
-    }
-
-    try {
-      const decoded = jwtDecode<JwtPayload>(access);
-      const now = Date.now() / 1000;
-
-      if (decoded.exp < now) {
-        await refreshAccessToken();
-      } else {
-        setIsAuthorized(true);
+      if (!access) {
+        access = await refreshAccessToken();
       }
-    } catch (error) {
-      console.error("Invalid token:", error);
-      setIsAuthorized(false);
-    }
-  };
 
-  if (isAuthorized === null) {
+      if (!access) {
+        setAuthorized(false);
+        return;
+      }
+
+      const role = getUserRole();
+
+      if (!role || role.toLowerCase() !== userRole.toLowerCase()) {
+        setAuthorized(false);
+      } else {
+        setAuthorized(true);
+      }
+    }
+
+    checkAuth();
+  }, [userRole]);
+
+  if (authorized === null) {
     return <div>Loading...</div>;
   }
 
-  return isAuthorized ? <>{children}</> : <Navigate to="/login" replace />;
-};
+  if (!authorized) {
+    return <Navigate to="/login" replace />;
+  }
 
-
+  return <>{children}</>;
+}

@@ -1,7 +1,6 @@
 import {
   BarChart3,
   Users,
-  MessageCircle,
   BarChart,
   Calendar,
   DollarSign,
