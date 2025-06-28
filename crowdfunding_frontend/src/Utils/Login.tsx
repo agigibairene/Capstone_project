@@ -9,8 +9,6 @@ import Loader from './Loader';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import image from '../assets/loginImage.jpg';
 
-
-
 export default function Login() {
   const [UserInput, setUserInput] = useState({
     email: '',
@@ -18,13 +16,12 @@ export default function Login() {
   });
 
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, user } = useSelector((state :RootState)=>state.loginReducer)
+  const { loading, error, user } = useSelector((state: RootState) => state.loginReducer)
 
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState<boolean>(false)
-
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -49,28 +46,29 @@ export default function Login() {
     return Object.keys(newErrors).length === 0;
   };
 
-  async function handleSubmit(e: React.FormEvent){
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitted(true);
 
     if (validate()) {
-      try{
+      try {
         const response: any = await dispatch(loginUser(UserInput));
-        if (response.payload && response.payload.user){
-        const role = response.payload.user.profile.role;
-        console.log(role)
-          if (role === 'farmer'){
+        if (response.payload && response.payload.user) {
+          const role = response.payload.user.profile.role;
+          console.log(role)
+          
+          if (role.toLowerCase() === 'farmer') {
             navigate('/farmer');
           }
-          else if (role === 'investor'){
+          else if (role.toLowerCase() === 'investor') {
             navigate('/investor')
           }
-          else{
+          else {
             navigate('/')
           }
         }
       }
-      catch(e){
+      catch (e) {
         console.error('Login failed:', e)
       }
     }
@@ -165,7 +163,7 @@ export default function Login() {
             </form>
 
             <p className="mt-6 text-sm text-center text-gray-600">
-              Don’t have an account?{' '}
+              Don't have an account?{' '}
               <Link to="/signup" className="text-teal-700 hover:underline">
                 Sign up
               </Link>

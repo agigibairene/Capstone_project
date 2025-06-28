@@ -77,11 +77,11 @@ const routes = createBrowserRouter([
     )
   },
   {
-    path: "kyc_investor",
+    path: "/kyc_investor",
     element: <KYCInvestor />
   },
   {
-    path: 'kyc_farmer',
+    path: '/kyc_farmer',
     element: <KYCFarmer/>
   }
 ]);

@@ -1,9 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import image from '../assets/login_img.jpg';
 import logo from '../assets/green_logo.png';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import KYC from './KYC';
 
 export default function KYCFarmer() {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     fullName: '',
@@ -80,15 +83,14 @@ export default function KYCFarmer() {
       setErrors(validationErrors);
       return;
     }
-
-    console.log('Investment seeker data:', formData);
-    alert('Form submitted successfully!');
+    navigate('/farmer');
   }
 
   const inputClass = 'w-full px-3 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent transition-all duration-200 text-sm'
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden py-4">
+   <KYC>
+     <div className="min-h-screen flex items-center justify-center relative overflow-hidden py-4">
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
@@ -117,11 +119,10 @@ export default function KYCFarmer() {
           <div className="mb-6">
             <div className="flex justify-between mb-1">
                 {
-                    ['Personal Info', 'Project Details','Funding & Final'].map((item)=>{
-                        return <span className="text-bgColor font-bold text-xs">{item}</span>
-                    })
+                    ['Personal Info', 'Project Details','Funding & Final'].map((item, index) => (
+                      <span key={index} className="text-bgColor font-bold text-xs">{item}</span>
+                    ))
                 }
-              
             </div>
             <div className="w-full bg-white/20 rounded-full h-2">
               <div 
@@ -178,11 +179,14 @@ export default function KYCFarmer() {
                     onChange={handleChange}
                     className="w-full px-3 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent transition-all duration-200 text-sm"
                   >
-                    <option value="" className="bg-gray-800 text-white">Select Role</option>
-                    <option value="Student" className="bg-gray-800 text-white">Student</option>
-                    <option value="Farmer" className="bg-gray-800 text-white">Farmer</option>
-                    <option value="Entrepreneur" className="bg-gray-800 text-white">Entrepreneur</option>
-                    <option value="Other" className="bg-gray-800 text-white">Other</option>
+                    <option value="" disabled className="bg-gray-800 text-white">Select Role</option>
+
+                  {
+                    ['Student', 'Farmer', 'Entrepreneur', 'Other'].map((item)=>(
+                      <option value={item} className="bg-gray-800 text-white">{item}</option>
+                    ))
+                  }
+  
                   </select>
                   {errors.role && <p className="text-xs font-bold text-red-600 mt-1">{errors.role}</p>}
                 </div>
@@ -305,7 +309,7 @@ export default function KYCFarmer() {
                 ) : (
                   <button
                     type="submit"
-                    className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/30 text-sm"
+                    className="bg-bgColor text-limeTxt cursor-pointer font-medium py-2 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/30 text-sm"
                   >
                     Submit
                   </button>
@@ -316,5 +320,6 @@ export default function KYCFarmer() {
         </div>
       </div>
     </div>
+   </KYC>
   );
 }

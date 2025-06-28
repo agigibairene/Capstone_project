@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 interface SignupProps {
@@ -21,7 +20,7 @@ interface User {
   role: "Farmer" | "Investor";
   phone_number: string;
   organization: string | null;
-  investorType: "Individual" | "Organization" | null;
+  investor_type: "Individual" | "Organization" | null;
 }
 
 interface AuthResponse {
@@ -41,8 +40,8 @@ interface AuthState {
 
 const initialState: AuthState = {
   user: null,
-  access: localStorage.getItem('access'),
-  refresh: localStorage.getItem('refresh'),
+  access: localStorage.getItem('ACCESS_TOKEN'),
+  refresh: localStorage.getItem('REFRESH_TOKEN'),
   loading: false,
   error: null,
   success: false,
@@ -64,6 +63,8 @@ export const signupUser = createAsyncThunk<AuthResponse, SignupProps, { rejectVa
         ...(signupData.investorType && { investor_type: signupData.investorType }),
       };
 
+      console.log('Signup request data:', apiData);
+
       const response = await fetch('http://127.0.0.1:8000/auth/signup/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -71,32 +72,42 @@ export const signupUser = createAsyncThunk<AuthResponse, SignupProps, { rejectVa
       });
 
       const data = await response.json();
+      console.log('Signup response:', data);
 
       if (!response.ok) {
-        const errors = data.errors;
-        if (errors?.email?.length > 0) {
-          return thunkAPI.rejectWithValue(errors.email[0]); 
-        }
-        if (errors?.confirm_password?.length > 0) {
-          return thunkAPI.rejectWithValue(errors.confirm_password[0]);
-        }
-        if (errors?.password?.length > 0) {
-          return thunkAPI.rejectWithValue(errors.password[0]);
-        }
-        return thunkAPI.rejectWithValue(data.detail || data.message || 'Signup failed');
+        const errorMsg = data.detail || 
+                        data.message || 
+                        (data.errors ? JSON.stringify(data.errors) : 'Signup failed');
+        return thunkAPI.rejectWithValue(errorMsg);
       }
 
       const { user, access, refresh } = data;
+
+      // Ensure role is properly extracted and stored
+      const userRole = user?.role || signupData.role;
+      console.log('User role from response:', user?.role);
+      console.log('User role from signup data:', signupData.role);
+      console.log('Final role to store:', userRole);
+
+      // Store tokens and role in localStorage
       localStorage.setItem('ACCESS_TOKEN', access);
       localStorage.setItem('REFRESH_TOKEN', refresh);
+      localStorage.setItem('role', userRole);
+      console.log('Signup successful, role stored:', userRole);
 
-      return { user, access, refresh };
-    } catch (error) {
-      return thunkAPI.rejectWithValue('Failed to signup');
+      // Return user with corrected role if needed
+      const correctedUser = {
+        ...user,
+        role: userRole
+      };
+
+      return { user: correctedUser, access, refresh };
+    } catch (error: any) {
+      console.error('Signup error:', error);
+      return thunkAPI.rejectWithValue(error.message || 'Failed to signup');
     }
   }
 );
-
 
 const signupSlice = createSlice({
   name: 'signup',
@@ -109,6 +120,7 @@ const signupSlice = createSlice({
       state.success = false;
       localStorage.removeItem('ACCESS_TOKEN');
       localStorage.removeItem('REFRESH_TOKEN');
+      localStorage.removeItem('role');
     },
     resetSignupState(state) {
       state.loading = false;
@@ -118,28 +130,77 @@ const signupSlice = createSlice({
     clearError(state) {
       state.error = null;
     },
+    setUserRole(state, action) {
+      if (state.user) {
+        state.user.role = action.payload;
+        localStorage.setItem('role', action.payload);
+      }
+    },
+    initializeAuth(state) {
+      const token = localStorage.getItem('ACCESS_TOKEN');
+      const role = localStorage.getItem('role');
+      
+      console.log('Initializing auth:', { token: !!token, role });
+      
+      if (token && role && role !== 'undefined') {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          const currentTime = Date.now() / 1000;
+          
+          if (payload.exp && payload.exp > currentTime) {
+            state.user = {
+              id: payload.user_id || 0,
+              first_name: payload.first_name || '',
+              last_name: payload.last_name || '',
+              email: payload.email || '',
+              role: role as "Farmer" | "Investor",
+              phone_number: payload.phone_number || '',
+              organization: payload.organization || null,
+              investor_type: payload.investor_type || null,
+            };
+            state.access = token;
+            state.refresh = localStorage.getItem('REFRESH_TOKEN');
+            console.log('Auth initialized from storage:', state.user);
+          } else {
+            console.log('Token expired, clearing storage');
+            localStorage.removeItem('ACCESS_TOKEN');
+            localStorage.removeItem('REFRESH_TOKEN');
+            localStorage.removeItem('role');
+          }
+        } catch (error) {
+          console.error('Failed to parse token:', error);
+          localStorage.removeItem('ACCESS_TOKEN');
+          localStorage.removeItem('REFRESH_TOKEN');
+          localStorage.removeItem('role');
+        }
+      }
+    },
   },
   extraReducers: (builder) => {
-    builder.addCase(signupUser.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-      state.success = false;
-    });
-    builder.addCase(signupUser.fulfilled, (state, action) => {
-      state.loading = false;
-      state.user = action.payload.user;
-      state.access = action.payload.access;
-      state.refresh = action.payload.refresh;
-      state.success = true;
-      state.error = null;
-    });
-    builder.addCase(signupUser.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload ?? 'Signup failed';
-      state.success = false;
-    });
+    builder
+      .addCase(signupUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(signupUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+        state.access = action.payload.access;
+        state.refresh = action.payload.refresh;
+        state.success = true;
+        state.error = null;
+        const role = action.payload.user.role;
+        localStorage.setItem('role', role);
+        console.log('Signup fulfilled, role set:', role);
+      })
+      .addCase(signupUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload ?? 'Signup failed';
+        state.success = false;
+      });
   },
 });
 
-export const { logout, resetSignupState, clearError } = signupSlice.actions;
+export const { logout, resetSignupState, clearError, setUserRole, initializeAuth } = signupSlice.actions;
 export const signupReducer = signupSlice.reducer;

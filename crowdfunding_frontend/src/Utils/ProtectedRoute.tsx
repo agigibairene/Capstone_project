@@ -1,13 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 
 interface Props {
   children: React.ReactNode;
   userRole: string;
-}
-
-function getUserRole(): string | null {
-  return localStorage.getItem('role');
 }
 
 async function refreshAccessToken(): Promise<string | null> {
@@ -26,6 +22,7 @@ async function refreshAccessToken(): Promise<string | null> {
 
     if (!response.ok) {
       console.error('Refresh token invalid or expired');
+      localStorage.clear(); 
       return null;
     }
 
@@ -34,6 +31,21 @@ async function refreshAccessToken(): Promise<string | null> {
     return data.access;
   } catch (error) {
     console.error('Failed to refresh token', error);
+    localStorage.clear();
+    return null;
+  }
+}
+
+function getUserRoleFromToken(token: string): string | null {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const role = payload.role || null;
+    if (role && role !== 'undefined') {
+      localStorage.setItem('role', role);
+      return role;
+    }
+    return null;
+  } catch {
     return null;
   }
 }
@@ -50,13 +62,31 @@ export default function ProtectedRoute({ children, userRole }: Props) {
       }
 
       if (!access) {
+        console.log('ProtectedRoute: No valid access token');
         setAuthorized(false);
         return;
       }
 
-      const role = getUserRole();
+      const roleFromToken = getUserRoleFromToken(access);
+             
+      const storedRole = localStorage.getItem('role');
+      const role = roleFromToken || (storedRole !== 'undefined' ? storedRole : null);
 
-      if (!role || role.toLowerCase() !== userRole.toLowerCase()) {
+      console.log('ProtectedRoute: Role check', {
+        roleFromToken,
+        roleFromStorage: storedRole,
+        finalRole: role,
+        requiredRole: userRole
+      });
+
+      if (!role || role === 'undefined') {
+        console.log('ProtectedRoute: No valid role found');
+        setAuthorized(false);
+        return;
+      }
+
+      if (role.toLowerCase() !== userRole.toLowerCase()) {
+        console.log('ProtectedRoute: Role mismatch');
         setAuthorized(false);
       } else {
         setAuthorized(true);
@@ -67,7 +97,14 @@ export default function ProtectedRoute({ children, userRole }: Props) {
   }, [userRole]);
 
   if (authorized === null) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p>Checking authorization...</p>
+        </div>
+      </div>
+    );
   }
 
   if (!authorized) {

@@ -65,8 +65,6 @@ export default function Signup() {
     }
   }
 
-  console.log(error)
-
   function validateInput() {
     const newErrors: { [key: string]: string } = {};
     
@@ -140,15 +138,18 @@ export default function Signup() {
     }
   }
 
-  useEffect(() => {
-    if (success) {
-      if (userInput.role === "Farmer") {
-        navigate("/farmer");
-      } else {
-        navigate("/investor");
-      }
+ useEffect(() => {
+  console.log('Signup status:', { success, role: userInput.role });
+  if (success) {
+    console.log('Navigating to KYC...');
+    if (userInput.role === "Farmer") {
+      navigate("/kyc_farmer");
+    } else if (userInput.role === "Investor") {
+      navigate("/kyc_investor");
     }
-  }, [success, userInput.role, navigate]);
+    dispatch(resetSignupState());
+  }
+}, [success, userInput.role, navigate, dispatch]);
 
   useEffect(() => {
     return () => {
@@ -333,7 +334,6 @@ export default function Signup() {
               </div>
             </div>
 
-            {errors.general && <p className="text-sm text-red-500">{errors.general}</p>}
             {error && (
               <div className="bg-red-100 text-red-700 text-sm p-2 rounded">{error}</div>
             )}

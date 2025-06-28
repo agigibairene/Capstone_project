@@ -1,7 +1,8 @@
+from re import I
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from .models import UserProfile, PasswordReset
+from .models import UserProfile, PasswordReset, KYCVerificationLog, FarmerKYC,InvestorKYC
 
 class UserProfileInline(admin.StackedInline):
     model = UserProfile
@@ -60,3 +61,6 @@ class PasswordResetAdmin(admin.ModelAdmin):
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
+admin.site.register(KYCVerificationLog)
+admin.site.register(FarmerKYC)
+admin.site.register(InvestorKYC)
