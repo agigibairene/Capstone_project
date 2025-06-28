@@ -29,20 +29,17 @@ export default function KYCInvestor() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const dispatch = useDispatch<AppDispatch>();
   const { loading, error } = useSelector((state: RootState) => state.kycReducer);
-  const navigate = useNavigate();
 
-  // Helper function to truncate filename while preserving extension
   const truncateFilename = (file: File, maxLength: number = 95): File => {
     if (file.name.length <= maxLength) return file;
     
     const extension = file.name.split('.').pop() || '';
     const nameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.'));
-    const maxNameLength = maxLength - extension.length - 1; // -1 for the dot
+    const maxNameLength = maxLength - extension.length - 1; 
     const truncatedName = nameWithoutExt.substring(0, maxNameLength);
     
     console.log(`Truncating filename: ${file.name} -> ${truncatedName}.${extension}`);
     
-    // Create new file with truncated name
     const newFile = new File([file], `${truncatedName}.${extension}`, {
       type: file.type,
       lastModified: file.lastModified,
@@ -55,7 +52,6 @@ export default function KYCInvestor() {
     const { name, value, files } = e.target as HTMLInputElement;
     
     if (files && files[0]) {
-      // Truncate filename if it's too long
       const truncatedFile = truncateFilename(files[0]);
       setFormData(prev => ({
         ...prev,
@@ -151,7 +147,6 @@ export default function KYCInvestor() {
       });
 
       await dispatch(investorKYC(formDataToSend)).unwrap();
-      // Don't navigate here - let the KYC wrapper handle it
     } catch (err) {
       console.error('KYC submission failed:', err);
     }
