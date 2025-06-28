@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import type { AppDispatch, RootState } from '../redux/store';
 import { investorKYC } from '../redux/KycSlice';
