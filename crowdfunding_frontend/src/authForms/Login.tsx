@@ -75,7 +75,9 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden font-Outfit">
+    <>
+      {loading && <Loader text='Logging in'/>}
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden font-Outfit">
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
@@ -88,7 +90,7 @@ export default function Login() {
 
       <Link 
         to="/" 
-        className="absolute top-4 left-4 sm:top-12 sm:left-6 z-20 flex items-center text-limeTxt hover:text-white transition-colors duration-200 backdrop-blur-sm bg-white/10 px-3 py-2 rounded-lg border border-white/20"
+        className="absolute top-4 left-4 sm:top-8 sm:left-6 z-20 flex items-center text-limeTxt hover:text-white transition-colors duration-200 backdrop-blur-sm bg-white/10 px-3 py-2 rounded-lg border border-white/20"
       >
         <ArrowLeft className="h-5 w-5 mr-1" />
         <span className="text-sm font-medium">Back Home</span>
@@ -98,7 +100,7 @@ export default function Login() {
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-white/20">
           <div className="text-center mb-8">
             <div className="flex justify-center items-center gap-2 mb-4">
-              <img src={logo} alt="logo" className="h-10" />
+              <img src={logo} alt="logo" className="h-8" />
               <span className="text-2xl font-bold text-bgColor">Agriconnect</span>
             </div>
             <h2 className="text-2xl font-semibold text-bgColor mb-2">Welcome back!</h2>
@@ -156,20 +158,13 @@ export default function Login() {
                 </Link>
               </div>
             </div>
-
-            {loading ? (
-              <div className="flex justify-center">
-                <Loader />
-              </div>
-            ) : (
+          
               <button
                 type="submit"
                 className="w-full bg-bgColor text-limeTxt outline-0 backdrop-blur-sm cursor-pointer font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:bg-bgColor/90"
               >
                 Login
               </button>
-            )}
-
             {error && (
               <p className="text-center text-red-400 text-sm font-bold bg-red-500/10 backdrop-blur-sm border border-red-400/20 rounded-lg py-2 px-4">
                 {error}
@@ -191,5 +186,6 @@ export default function Login() {
         </div>
       </div>
     </div>
+    </>
   );
 }

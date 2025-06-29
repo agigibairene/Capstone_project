@@ -90,7 +90,7 @@ export default function KYCFarmer() {
 
   return (
    <KYC>
-     <div className="min-h-screen flex items-center justify-center relative overflow-hidden py-4">
+     <div className="min-h-screen font-Outfit flex items-center justify-center relative overflow-hidden py-4">
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
@@ -173,21 +173,20 @@ export default function KYCFarmer() {
 
                 <div className="md:col-span-2">
                   <label className="block text-white/80 text-xs font-medium mb-1">Your Role</label>
-                  <select
+                 <select
                     name="role"
                     value={formData.role}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent transition-all duration-200 text-sm"
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white appearance-none focus:outline-none focus:ring-2 focus:ring-white/50 text-sm"
                   >
-                    <option value="" disabled className="bg-gray-800 text-white">Select Role</option>
-
-                  {
-                    ['Student', 'Farmer', 'Entrepreneur', 'Other'].map((item)=>(
-                      <option value={item} className="bg-gray-800 text-white">{item}</option>
-                    ))
-                  }
-  
+                    <option value="" disabled hidden>Select Role</option>
+                    {['Student', 'Farmer', 'Entrepreneur', 'Other'].map((item) => (
+                      <option key={item} value={item} className="text-white bg-gray-800">
+                        {item}
+                      </option>
+                    ))}
                   </select>
+
                   {errors.role && <p className="text-xs font-bold text-red-600 mt-1">{errors.role}</p>}
                 </div>
               </div>

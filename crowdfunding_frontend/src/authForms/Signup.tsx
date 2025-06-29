@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/green_logo.png";
@@ -5,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { signupUser, resetSignupState } from '../redux/signup_auth';
 import type { AppDispatch, RootState } from "../redux/store";
 import { Eye, EyeOff } from "lucide-react";
+import Loader from "../Utils/Loader";
 
 interface Details {
   title: string;
@@ -130,11 +132,12 @@ export default function Signup() {
 
         await dispatch(signupUser(signupData)).unwrap();
         
-        // Navigation will happen in useEffect when success changes
       } catch (err: any) {
         console.error("Signup failed:", err);
         setErrors({ general: err || "Signup failed. Please try again." });
       }
+
+      
     }
   }
 
@@ -158,7 +161,10 @@ export default function Signup() {
   }, [dispatch]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 py-8 font-Outfit">
+    <>
+      {loading && <Loader text="Creating account..." />}
+
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 py-8 font-Outfit">
       <div className="w-full max-w-6xl bg-gray-200 p-4 sm:p-6 md:p-8 rounded-2xl shadow-md grid grid-cols-1 md:grid-cols-[40%_60%] gap-4">
         {/* LEFT SIDE */}
         <div className="bg-gray-200 p-4 sm:p-6 md:p-8 space-y-6">
@@ -233,7 +239,7 @@ export default function Signup() {
                 name="role"
                 value={userInput.role}
                 onChange={handleUserInput}
-                className={`input w-full ${errors.role ? 'border-red-500' : ''}`}
+                className={` w-full ${errors.role ? 'border-red-500' : ''}`}
               >
                 <option value="">Select Role</option>
                 <option value="Farmer">Farmer</option>
@@ -337,12 +343,12 @@ export default function Signup() {
             {error && (
               <div className="bg-red-100 text-red-700 text-sm p-2 rounded">{error}</div>
             )}
+
             <button
               type="submit"
               className="w-full cursor-pointer bg-teal-700 hover:bg-teal-900 text-white font-semibold py-2 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={loading}
             >
-              {loading ? "Creating account..." : "Create My Account"}
+              Create My Account
             </button>
 
             <p className="text-sm text-gray-600 text-center">
@@ -352,5 +358,7 @@ export default function Signup() {
         </div>
       </div>
     </div>
+    
+    </>
   );
 }

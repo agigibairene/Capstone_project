@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 interface SignupProps {
@@ -75,27 +76,77 @@ export const signupUser = createAsyncThunk<AuthResponse, SignupProps, { rejectVa
       console.log('Signup response:', data);
 
       if (!response.ok) {
-        const errorMsg = data.detail || 
-                        data.message || 
-                        (data.errors ? JSON.stringify(data.errors) : 'Signup failed');
+        console.log('Error response data:', data);
+        
+        if (typeof data === 'object' && data !== null) {
+          const fieldErrors = data.errors || data;
+          const errorMessages = [];
+          
+          const hasFieldErrors = Object.keys(fieldErrors).some(key => 
+            Array.isArray(fieldErrors[key]) || typeof fieldErrors[key] === 'string'
+          );
+          
+          if (hasFieldErrors) {
+            for (const [field, messages] of Object.entries(fieldErrors)) {
+              if (Array.isArray(messages) && messages.length > 0) {
+                const processedMessages = messages.map(msg => {
+                  if (field === 'email' && msg.toLowerCase().includes('email already exists')) {
+                    return 'This email is already registered';
+                  }
+                  if (field === 'phone_number' && msg.toLowerCase().includes('phone')) {
+                    return msg.replace(/phone\s+number\s+/i, '').replace(/phone\s+/i, '');
+                  }
+                  const fieldWords = field.toLowerCase().split('_');
+                  let cleanMsg = msg;
+                  fieldWords.forEach(word => {
+                    const regex = new RegExp(`^${word}\\s+`, 'i');
+                    cleanMsg = cleanMsg.replace(regex, '');
+                  });
+                  return cleanMsg;
+                });
+                
+                errorMessages.push(...processedMessages);
+              } else if (typeof messages === 'string') {
+                let cleanMsg = messages;
+                
+                if (field === 'email' && messages.toLowerCase().includes('email already exists')) {
+                  cleanMsg = 'This email is already registered';
+                } else if (field === 'phone_number' && messages.toLowerCase().includes('phone')) {
+                  cleanMsg = messages.replace(/phone\s+number\s+/i, '').replace(/phone\s+/i, '');
+                } else {
+                  const fieldWords = field.toLowerCase().split('_');
+                  fieldWords.forEach(word => {
+                    const regex = new RegExp(`^${word}\\s+`, 'i');
+                    cleanMsg = cleanMsg.replace(regex, '');
+                  });
+                }
+                
+                errorMessages.push(cleanMsg);
+              }
+            }
+            
+            if (errorMessages.length > 0) {
+              return thunkAPI.rejectWithValue(errorMessages.join('. '));
+            }
+          }
+        }
+        
+        const errorMsg = data.detail || data.message || 'Signup failed. Please try again.';
         return thunkAPI.rejectWithValue(errorMsg);
       }
 
       const { user, access, refresh } = data;
 
-      // Ensure role is properly extracted and stored
       const userRole = user?.role || signupData.role;
       console.log('User role from response:', user?.role);
       console.log('User role from signup data:', signupData.role);
       console.log('Final role to store:', userRole);
 
-      // Store tokens and role in localStorage
       localStorage.setItem('ACCESS_TOKEN', access);
       localStorage.setItem('REFRESH_TOKEN', refresh);
       localStorage.setItem('role', userRole);
       console.log('Signup successful, role stored:', userRole);
 
-      // Return user with corrected role if needed
       const correctedUser = {
         ...user,
         role: userRole
@@ -104,10 +155,11 @@ export const signupUser = createAsyncThunk<AuthResponse, SignupProps, { rejectVa
       return { user: correctedUser, access, refresh };
     } catch (error: any) {
       console.error('Signup error:', error);
-      return thunkAPI.rejectWithValue(error.message || 'Failed to signup');
+      return thunkAPI.rejectWithValue(error.message || 'Network error. Please check your connection.');
     }
   }
 );
+
 
 const signupSlice = createSlice({
   name: 'signup',

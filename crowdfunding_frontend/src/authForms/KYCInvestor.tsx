@@ -155,7 +155,7 @@ export default function KYCInvestor() {
 
   return (
     <KYC>
-      <div className="min-h-screen flex items-center justify-center relative overflow-hidden py-4">
+      <div className="min-h-screen font-Outfit flex items-center justify-center relative overflow-hidden py-4">
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
@@ -266,7 +266,7 @@ export default function KYCInvestor() {
                       name="idType"
                       value={formData.idType}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent transition-all duration-200 text-sm"
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white appearance-none focus:outline-none focus:ring-2 focus:ring-white/50 text-sm"
                     >
                       <option value="">Select ID Type</option>
                       <option value="passport">Passport</option>
@@ -360,7 +360,7 @@ export default function KYCInvestor() {
                       name="incomeSource"
                       value={formData.incomeSource}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent transition-all duration-200 text-sm"
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white appearance-none focus:outline-none focus:ring-2 focus:ring-white/50 text-sm"
                     >
                       <option value="">Select Source</option>
                       <option value="salary">Salary</option>
