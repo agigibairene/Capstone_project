@@ -13,10 +13,8 @@ export default function KYC({ children }: { children: React.ReactNode }) {
     const token = localStorage.getItem('ACCESS_TOKEN');
     const storedRole = localStorage.getItem('role');
     
-    // Get role from multiple sources
     const userRole = user?.role || storedRole;
     
-    // Try to get role from token if other sources fail
     let tokenRole = null;
     if (token && (!userRole || userRole === 'undefined')) {
       try {
@@ -45,14 +43,12 @@ export default function KYC({ children }: { children: React.ReactNode }) {
       pathname: location.pathname
     });
 
-    // If no authentication at all, redirect to signup
     if (!user && !token && !loading && location.pathname.includes('kyc')) {
       console.log('KYC: No user or token found, redirecting to signup');
       navigate('/signup');
       return;
     }
 
-    // Handle session expiry
     if (error) {
       if (typeof error === 'string' && error.includes('Session expired')) {
         console.log('KYC: Session expired, clearing storage and redirecting to login');
@@ -92,7 +88,6 @@ export default function KYC({ children }: { children: React.ReactNode }) {
         }
       } else {
         console.error('KYC: No valid role found after successful submission');
-        // Clear invalid data and redirect to login
         localStorage.removeItem('ACCESS_TOKEN');
         localStorage.removeItem('REFRESH_TOKEN');
         localStorage.removeItem('role');

@@ -45,7 +45,7 @@ export default function ResetPassword() {
       const data = await res.json();
       if (res.ok) {
         toast.success('Password reset successful! You can now log in.');
-        setTimeout(() => navigate('/login'), 1000);
+        setTimeout(() => navigate('/login'), 3000);
       } else {
         setErrors(data.errors || {});
       }

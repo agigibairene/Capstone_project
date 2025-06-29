@@ -1,3 +1,4 @@
+from datetime import timedelta, timezone
 from django.db import models
 from django.contrib.auth.models import User
 import uuid
@@ -11,6 +12,11 @@ class PasswordReset(models.Model):
 
     def __str__(self):
         return f"Password reset for {self.user.username} at {self.created_when}"
+
+    @classmethod
+    def recent_reset_count(cls, user):
+        one_day_ago = timezone.now() - timezone.timedelta(days=1)
+        return cls.objects.filter(user=user, created_when__gte=one_day_ago).count()
 
 class UserProfile(models.Model):
     ROLE_CHOICES = [

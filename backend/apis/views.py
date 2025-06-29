@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
@@ -19,8 +20,6 @@ from .serializers import (
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.http import HttpResponseRedirect
 from .models import InvestorKYC, FarmerKYC, KYCVerificationLog
-
-
 
 
 @api_view(['POST'])
@@ -125,6 +124,7 @@ def logout_view(request):
     }, status=status.HTTP_200_OK)
 
 
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def forgot_password_view(request):
@@ -133,9 +133,18 @@ def forgot_password_view(request):
     if serializer.is_valid():
         try:
             user = User.objects.get(email=serializer.validated_data['email'])
-            
-            PasswordReset.objects.filter(user=user).delete()
-            
+
+            one_day_ago = timezone.now() - timedelta(days=1)
+            reset_count = PasswordReset.objects.filter(user=user, created_when__gte=one_day_ago).count()
+
+            if reset_count >= 5:
+                return Response({
+                    'success': False,
+                    'errors': {'limit': 'You have reached the maximum of 5 password reset requests in the last 24 hours.'}
+                }, status=status.HTTP_429_TOO_MANY_REQUESTS)
+
+            PasswordReset.objects.filter(user=user, created_when__lt=one_day_ago).delete()
+
             reset_instance = PasswordReset.objects.create(user=user)
             reset_link = f"{request.scheme}://{request.get_host()}{reverse('reset-password', args=[reset_instance.reset_id])}"
 
@@ -151,6 +160,7 @@ def forgot_password_view(request):
                 'success': True, 
                 'message': 'Password reset email sent'
             }, status=status.HTTP_200_OK)
+
         except User.DoesNotExist:
             return Response({
                 'success': False, 
@@ -161,15 +171,18 @@ def forgot_password_view(request):
                 'success': False, 
                 'errors': {'general': 'Failed to send email'}
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     return Response({
         'success': False, 
         'errors': serializer.errors
     }, status=status.HTTP_400_BAD_REQUEST)
 
 
+    
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def reset_password_view(request, reset_id):
+    '''View to reset password'''
     if request.method == 'GET':
         frontend_url = f"http://localhost:8080/reset/{reset_id}"
         return HttpResponseRedirect(frontend_url)
