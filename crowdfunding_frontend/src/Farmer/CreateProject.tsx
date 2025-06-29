@@ -3,7 +3,6 @@ import InputField from "../Utils/InputField";
 import Loader from "../Utils/Loader";
 
 
-
 export default function CreateProject(){
   const [isLoading, setIsLoading] = useState(false);
   const [form, setForm] = useState({
@@ -41,7 +40,7 @@ export default function CreateProject(){
 
   return (
     <div className="bg-white/20 backdrop-blur-sm mx-auto w-[85%] flex justify-center items-center flex-col rounded-lg sm:p-10 p-4">
-      {isLoading && <Loader />}
+      {isLoading && <Loader text="Creating project..."/>}
       <div className="flex justify-center items-center p-[16px] sm:min-w-[380px] bg-bgColor rounded-[10px]">
         <h1 className="font-Outfit font-bold sm:text-[25px] text-[18px] leading-[38px] text-limeTxt">Start a Project</h1>
       </div>
