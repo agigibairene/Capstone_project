@@ -1,11 +1,10 @@
 from datetime import timedelta
-import json
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth import authenticate,logout, get_user_model
 from django.contrib.auth.models import User
 from django.utils import timezone  
 from django.core.mail import EmailMessage
@@ -20,8 +19,7 @@ from .serializers import (
     KYCVerificationLogSerializer, KYCStatusSerializer, KYCAdminUpdateSerializer
 )
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.http import HttpResponseRedirect, JsonResponse
-from django.contrib import messages
+from django.http import HttpResponseRedirect
 from .models import InvestorKYC, FarmerKYC, KYCVerificationLog
 import logging
 import traceback
@@ -91,7 +89,6 @@ def login_view(request):
             if user:
                 logger.info(f"User authenticated: {user.email}")
                 
-                # Create and send OTP instead of immediate login
                 try:
                     with transaction.atomic():
                         # Delete any existing OTPs for this user
@@ -107,16 +104,11 @@ def login_view(request):
                         logger.info(f"Created OTP {otp.otp_code} for user {user.email}")
                         
                         # Send OTP email
-                        message = f"""
-Hi {user.username}, here is your OTP: {otp.otp_code}
-
-This OTP expires in 5 minutes. Please enter it to complete your login.
-"""
+                        message = f"""Hi {user.username}, here is your OTP: {otp.otp_code}
+                                This OTP expires in 5 minutes. Please enter it to complete your login."""
                         
-                        # Check if email settings are configured
                         if not hasattr(settings, 'EMAIL_HOST_USER') or not settings.EMAIL_HOST_USER:
                             logger.warning("EMAIL_HOST_USER not configured, skipping email send")
-                            # For development - just log the OTP
                             logger.info(f"DEV MODE - OTP for {user.email}: {otp.otp_code}")
                         else:
                             email_message = EmailMessage(
@@ -318,13 +310,9 @@ def resend_login_otp(request):
                 logger.info(f"Created new OTP {otp.otp_code} for user {user.email}")
                 
                 # Send OTP email
-                message = f"""
-Hi {user.username}, here is your new OTP: {otp.otp_code}
-
-This OTP expires in 5 minutes. Please enter it to complete your login.
-"""
+                message = f"""Hi {user.username}, here is your new OTP: {otp.otp_code}
+                        This OTP expires in 5 minutes. Please enter it to complete your login."""
                 
-                # Check if email settings are configured
                 if not hasattr(settings, 'EMAIL_HOST_USER') or not settings.EMAIL_HOST_USER:
                     logger.warning("EMAIL_HOST_USER not configured, skipping email send")
                     # For development - just log the OTP
@@ -600,41 +588,106 @@ def submit_investor_kyc(request):
 def submit_farmer_kyc(request):
     """Submit farmer/project seeker KYC information"""
     try:
-        # Check if user already has KYC
-        existing_kyc = FarmerKYC.objects.filter(user=request.user).first()
+        user = request.user
+        
+        existing_kyc = FarmerKYC.objects.filter(user=user).first()
         if existing_kyc:
             return Response({
                 'success': False,
-                'message': 'KYC already submitted. Use update endpoint to modify.'
+                'message': 'KYC already submitted. Contact support if changes are needed.',
+                'data': {
+                    'kyc_id': existing_kyc.id,
+                    'submitted_date': existing_kyc.created_at,
+                    'is_verified': existing_kyc.is_verified
+                }
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        # Check if user role is farmer
-        if not hasattr(request.user, 'profile') or request.user.profile.role != 'Farmer':
+        if not hasattr(user, 'profile'):
             return Response({
                 'success': False,
-                'message': 'Only farmers can submit farmer KYC'
+                'message': 'User profile not found. Please complete your profile first.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        allowed_roles = ['Farmer', 'Student', 'Entrepreneur']
+        if user.profile.role not in allowed_roles:
+            return Response({
+                'success': False,
+                'message': f'Only users with roles {", ".join(allowed_roles)} can submit farmer KYC. Your current role: {user.profile.role}'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        required_fields = [
+            'full_name', 'email', 'phone_number', 'role', 'date_of_birth', 
+            'nationality', 'background', 'address', 'id_type', 'id_number', 
+            'id_document', 'profile_picture'
+        ]
+        
+        missing_fields = []
+        for field in required_fields:
+            if field not in request.data or not request.data.get(field):
+                missing_fields.append(field)
+        
+        if missing_fields:
+            return Response({
+                'success': False,
+                'message': 'Missing required fields',
+                'errors': {
+                    'missing_fields': missing_fields,
+                    'required': 'All fields are required for KYC submission'
+                }
             }, status=status.HTTP_400_BAD_REQUEST)
         
         serializer = FarmerKYCSerializer(data=request.data, context={'request': request})
+        
         if serializer.is_valid():
-            kyc = serializer.save()
-            return Response({
-                'success': True,
-                'message': 'Farmer KYC submitted successfully',
-                'data': serializer.data
-            }, status=status.HTTP_201_CREATED)
+            with transaction.atomic():
+                try:
+                    kyc = serializer.save()
+                    
+                    logger.info(f"Farmer KYC submitted successfully for user {user.email} (ID: {user.id})")
+                    
+                    return Response({
+                        'success': True,
+                        'message': 'Farmer KYC submitted successfully. Your submission is under review.',
+                        'data': {
+                            'kyc_id': kyc.id,
+                            'submitted_date': kyc.created_at,
+                            'status': 'pending_verification',
+                            'next_steps': 'Your KYC will be reviewed by our team. You will be notified once verification is complete.'
+                        }
+                    }, status=status.HTTP_201_CREATED)
+                    
+                except Exception as save_error:
+                    logger.error(f"Error saving farmer KYC for user {user.email}: {str(save_error)}")
+                    return Response({
+                        'success': False,
+                        'message': 'Failed to save KYC data. Please try again.',
+                        'errors': {'save_error': str(save_error)}
+                    }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        logger.warning(f"Farmer KYC validation failed for user {user.email}: {serializer.errors}")
+        
+        formatted_errors = {}
+        for field, errors in serializer.errors.items():
+            if isinstance(errors, list):
+                formatted_errors[field] = errors[0] if errors else "Invalid value"
+            else:
+                formatted_errors[field] = str(errors)
         
         return Response({
             'success': False,
-            'errors': serializer.errors
+            'message': 'Please correct the following errors and try again.',
+            'errors': formatted_errors
         }, status=status.HTTP_400_BAD_REQUEST)
         
     except Exception as e:
+        logger.error(f"Unexpected error in submit_farmer_kyc for user {request.user.email if request.user.is_authenticated else 'anonymous'}: {str(e)}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        
         return Response({
             'success': False,
-            'message': f'Error submitting KYC: {str(e)}'
+            'message': 'An unexpected error occurred while processing your KYC submission. Please try again later.',
+            'errors': {'general': 'Internal server error'}
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -731,7 +784,6 @@ def get_my_kyc(request):
         }, status=status.HTTP_404_NOT_FOUND if 'not found' in str(e).lower() else status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_kyc_logs(request):
@@ -757,7 +809,7 @@ def get_kyc_logs(request):
 def admin_list_pending_kyc(request):
     """Admin: List all pending KYC submissions"""
     try:
-        kyc_type = request.GET.get('type', 'all')  # 'investor', 'farmer', or 'all'
+        kyc_type = request.GET.get('type', 'all')  
         
         data = []
         

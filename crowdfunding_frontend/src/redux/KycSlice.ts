@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 interface KYCState {
@@ -186,6 +187,7 @@ const kycSlice = createSlice({
         state.success = false;
         console.log('Investor KYC rejected:', state.error);
       })
+      
       // Farmer KYC cases
       .addCase(submitFarmerKYC.pending, (state) => {
         state.loading = true;

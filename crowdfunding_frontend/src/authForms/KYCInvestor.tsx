@@ -183,9 +183,7 @@ export default function KYCInvestor() {
   };
 
   const inputClass = 'w-full px-3 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm';
-  
   const selectClass = 'w-full px-3 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm';
-  
   const fileInputClass = 'w-full px-3 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-emerald-100 file:text-emerald-700 hover:file:bg-emerald-200 file:cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm';
 
   return (
@@ -304,7 +302,7 @@ export default function KYCInvestor() {
                         onChange={handleChange}
                         className={selectClass}
                       >
-                        <option disabled value="">Select ID Type</option>
+                        <option disabled hidden value="">Select ID Type</option>
                         {
                           Object.entries(selectID).map(([label, value])=>
                             <option value={value}>{label}</option>

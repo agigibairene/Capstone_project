@@ -111,8 +111,8 @@ class InvestorKYC(models.Model):
     
     id_type = models.CharField(max_length=20, choices=ID_TYPE_CHOICES)
     id_number = models.CharField(max_length=100)
-    id_document = models.FileField(upload_to='kyc/documents/id/')
-    profile_picture = models.ImageField(upload_to='kyc/profiles/')
+    id_document = models.FileField(upload_to='documents/id/')
+    profile_picture = models.ImageField(upload_to='profiles/')
     
     address = models.TextField()
     occupation = models.CharField(max_length=200)
@@ -150,7 +150,7 @@ class InvestorKYC(models.Model):
         verbose_name = "Investor KYC"
         verbose_name_plural = "Investor KYCs"
         
-        
+
 class FarmerKYC(models.Model):
     """KYC information for farmers/project seekers - Immutable once created"""
     
@@ -161,11 +161,12 @@ class FarmerKYC(models.Model):
         ('Other', 'Other'),
     ]
     
-    # ID_TYPE_CHOICES = [
-    #     ('passport', 'Passport'),
-    #     ('national_id', 'National ID'),
-    #     ('driver_license', 'Driver\'s License'),
-    # ]
+    ID_TYPE_CHOICES = [
+        ('National ID', 'National ID'),
+        ('Passport', 'Passport'),
+        ('Driver\'s License', 'Driver\'s License'),
+        ('Voter ID', 'Voter ID'),
+    ]
     
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='farmer_kyc')
     
@@ -173,21 +174,16 @@ class FarmerKYC(models.Model):
     email = models.EmailField()
     phone_number = models.CharField(max_length=20)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
+    date_of_birth = models.DateField()
+    nationality = models.CharField(max_length=100)
+    
     background = models.TextField(help_text="Brief background information")
+    address = models.TextField(help_text="Complete address")
     
-    
-    # id_type = models.CharField(max_length=20, choices=ID_TYPE_CHOICES)
-    # id_number = models.CharField(max_length=100)
-    # id_document = models.FileField(upload_to='kyc/documents/id/', null=True, blank=True)
-    # profile_picture = models.ImageField(upload_to='kyc/profiles/', null=True, blank=True)
-    
-    
-    project_title = models.CharField(max_length=255)
-    project_description = models.TextField()
-    estimated_budget = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator(0)])
-    funding_needed = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator(0)])
-    location = models.CharField(max_length=255)
-    project_document = models.FileField(upload_to='kyc/documents/projects/', null=True, blank=True)
+    id_type = models.CharField(max_length=20, choices=ID_TYPE_CHOICES)
+    id_number = models.CharField(max_length=100)
+    id_document = models.FileField(upload_to='documents/id/')
+    profile_picture = models.ImageField(upload_to='profiles/')
     
     is_verified = models.BooleanField(default=False)
     verification_date = models.DateTimeField(null=True, blank=True)
@@ -213,11 +209,12 @@ class FarmerKYC(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"KYC for {self.full_name} - {self.project_title}"
+        return f"KYC for {self.full_name}"
 
     class Meta:
         verbose_name = "Farmer KYC"
         verbose_name_plural = "Farmer KYCs"
+
 
 class KYCVerificationLog(models.Model):
     """Log of KYC verification actions"""

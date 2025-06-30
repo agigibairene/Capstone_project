@@ -1,3 +1,4 @@
+from datetime import date
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
@@ -222,15 +223,17 @@ class InvestorKYCSerializer(serializers.ModelSerializer):
         )
         
         return super().create(validated_data)
+
+
 class FarmerKYCSerializer(serializers.ModelSerializer):
     """Serializer for Farmer KYC data - Read-only after creation"""
     
     class Meta:
         model = FarmerKYC
         fields = [
-            'id', 'full_name', 'email', 'phone_number', 'role', 'background',
-            'project_title', 'project_description', 'estimated_budget', 
-            'funding_needed', 'location', 'project_document',
+            'id', 'full_name', 'email', 'phone_number', 'role', 
+            'date_of_birth', 'nationality', 'background', 'address',
+            'id_type', 'id_number', 'id_document', 'profile_picture',
             'is_verified', 'verification_date', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'is_verified', 'verification_date', 'created_at', 'updated_at']
@@ -239,37 +242,69 @@ class FarmerKYCSerializer(serializers.ModelSerializer):
             'email': {'required': True},
             'phone_number': {'required': True},
             'role': {'required': True},
+            'date_of_birth': {'required': True},
+            'nationality': {'required': True},
             'background': {'required': True},
-            'project_title': {'required': True},
-            'project_description': {'required': True},
-            'estimated_budget': {'required': True},
-            'funding_needed': {'required': True},
-            'location': {'required': True},
+            'address': {'required': True},
+            'id_type': {'required': True},
+            'id_number': {'required': True},
+            'id_document': {'required': True},
+            'profile_picture': {'required': True},
         }
 
-    def validate_funding_needed(self, value):
-        """Validate funding needed is positive"""
-        if value <= 0:
-            raise serializers.ValidationError("Funding needed must be greater than 0")
+    def validate_date_of_birth(self, value):
+        """Validate that user is at least 18 years old"""
+        today = date.today()
+        age = today.year - value.year - ((today.month, today.day) < (value.month, value.day))
+        
+        if age < 18:
+            raise serializers.ValidationError("You must be at least 18 years old to register.")
+        
         return value
 
-    def validate_estimated_budget(self, value):
-        """Validate estimated budget is positive"""
-        if value <= 0:
-            raise serializers.ValidationError("Estimated budget must be greater than 0")
+    def validate_email(self, value):
+        """Validate email format and uniqueness within KYC records"""
+        if self.instance is None:  
+            if FarmerKYC.objects.filter(email=value).exists():
+                raise serializers.ValidationError("A KYC record with this email already exists.")
         return value
 
-    def validate(self, attrs):
-        """Validate that funding needed doesn't exceed estimated budget"""
-        funding_needed = attrs.get('funding_needed')
-        estimated_budget = attrs.get('estimated_budget')
+    def validate_phone_number(self, value):
+        """Basic phone number validation"""
+        if not value.replace('+', '').replace('-', '').replace(' ', '').isdigit():
+            raise serializers.ValidationError("Please enter a valid phone number.")
+        return value
+
+    def validate_id_number(self, value):
+        """Validate ID number uniqueness"""
+        if self.instance is None:  
+            if FarmerKYC.objects.filter(id_number=value).exists():
+                raise serializers.ValidationError("A KYC record with this ID number already exists.")
+        return value
+
+    def validate_id_document(self, value):
+        """Validate ID document file"""
+        if value:
+            if value.size > 5 * 1024 * 1024:
+                raise serializers.ValidationError("ID document file size must be less than 5MB.")
+            
+            allowed_extensions = ['.pdf', '.jpg', '.jpeg', '.png']
+            if not any(value.name.lower().endswith(ext) for ext in allowed_extensions):
+                raise serializers.ValidationError("ID document must be a PDF, JPG, JPEG, or PNG file.")
         
-        if funding_needed and estimated_budget and funding_needed > estimated_budget:
-            raise serializers.ValidationError({
-                'funding_needed': 'Funding needed cannot exceed estimated budget'
-            })
+        return value
+
+    def validate_profile_picture(self, value):
+        """Validate profile picture file"""
+        if value:
+            if value.size > 2 * 1024 * 1024:
+                raise serializers.ValidationError("Profile picture file size must be less than 2MB.")
+            
+            allowed_extensions = ['.jpg', '.jpeg', '.png']
+            if not any(value.name.lower().endswith(ext) for ext in allowed_extensions):
+                raise serializers.ValidationError("Profile picture must be a JPG, JPEG, or PNG file.")
         
-        return attrs
+        return value
 
     def update(self, instance, validated_data):
         """Prevent updates to KYC data"""
@@ -280,13 +315,19 @@ class FarmerKYCSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         validated_data['user'] = user
         
-        KYCVerificationLog.objects.create(
-            user=user,
-            action='submitted',
-            notes='Farmer KYC submitted for review'
-        )
+        kyc_instance = super().create(validated_data)
         
-        return super().create(validated_data)
+        try:
+            from .models import KYCVerificationLog
+            KYCVerificationLog.objects.create(
+                user=user,
+                action='submitted',
+                notes='Farmer KYC submitted for review'
+            )
+        except ImportError:
+            pass  
+        
+        return kyc_instance
 
 
 class KYCVerificationLogSerializer(serializers.ModelSerializer):
