@@ -25,7 +25,7 @@ export const investorKYC = createAsyncThunk(
 
       console.log('Submitting KYC with token:', token.substring(0, 20) + '...');
 
-      const response = await fetch('http://127.0.0.1:8000/auth/kyc/investor/submit/', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/kyc/investor/submit/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -94,7 +94,7 @@ export const submitFarmerKYC = createAsyncThunk(
 
       console.log('Submitting Farmer KYC with token:', token.substring(0, 20) + '...');
 
-      const response = await fetch('http://127.0.0.1:8000/auth/kyc/farmer/submit/', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/kyc/farmer/submit/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -128,7 +128,6 @@ export const submitFarmerKYC = createAsyncThunk(
       // Ensure role is maintained after successful KYC
       const storedRole = localStorage.getItem('role');
       if (!storedRole || storedRole === 'undefined') {
-        // Try to get role from token
         try {
           const payload = JSON.parse(atob(token.split('.')[1]));
           if (payload.role && payload.role !== 'undefined') {

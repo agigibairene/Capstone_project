@@ -32,8 +32,8 @@ interface AuthProps {
 
 const initialState: AuthProps = {
   user: null,
-  access: localStorage.getItem('ACCESS_TOKEN'), // Initialize from localStorage
-  refresh: localStorage.getItem('REFRESH_TOKEN'), // Initialize from localStorage
+  refresh: localStorage.getItem('REFRESH_TOKEN'),
+  access: localStorage.getItem('ACCESS_TOKEN'), 
   loading: false,
   error: null
 }
@@ -46,7 +46,7 @@ export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async ({ email, password }: Props, thunkAPI) => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/auth/login/', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

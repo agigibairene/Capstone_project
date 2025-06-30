@@ -22,6 +22,6 @@ urlpatterns = [
     path('kyc/request-change/', views.request_kyc_change, name='request_kyc_change'),
     
     # OTP PATHS
-    path("verify-otp/", views.verify_login_otp, name="verify-otp"),
-    path("resend-otp/", views.resend_login_otp, name="resend-otp"),
+    path("auth/verify-otp/", views.verify_login_otp, name="verify-otp"),
+    path("auth/resend-otp/", views.resend_login_otp, name="resend-otp"),
 ]
