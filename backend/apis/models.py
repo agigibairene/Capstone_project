@@ -122,7 +122,6 @@ class InvestorKYC(models.Model):
     
     is_verified = models.BooleanField(default=False)
     verification_date = models.DateTimeField(null=True, blank=True)
-    notes = models.TextField(help_text="Admin notes for verification")
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -132,7 +131,7 @@ class InvestorKYC(models.Model):
         if self.pk is not None:  
             original = InvestorKYC.objects.get(pk=self.pk)
             
-            admin_updatable_fields = ['is_verified', 'verification_date', 'notes']
+            admin_updatable_fields = ['is_verified', 'verification_date']
             
             for field in self._meta.fields:
                 if field.name not in admin_updatable_fields and field.name not in ['updated_at']:
@@ -187,7 +186,6 @@ class FarmerKYC(models.Model):
     
     is_verified = models.BooleanField(default=False)
     verification_date = models.DateTimeField(null=True, blank=True)
-    notes = models.TextField(blank=True, help_text="Admin notes for verification")
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -197,7 +195,7 @@ class FarmerKYC(models.Model):
         if self.pk is not None:  
             original = FarmerKYC.objects.get(pk=self.pk)
             
-            admin_updatable_fields = ['is_verified', 'verification_date', 'notes']
+            admin_updatable_fields = ['is_verified', 'verification_date']
             
             for field in self._meta.fields:
                 if field.name not in admin_updatable_fields and field.name not in ['updated_at']:
@@ -230,7 +228,6 @@ class KYCVerificationLog(models.Model):
     
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     action = models.CharField(max_length=20, choices=ACTION_CHOICES)
-    notes = models.TextField(blank=True)
     admin_user = models.ForeignKey(
         User, 
         on_delete=models.SET_NULL, 

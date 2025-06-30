@@ -872,7 +872,6 @@ def admin_verify_kyc(request, user_id):
             }, status=status.HTTP_400_BAD_REQUEST)
         
         action = serializer.validated_data['action']
-        notes = serializer.validated_data.get('notes', '')
         allow_changes = serializer.validated_data.get('allow_changes', False)
         
         user_role = user.profile.role
@@ -897,17 +896,12 @@ def admin_verify_kyc(request, user_id):
             kyc.is_verified = False
             kyc.verification_date = None
         
-        kyc.notes = notes
         kyc.save()
         
-        log_notes = notes
-        if allow_changes:
-            log_notes += " [ADMIN ALLOWED ONE-TIME CHANGES]"
             
         KYCVerificationLog.objects.create(
             user=user,
             action=action,
-            notes=log_notes,
             admin_user=request.user
         )
         
@@ -947,7 +941,6 @@ def request_kyc_change(request):
         KYCVerificationLog.objects.create(
             user=user,
             action='change_requested',
-            notes=f"Change request - Reason: {reason}. Requested changes: {requested_changes}"
         )
         
         return Response({

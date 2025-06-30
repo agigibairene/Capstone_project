@@ -180,7 +180,7 @@ class InvestorKYCSerializer(serializers.ModelSerializer):
             'id', 'full_name', 'date_of_birth', 'nationality', 'phone_number',
             'id_type', 'id_number', 'id_document', 'profile_picture',
             'address', 'occupation', 'income_source', 'annual_income', 'purpose',
-            'is_verified', 'verification_date', 'created_at', 'updated_at', 'notes'
+            'is_verified', 'verification_date', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'is_verified', 'verification_date', 'created_at', 'updated_at']
         extra_kwargs = {
@@ -197,7 +197,6 @@ class InvestorKYCSerializer(serializers.ModelSerializer):
             'income_source': {'required': True},
             'annual_income': {'required': True},
             'purpose': {'required': True},
-            'notes': {'required': True},
         }
 
     def validate_annual_income(self, value):
@@ -219,7 +218,6 @@ class InvestorKYCSerializer(serializers.ModelSerializer):
         KYCVerificationLog.objects.create(
             user=user,
             action='submitted',
-            notes='Investor KYC submitted for review'
         )
         
         return super().create(validated_data)
@@ -322,7 +320,6 @@ class FarmerKYCSerializer(serializers.ModelSerializer):
             KYCVerificationLog.objects.create(
                 user=user,
                 action='submitted',
-                notes='Farmer KYC submitted for review'
             )
         except ImportError:
             pass  
@@ -336,7 +333,7 @@ class KYCVerificationLogSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = KYCVerificationLog
-        fields = ['id', 'action', 'notes', 'admin_username', 'created_at']
+        fields = ['id', 'action', 'admin_username', 'created_at']
         read_only_fields = ['id', 'created_at']
 
 
@@ -352,6 +349,5 @@ class KYCStatusSerializer(serializers.Serializer):
 class KYCAdminUpdateSerializer(serializers.Serializer):
     """Serializer for admin KYC updates"""
     action = serializers.ChoiceField(choices=['approved', 'rejected', 'pending'])
-    notes = serializers.CharField(required=False, allow_blank=True)
     allow_changes = serializers.BooleanField(default=False, help_text="Allow one-time changes to KYC data")
 
