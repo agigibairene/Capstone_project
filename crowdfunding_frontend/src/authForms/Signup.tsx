@@ -239,7 +239,7 @@ export default function Signup() {
                 name="role"
                 value={userInput.role}
                 onChange={handleUserInput}
-                className={` w-full ${errors.role ? 'border-red-500' : ''}`}
+                className={`input w-full ${errors.role ? 'border-red-500' : ''}`}
               >
                 <option value="">Select Role</option>
                 <option value="Farmer">Farmer</option>
@@ -346,13 +346,13 @@ export default function Signup() {
 
             <button
               type="submit"
-              className="w-full cursor-pointer bg-teal-700 hover:bg-teal-900 text-white font-semibold py-2 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full cursor-pointer bg-bgColor hover:bg-teal-900 text-limeTxt font-semibold py-2 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Create My Account
             </button>
 
             <p className="text-sm text-gray-600 text-center">
-              Already have an account? <Link to="/login" className="text-teal-500 hover:underline">Login</Link>
+              Already have an account? <Link to="/login" className="text-teal-500 hover:underline font-semibold">Login</Link>
             </p>
           </form>
         </div>

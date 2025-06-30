@@ -86,7 +86,7 @@ const routes = createBrowserRouter([
     element: <KYCFarmer/>
   },
   {
-    path: '/otp',
+    path: '/otp/:username',
     element: <OTPLogin />
   }
 ]);

@@ -125,7 +125,6 @@ class PasswordResetSerializer(serializers.Serializer):
         if attrs['password'] != attrs['confirm_password']:
             raise serializers.ValidationError({"confirm_password": "Passwords do not match"})
         
-        # Validate password strength
         try:
             validate_password(attrs['password'])
         except ValidationError as e:
@@ -180,7 +179,7 @@ class InvestorKYCSerializer(serializers.ModelSerializer):
             'id', 'full_name', 'date_of_birth', 'nationality', 'phone_number',
             'id_type', 'id_number', 'id_document', 'profile_picture',
             'address', 'occupation', 'income_source', 'annual_income', 'purpose',
-            'is_verified', 'verification_date', 'created_at', 'updated_at'
+            'is_verified', 'verification_date', 'created_at', 'updated_at', 'notes'
         ]
         read_only_fields = ['id', 'is_verified', 'verification_date', 'created_at', 'updated_at']
         extra_kwargs = {
@@ -190,11 +189,14 @@ class InvestorKYCSerializer(serializers.ModelSerializer):
             'phone_number': {'required': True},
             'id_type': {'required': True},
             'id_number': {'required': True},
+            'id_document': {'required': True},
+            'profile_picture': {'required': True},
             'address': {'required': True},
             'occupation': {'required': True},
             'income_source': {'required': True},
             'annual_income': {'required': True},
             'purpose': {'required': True},
+            'notes': {'required': True},
         }
 
     def validate_annual_income(self, value):
@@ -220,8 +222,6 @@ class InvestorKYCSerializer(serializers.ModelSerializer):
         )
         
         return super().create(validated_data)
-
-
 class FarmerKYCSerializer(serializers.ModelSerializer):
     """Serializer for Farmer KYC data - Read-only after creation"""
     

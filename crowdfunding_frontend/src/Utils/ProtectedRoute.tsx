@@ -21,33 +21,36 @@ async function refreshAccessToken(): Promise<string | null> {
     });
 
     if (!response.ok) {
-      console.error('Refresh token invalid or expired');
-      localStorage.clear(); 
-      return null;
+      throw new Error('Refresh failed');
     }
 
     const data = await response.json();
     localStorage.setItem('ACCESS_TOKEN', data.access);
+    if (data.refresh) {
+      localStorage.setItem('REFRESH_TOKEN', data.refresh);
+    }
     return data.access;
   } catch (error) {
-    console.error('Failed to refresh token', error);
-    localStorage.clear();
+    console.error('Token refresh failed:', error);
     return null;
   }
 }
 
 function getUserRoleFromToken(token: string): string | null {
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    const role = payload.role || null;
-    if (role && role !== 'undefined') {
-      localStorage.setItem('role', role);
-      return role;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const role = payload.role || payload.user_role || null;
+      
+      if (role && typeof role === 'string' && role !== 'undefined') {
+        const normalizedRole = role.toLowerCase().trim();
+        localStorage.setItem('role', normalizedRole);
+        return normalizedRole;
+      }
+      return null;
+    } catch (error) {
+      console.error('Failed to decode token:', error);
+      return null;
     }
-    return null;
-  } catch {
-    return null;
-  }
 }
 
 export default function ProtectedRoute({ children, userRole }: Props) {

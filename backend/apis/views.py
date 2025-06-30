@@ -1,25 +1,35 @@
 from datetime import timedelta
+import json
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.models import User
-from django.utils import timezone
+from django.utils import timezone  
 from django.core.mail import EmailMessage
 from django.conf import settings
 from django.urls import reverse
-from .models import PasswordReset, UserProfile
+from django.db import transaction
+from .models import OTPToken, PasswordReset, UserProfile
 from .serializers import (
     UserProfileSerializer, UserSignUpSerializer, UserLoginSerializer,
     PasswordResetRequestSerializer, PasswordResetSerializer, UserSerializer,
-    UserUpdateSerializer,  InvestorKYCSerializer, FarmerKYCSerializer, 
+    UserUpdateSerializer, InvestorKYCSerializer, FarmerKYCSerializer, 
     KYCVerificationLogSerializer, KYCStatusSerializer, KYCAdminUpdateSerializer
 )
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
+from django.contrib import messages
 from .models import InvestorKYC, FarmerKYC, KYCVerificationLog
+import logging
+import traceback
+
+# Set up logging
+logger = logging.getLogger(__name__)
+
+User = get_user_model()
 
 
 @api_view(['POST'])
@@ -30,10 +40,8 @@ def signup_view(request):
     if serializer.is_valid():
         user = serializer.save()
         
-        # Generate JWT tokens for the new user
         refresh = RefreshToken.for_user(user)
         
-        # Ensure user profile exists (create if missing)
         try:
             profile = user.profile
             if not profile:
@@ -42,7 +50,7 @@ def signup_view(request):
             UserProfile.objects.create(
                 user=user,
                 phone_number='',
-                role='Farmer',  # Default role, should be set properly from signup data
+                role='Farmer',  
                 organization='',
                 investor_type=''
             )
@@ -63,56 +71,303 @@ def signup_view(request):
         'success': False, 
         'errors': serializer.errors
     }, status=status.HTTP_400_BAD_REQUEST)
-
+    
+    
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_view(request):
-    serializer = UserLoginSerializer(data=request.data)
-    if serializer.is_valid():
-        user = authenticate(
-            request,
-            username=serializer.validated_data['email'],
-            password=serializer.validated_data['password']
-        )
-        if user:
-            login(request, user)
-            refresh = RefreshToken.for_user(user)
+    """Login endpoint that sends OTP after successful authentication"""
+    try:
+        logger.info(f"Login attempt for data: {request.data}")
+        
+        serializer = UserLoginSerializer(data=request.data)
+        if serializer.is_valid():
+            user = authenticate(
+                request,
+                username=serializer.validated_data['email'],
+                password=serializer.validated_data['password']
+            )
+            
+            if user:
+                logger.info(f"User authenticated: {user.email}")
+                
+                # Create and send OTP instead of immediate login
+                try:
+                    with transaction.atomic():
+                        # Delete any existing OTPs for this user
+                        deleted_count = OTPToken.objects.filter(user=user).count()
+                        OTPToken.objects.filter(user=user).delete()
+                        logger.info(f"Deleted {deleted_count} existing OTPs for user {user.email}")
+                        
+                        # Create new OTP
+                        otp = OTPToken.objects.create(
+                            user=user,
+                            otp_expires_at=timezone.now() + timedelta(minutes=5)
+                        )
+                        logger.info(f"Created OTP {otp.otp_code} for user {user.email}")
+                        
+                        # Send OTP email
+                        message = f"""
+Hi {user.username}, here is your OTP: {otp.otp_code}
 
-            try:
-                profile = user.profile
-                if not profile:
-                    raise UserProfile.DoesNotExist
-            except UserProfile.DoesNotExist:
-                UserProfile.objects.create(
-                    user=user,
-                    phone_number='',
-                    role='Farmer',  
-                    organization='',
-                    investor_type=''
-                )
-                print(f"Created missing profile for user {user.email}")
-
-            user_data = UserSerializer(user).data
-            print(f"Login successful for user: {user.email}")
-            print(f"User data being returned: {user_data}")
-
+This OTP expires in 5 minutes. Please enter it to complete your login.
+"""
+                        
+                        # Check if email settings are configured
+                        if not hasattr(settings, 'EMAIL_HOST_USER') or not settings.EMAIL_HOST_USER:
+                            logger.warning("EMAIL_HOST_USER not configured, skipping email send")
+                            # For development - just log the OTP
+                            logger.info(f"DEV MODE - OTP for {user.email}: {otp.otp_code}")
+                        else:
+                            email_message = EmailMessage(
+                                "Login Verification - OTP",
+                                message,
+                                settings.EMAIL_HOST_USER,
+                                [user.email]
+                            )
+                            email_message.send(fail_silently=False)
+                            logger.info(f"OTP email sent to {user.email}")
+                        
+                        return Response({
+                            'success': True,
+                            'message': 'OTP sent to your email. Please verify to complete login.',
+                            'requires_otp': True,
+                            'username': user.username
+                        }, status=status.HTTP_200_OK)
+                        
+                except Exception as e:
+                    logger.error(f"OTP creation/sending error: {str(e)}")
+                    logger.error(f"Traceback: {traceback.format_exc()}")
+                    return Response({
+                        'success': False,
+                        'errors': {'general': 'Failed to send OTP. Please try again.'}
+                    }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+            logger.warning(f"Authentication failed for email: {serializer.validated_data['email']}")
             return Response({
-                'success': True,
-                'message': 'Login successful',
-                'access': str(refresh.access_token),
-                'refresh': str(refresh),
-                'user': user_data
-            })
+                'success': False,
+                'errors': {'general': 'Invalid credentials'}
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        logger.warning(f"Login serializer validation failed: {serializer.errors}")
         return Response({
             'success': False,
-            'errors': {'general': 'Invalid credentials'}
-        }, status=401)
-    return Response({
-        'success': False,
-        'errors': serializer.errors
-    }, status=400)
-    
-    
+            'errors': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
+    except Exception as e:
+        logger.error(f"Login view error: {str(e)}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        return Response({
+            'success': False,
+            'errors': {'general': 'An error occurred during login. Please try again.'}
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def verify_login_otp(request):
+    """Verify OTP and complete login process"""
+    try:
+        username = request.data.get('username')
+        otp_code = request.data.get('otp_code')
+        
+        logger.info(f"OTP verification attempt for username: {username}")
+        
+        if not username or not otp_code:
+            return Response({
+                'success': False, 
+                'errors': {'general': 'Username and OTP code are required'}
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            user = User.objects.get(username=username)
+            logger.info(f"Found user: {user.email}")
+            
+            try:
+                otp_token = OTPToken.objects.filter(
+                    user=user
+                ).order_by('-otp_created_at').first()
+                
+                if not otp_token:
+                    logger.warning(f"No OTP found for user: {user.email}")
+                    return Response({
+                        'success': False,
+                        'errors': {'general': 'No OTP found. Please request a new one.'}
+                    }, status=status.HTTP_400_BAD_REQUEST)
+                
+                if otp_token.is_expired():
+                    logger.warning(f"Expired OTP for user: {user.email}")
+                    otp_token.delete()
+                    return Response({
+                        'success': False,
+                        'errors': {'general': 'OTP has expired. Please request a new one.'}
+                    }, status=status.HTTP_400_BAD_REQUEST)
+                
+                if otp_token.otp_code != otp_code:
+                    logger.warning(f"Invalid OTP for user: {user.email}. Expected: {otp_token.otp_code}, Got: {otp_code}")
+                    return Response({
+                        'success': False,
+                        'errors': {'general': 'Invalid OTP code. Please try again.'}
+                    }, status=status.HTTP_400_BAD_REQUEST)
+                
+                logger.info(f"Valid OTP for user: {user.email}")
+                
+                with transaction.atomic():
+                    otp_token.delete()
+                    
+                    if not user.is_active:
+                        user.is_active = True
+                        user.save(update_fields=['is_active'])
+                    
+                    refresh = RefreshToken.for_user(user)
+                    access_token = refresh.access_token
+                    
+                    try:
+                        profile = user.profile
+                    except UserProfile.DoesNotExist:
+                        profile = UserProfile.objects.create(
+                            user=user,
+                            phone_number='',
+                            role='Farmer',
+                            organization='',
+                            investor_type=''
+                        )
+                        logger.info(f"Created missing profile for user: {user.email}")
+                    
+                    user_data = {
+                        'id': user.id,
+                        'username': user.username,
+                        'email': user.email,
+                        'first_name': user.first_name,
+                        'last_name': user.last_name,
+                        'is_active': user.is_active,
+                        'profile': {
+                            'id': profile.id,
+                            'phone_number': profile.phone_number,
+                            'role': profile.role,
+                            'organization': profile.organization,
+                            'investor_type': profile.investor_type,
+                            'created_at': profile.created_at.isoformat() if profile.created_at else None,
+                            'updated_at': profile.updated_at.isoformat() if profile.updated_at else None
+                        }
+                    }
+                    
+                    logger.info(f"Login successful for user: {user.email}")
+                    
+                    return Response({
+                        'success': True,
+                        'message': 'Login successful',
+                        'user': user_data,
+                        'access': str(access_token),
+                        'refresh': str(refresh)
+                    }, status=status.HTTP_200_OK)
+                    
+            except Exception as e:
+                logger.error(f"OTP verification error: {str(e)}")
+                logger.error(f"Traceback: {traceback.format_exc()}")
+                return Response({
+                    'success': False,
+                    'errors': {'general': 'Failed to verify OTP. Please try again.'}
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                
+        except User.DoesNotExist:
+            logger.warning(f"User not found for OTP verification: {username}")
+            return Response({
+                'success': False,
+                'errors': {'general': 'User not found'}
+            }, status=status.HTTP_404_NOT_FOUND)
+            
+    except Exception as e:
+        logger.error(f"OTP verification view error: {str(e)}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        return Response({
+            'success': False,
+            'errors': {'general': 'An error occurred during verification. Please try again.'}
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def resend_login_otp(request):
+    """Resend OTP for login verification"""
+    try:
+        username = request.data.get('username')
+        
+        logger.info(f"OTP resend request for username: {username}")
+        
+        if not username:
+            return Response({
+                'success': False,
+                'errors': {'general': 'Username is required'}
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            user = User.objects.get(username=username)
+            
+            # Delete existing OTPs for this user
+            deleted_count = OTPToken.objects.filter(user=user).count()
+            OTPToken.objects.filter(user=user).delete()
+            logger.info(f"Deleted {deleted_count} existing OTPs for user {user.email}")
+            
+            # Create new OTP
+            with transaction.atomic():
+                otp = OTPToken.objects.create(
+                    user=user,
+                    otp_expires_at=timezone.now() + timedelta(minutes=5)
+                )
+                logger.info(f"Created new OTP {otp.otp_code} for user {user.email}")
+                
+                # Send OTP email
+                message = f"""
+Hi {user.username}, here is your new OTP: {otp.otp_code}
+
+This OTP expires in 5 minutes. Please enter it to complete your login.
+"""
+                
+                # Check if email settings are configured
+                if not hasattr(settings, 'EMAIL_HOST_USER') or not settings.EMAIL_HOST_USER:
+                    logger.warning("EMAIL_HOST_USER not configured, skipping email send")
+                    # For development - just log the OTP
+                    logger.info(f"DEV MODE - New OTP for {user.email}: {otp.otp_code}")
+                else:
+                    email_message = EmailMessage(
+                        "Login Verification - New OTP",
+                        message,
+                        settings.EMAIL_HOST_USER,
+                        [user.email]
+                    )
+                    email_message.send(fail_silently=False)
+                    logger.info(f"New OTP email sent to {user.email}")
+                
+                return Response({
+                    'success': True,
+                    'message': 'New OTP has been sent to your email'
+                }, status=status.HTTP_200_OK)
+                
+        except User.DoesNotExist:
+            logger.warning(f"User not found for resend OTP: {username}")
+            return Response({
+                'success': False,
+                'errors': {'general': 'User not found'}
+            }, status=status.HTTP_404_NOT_FOUND)
+            
+        except Exception as e:
+            logger.error(f"OTP resend error: {str(e)}")
+            logger.error(f"Traceback: {traceback.format_exc()}")
+            return Response({
+                'success': False,
+                'errors': {'general': 'Failed to send OTP. Please try again.'}
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+    except Exception as e:
+        logger.error(f"Resend OTP view error: {str(e)}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        return Response({
+            'success': False,
+            'errors': {'general': 'An error occurred. Please try again.'}
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
@@ -298,6 +553,9 @@ def update_profile_view(request):
             'errors': {'general': 'User profile not found'}
         }, status=status.HTTP_404_NOT_FOUND)
 
+
+# VIEWS TO GET TO KNOW YOUR CUSTOMER
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def submit_investor_kyc(request):
@@ -335,8 +593,8 @@ def submit_investor_kyc(request):
             'success': False,
             'message': f'Error submitting KYC: {str(e)}'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
+        
+        
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def submit_farmer_kyc(request):
@@ -650,4 +908,6 @@ def request_kyc_change(request):
             'success': False,
             'message': f'Error submitting change request: {str(e)}'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 

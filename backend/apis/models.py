@@ -1,4 +1,7 @@
-from datetime import timedelta, timezone
+from datetime import timedelta
+from django.utils import timezone
+import secrets
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 import uuid
@@ -44,6 +47,45 @@ class UserProfile(models.Model):
         verbose_name = "User Profile"
         verbose_name_plural = "User Profiles"
 
+
+class OTPToken(models.Model):
+    """OTP Token model for authentication"""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name="otps"
+    )
+    otp_code = models.CharField(max_length=5, blank=True)
+    otp_created_at = models.DateTimeField(auto_now_add=True)  
+    otp_expires_at = models.DateTimeField(blank=True, null=True)
+    
+    class Meta:
+        ordering = ['-otp_created_at']
+    
+    def __str__(self):
+        return f"OTP for {self.user.username} - {self.otp_code}"
+    
+    def is_expired(self):
+        """Check if OTP is expired"""
+        if self.otp_expires_at:
+            return timezone.now() > self.otp_expires_at
+        return False
+    
+    def generate_otp_code(self):
+        """Generate a 5-digit OTP code"""
+        return str(secrets.randbelow(90000) + 10000)
+    
+    def save(self, *args, **kwargs):
+        """Generate OTP code and set expiry time if not provided"""
+        if not self.otp_code:
+            self.otp_code = self.generate_otp_code()
+        
+        if not self.otp_expires_at:
+            self.otp_expires_at = timezone.now() + timedelta(minutes=5)
+        
+        super().save(*args, **kwargs)
+               
+        
 class InvestorKYC(models.Model):
     """KYC information for investors - Immutable once created"""
     
@@ -69,8 +111,8 @@ class InvestorKYC(models.Model):
     
     id_type = models.CharField(max_length=20, choices=ID_TYPE_CHOICES)
     id_number = models.CharField(max_length=100)
-    id_document = models.FileField(upload_to='kyc/documents/id/', null=True, blank=True)
-    profile_picture = models.ImageField(upload_to='kyc/profiles/', null=True, blank=True)
+    id_document = models.FileField(upload_to='kyc/documents/id/')
+    profile_picture = models.ImageField(upload_to='kyc/profiles/')
     
     address = models.TextField()
     occupation = models.CharField(max_length=200)
@@ -80,21 +122,18 @@ class InvestorKYC(models.Model):
     
     is_verified = models.BooleanField(default=False)
     verification_date = models.DateTimeField(null=True, blank=True)
-    notes = models.TextField(blank=True, help_text="Admin notes for verification")
+    notes = models.TextField(help_text="Admin notes for verification")
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         """Override save to prevent updates after creation"""
-        if self.pk is not None:  # This is an update
-            # Only allow admin fields to be updated
+        if self.pk is not None:  
             original = InvestorKYC.objects.get(pk=self.pk)
             
-            # List of fields that can be updated (admin-only fields)
             admin_updatable_fields = ['is_verified', 'verification_date', 'notes']
             
-            # Check if any non-admin fields are being changed
             for field in self._meta.fields:
                 if field.name not in admin_updatable_fields and field.name not in ['updated_at']:
                     old_value = getattr(original, field.name)
@@ -110,8 +149,8 @@ class InvestorKYC(models.Model):
     class Meta:
         verbose_name = "Investor KYC"
         verbose_name_plural = "Investor KYCs"
-
-
+        
+        
 class FarmerKYC(models.Model):
     """KYC information for farmers/project seekers - Immutable once created"""
     
@@ -122,6 +161,12 @@ class FarmerKYC(models.Model):
         ('Other', 'Other'),
     ]
     
+    # ID_TYPE_CHOICES = [
+    #     ('passport', 'Passport'),
+    #     ('national_id', 'National ID'),
+    #     ('driver_license', 'Driver\'s License'),
+    # ]
+    
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='farmer_kyc')
     
     full_name = models.CharField(max_length=255)
@@ -129,6 +174,13 @@ class FarmerKYC(models.Model):
     phone_number = models.CharField(max_length=20)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     background = models.TextField(help_text="Brief background information")
+    
+    
+    # id_type = models.CharField(max_length=20, choices=ID_TYPE_CHOICES)
+    # id_number = models.CharField(max_length=100)
+    # id_document = models.FileField(upload_to='kyc/documents/id/', null=True, blank=True)
+    # profile_picture = models.ImageField(upload_to='kyc/profiles/', null=True, blank=True)
+    
     
     project_title = models.CharField(max_length=255)
     project_description = models.TextField()
@@ -198,3 +250,4 @@ class KYCVerificationLog(models.Model):
         verbose_name = "KYC Verification Log"
         verbose_name_plural = "KYC Verification Logs"
         ordering = ['-created_at']
+       
