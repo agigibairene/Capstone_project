@@ -22,7 +22,6 @@ export default function OTPLogin({ length = 5}: OTPLoginProps) {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  const API_BASE_URL = 'http://127.0.0.1:8000';
 
   useEffect(() => {
     if (!username) {
