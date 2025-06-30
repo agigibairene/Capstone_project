@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: capstone-backend
+    env: python
+    region: oregon  # or another region like frankfurt, singapore, etc.
+    rootDir: backend
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn uniAPI.wsgi:application"
+    plan: free  # or 'starter' / 'pro' depending on your usage
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: uniAPI.settings
+      - key: PYTHON_VERSION
+        value: 3.13.4
+      - key: SECRET_KEY
+        sync: false  # You'll set this manually in the Render dashboard
+      - key: DATABASE_URL
+        sync: false  # Render provides this for PostgreSQL if you add a DB
