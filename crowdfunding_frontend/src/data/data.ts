@@ -285,4 +285,4 @@ export const countryCodes : Country[] = [
   { code: '+596', country: 'Martinique', flag: '🇲🇶' },
   { code: '+597', country: 'Suriname', flag: '🇸🇷' },
   { code: '+599', country: 'Netherlands Antilles', flag: '🇧🇶' },
-].sort((a, b) => a.country.localeCompare(b.country));;
+].sort((a, b) => a.country.localeCompare(b.country));
