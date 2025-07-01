@@ -92,7 +92,6 @@ export default function Signup() {
 
     if (!userInput.role) newErrors.role = "Role is required";
 
-    // Updated phone validation to work with country codes
     const phoneRegex = /^[0-9]{6,15}$/; // 
     if (!userInput.phone_number.trim()) {
       newErrors.phone_number = "Phone number is required";
@@ -134,7 +133,7 @@ export default function Signup() {
           password: userInput.password,
           confirm_password: userInput.confirm_password,
           role: userInput.role as "Farmer" | "Investor",
-          phone_number: `${selectedCountryCode}${userInput.phone_number.trim()}`, // Combine country code with phone number
+          phone_number: `${selectedCountryCode}${userInput.phone_number.trim()}`, 
           ...(userInput.role === "Investor" && {
             organization: userInput.organization.trim(),
             investorType: userInput.investorType as "Individual" | "Organization",
@@ -295,7 +294,7 @@ export default function Signup() {
                         >
                           <span className="mr-2">{country.flag}</span>
                           <span className="mr-2 font-medium">{country.code}</span>
-                          <span className="text-sm text-gray-600 truncate">{country.name}</span>
+                          <span className="text-sm text-gray-600 truncate">{country.country}</span>
                         </button>
                       ))}
                     </div>
