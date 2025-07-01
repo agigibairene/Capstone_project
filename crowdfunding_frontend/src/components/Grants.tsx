@@ -63,7 +63,7 @@ export default function Grants() {
                 className="bg-bgColor min-w-0 transition hover:-translate-y-1 hover:shadow-xl cursor-pointer p-4 sm:p-6 lg:p-8 shadow-lg rounded-xl flex items-center justify-between"
               >
                 <div className="flex flex-col min-w-0 flex-1 mr-2">
-                  <p className="text-teal-500 text-xl sm:text-2xl lg:text-3xl font-bold hover:text-teal-700 cursor-pointer truncate">
+                  <p className="text-white text-xl sm:text-2xl lg:text-3xl font-bold hover:text-teal-700 cursor-pointer truncate">
                     {value}
                   </p>
                   <h3 className="font-semibold text-limeTxt text-sm sm:text-base truncate">
@@ -126,7 +126,7 @@ export default function Grants() {
                   <span className="text-green-600 font-semibold text-sm">{item.amount}</span>
                   <button
                     onClick={() => setSelectedOpp(item)}
-                    className="bg-bgColor cursor-pointer hover:bg-teal-900 text-white py-2 px-4 rounded-md text-sm font-medium"
+                    className="bg-bgColor cursor-pointer hover:bg-teal-900 text-limeTxt py-2 px-4 rounded-md text-sm font-medium"
                   >
                     Apply Now
                   </button>
