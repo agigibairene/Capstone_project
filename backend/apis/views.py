@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth import authenticate,logout, get_user_model
+from django.contrib.auth import authenticate, logout, get_user_model
 from django.contrib.auth.models import User
 from django.utils import timezone  
 from django.core.mail import EmailMessage
@@ -34,43 +34,67 @@ User = get_user_model()
 @permission_classes([AllowAny])
 def signup_view(request):
     """User registration endpoint"""
-    serializer = UserSignUpSerializer(data=request.data)
-    if serializer.is_valid():
-        user = serializer.save()
+    try:
+        logger.info(f"Signup attempt with data: {request.data}")
         
-        refresh = RefreshToken.for_user(user)
+        serializer = UserSignUpSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                with transaction.atomic():
+                    user = serializer.save()
+                    
+                    # Ensure profile exists
+                    try:
+                        profile = user.userprofile
+                    except UserProfile.DoesNotExist:
+                        profile = UserProfile.objects.create(
+                            user=user,
+                            phone_number=request.data.get('phone_number', ''),
+                            role=request.data.get('role', 'Farmer'),
+                            organization=request.data.get('organization', ''),
+                            investor_type=request.data.get('investor_type', '')
+                        )
+                        logger.info(f"Created profile for user {user.email}: {profile}")
+                    
+                    # Generate tokens
+                    refresh = RefreshToken.for_user(user)
+                    
+                    # Serialize user data
+                    user_data = UserSerializer(user).data
+                    
+                    logger.info(f"User {user.email} registered successfully")
+                    
+                    return Response({
+                        'success': True, 
+                        'message': 'Account created successfully',
+                        'user': user_data,
+                        'access': str(refresh.access_token),
+                        'refresh': str(refresh)
+                    }, status=status.HTTP_201_CREATED)
+                    
+            except Exception as e:
+                logger.error(f"Error creating user: {str(e)}")
+                logger.error(f"Traceback: {traceback.format_exc()}")
+                return Response({
+                    'success': False, 
+                    'errors': {'general': 'Failed to create account. Please try again.'}
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-        try:
-            profile = user.profile
-            if not profile:
-                raise UserProfile.DoesNotExist
-        except UserProfile.DoesNotExist:
-            UserProfile.objects.create(
-                user=user,
-                phone_number='',
-                role='Farmer',  
-                organization='',
-                investor_type=''
-            )
-            print(f"Created missing profile for user {user.email}")
-        
-        # Serialize user data
-        user_data = UserSerializer(user).data
-        
+        logger.warning(f"Signup validation failed: {serializer.errors}")
         return Response({
-            'success': True, 
-            'message': 'Account created successfully',
-            'user': user_data,
-            'access': str(refresh.access_token),
-            'refresh': str(refresh)
-        }, status=status.HTTP_201_CREATED)
+            'success': False, 
+            'errors': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
+    except Exception as e:
+        logger.error(f"Signup view error: {str(e)}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        return Response({
+            'success': False, 
+            'errors': {'general': 'An error occurred during registration. Please try again.'}
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-    return Response({
-        'success': False, 
-        'errors': serializer.errors
-    }, status=status.HTTP_400_BAD_REQUEST)
-    
-    
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_view(request):
@@ -113,9 +137,8 @@ def login_view(request):
 
                             Thank you,
                             Agriconnect
-                            """
-
-                        
+                        """
+                                                    
                         if not hasattr(settings, 'EMAIL_HOST_USER') or not settings.EMAIL_HOST_USER:
                             logger.warning("EMAIL_HOST_USER not configured, skipping email send")
                             logger.info(f"DEV MODE - OTP for {user.email}: {otp.otp_code}")
@@ -225,7 +248,7 @@ def verify_login_otp(request):
                     access_token = refresh.access_token
                     
                     try:
-                        profile = user.profile
+                        profile = user.userprofile
                     except UserProfile.DoesNotExist:
                         profile = UserProfile.objects.create(
                             user=user,
@@ -329,7 +352,6 @@ def resend_login_otp(request):
                 Thank you,
                 Agriconnect
                 """
-
                 
                 if not hasattr(settings, 'EMAIL_HOST_USER') or not settings.EMAIL_HOST_USER:
                     logger.warning("EMAIL_HOST_USER not configured, skipping email send")
@@ -372,17 +394,24 @@ def resend_login_otp(request):
             'success': False,
             'errors': {'general': 'An error occurred. Please try again.'}
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-        
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
     """User logout endpoint"""
-    logout(request)
-    return Response({
-        'success': True, 
-        'message': 'Logged out successfully'
-    }, status=status.HTTP_200_OK)
+    try:
+        logout(request)
+        return Response({
+            'success': True, 
+            'message': 'Logged out successfully'
+        }, status=status.HTTP_200_OK)
+    except Exception as e:
+        logger.error(f"Logout error: {str(e)}")
+        return Response({
+            'success': False,
+            'errors': {'general': 'Error during logout'}
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 

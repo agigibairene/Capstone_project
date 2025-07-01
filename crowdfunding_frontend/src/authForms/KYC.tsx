@@ -30,28 +30,14 @@ export default function KYC({ children }: { children: React.ReactNode }) {
 
     const finalRole = userRole || tokenRole;
 
-    console.log('KYC: Current state:', { 
-      user: !!user, 
-      token: !!token, 
-      userRole,
-      storedRole,
-      tokenRole,
-      finalRole,
-      loading, 
-      error, 
-      success,
-      pathname: location.pathname
-    });
-
+   
     if (!user && !token && !loading && location.pathname.includes('kyc')) {
-      console.log('KYC: No user or token found, redirecting to signup');
       navigate('/signup');
       return;
     }
 
     if (error) {
       if (typeof error === 'string' && error.includes('Session expired')) {
-        console.log('KYC: Session expired, clearing storage and redirecting to login');
         localStorage.removeItem('ACCESS_TOKEN');
         localStorage.removeItem('REFRESH_TOKEN');
         localStorage.removeItem('role');
@@ -60,9 +46,7 @@ export default function KYC({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // If token exists but no user state and not loading, might need to refresh
     if (token && !user && !loading && !success) {
-      console.log('KYC: Token exists but no user state, redirecting to login for re-authentication');
       navigate('/login');
       return;
     }
@@ -77,13 +61,10 @@ export default function KYC({ children }: { children: React.ReactNode }) {
       if (finalRole && finalRole !== 'undefined') {
         const normalizedRole = finalRole.toLowerCase();
         if (normalizedRole === 'investor') {
-          console.log('KYC: Redirecting to investor dashboard');
           navigate('/investor', { replace: true });
         } else if (normalizedRole === 'farmer') {
-          console.log('KYC: Redirecting to farmer dashboard');
           navigate('/farmer', { replace: true });
         } else {
-          console.error('KYC: Unknown role:', finalRole);
           navigate('/login');
         }
       } else {

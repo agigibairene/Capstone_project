@@ -8,6 +8,7 @@ import { submitFarmerKYC } from '../redux/KycSlice';
 import type { AppDispatch, RootState } from '../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import Loader from '../Utils/Loader';
+import { countryCodes } from '../data/data';
 
 export default function KYCFarmer() {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ export default function KYCFarmer() {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
+    countryCode: '+233', // Default to Ghana
     phoneNumber: '',
     role: '',
     background: '',
@@ -30,7 +32,7 @@ export default function KYCFarmer() {
   const dispatch = useDispatch<AppDispatch>()
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const { loading, error } = useSelector((state: RootState) => state.kycReducer);
-
+ 
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     const { name, value, files } = e.target as HTMLInputElement;
@@ -50,7 +52,15 @@ export default function KYCFarmer() {
     if (step === 1) {
       if (!formData.fullName.trim()) newErrors.fullName = 'Full name is required';
       if (!formData.email.trim()) newErrors.email = 'Email is required';
-      if (!formData.phoneNumber.trim()) newErrors.phoneNumber = 'Phone number is required';
+      if (!formData.phoneNumber.trim()) {
+        newErrors.phoneNumber = 'Phone number is required';
+      } 
+      else {
+        const phoneRegex = /^\d{7,15}$/;
+        if (!phoneRegex.test(formData.phoneNumber.replace(/\s+/g, ''))) {
+          newErrors.phoneNumber = 'Please enter a valid phone number (7-15 digits)';
+        }
+      }
       if (!formData.role.trim()) newErrors.role = 'Role is required';
       if (!formData.dateOfBirth) {
         newErrors.dateOfBirth = 'Date of birth is required';
@@ -67,7 +77,8 @@ export default function KYCFarmer() {
         if (actualAge < 18) {
           newErrors.dateOfBirth = 'You must be 18 years or older to proceed';
         }
-      }      if (!formData.nationality.trim()) newErrors.nationality = 'Nationality is required';
+      }
+      if (!formData.nationality.trim()) newErrors.nationality = 'Nationality is required';
     }
     
     if (step === 2) {
@@ -108,10 +119,11 @@ export default function KYCFarmer() {
       return;
     }
 
-     const data = new FormData();
+    const data = new FormData();
     data.append('full_name', formData.fullName);
     data.append('email', formData.email);
-    data.append('phone_number', formData.phoneNumber);
+    // Combine country code and phone number
+    data.append('phone_number', `${formData.countryCode}${formData.phoneNumber}`);
     data.append('role', formData.role);
     data.append('background', formData.background);
     data.append('date_of_birth', formData.dateOfBirth);
@@ -132,7 +144,6 @@ export default function KYCFarmer() {
     } catch (error) {
       console.error('Unexpected error:', error);
     }
-
   }
 
   const inputClass = 'w-full px-3 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm';
@@ -220,14 +231,29 @@ export default function KYCFarmer() {
                     </div>
 
                     <div>
-                      <input
-                        name="phoneNumber"
-                        type="tel"
-                        value={formData.phoneNumber}
-                        onChange={handleChange}
-                        className={inputClass}
-                        placeholder='Phone Number'
-                      />
+                      <label className="block text-white/80 text-xs font-medium mb-1">Phone Number</label>
+                      <div className="flex gap-2">
+                        <select
+                          name="countryCode"
+                          value={formData.countryCode}
+                          onChange={handleChange}
+                          className="px-2 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm min-w-[80px]"
+                        >
+                          {countryCodes.map((country) => (
+                            <option key={country.code} value={country.code} className="text-gray-900 bg-white">
+                              {country.flag} {country.code}
+                            </option>
+                          ))}
+                        </select>
+                        <input
+                          name="phoneNumber"
+                          type="tel"
+                          value={formData.phoneNumber}
+                          onChange={handleChange}
+                          className={`${inputClass} flex-1`}
+                          placeholder='Phone Number (without country code)'
+                        />
+                      </div>
                       {errors.phoneNumber && <p className="text-xs font-bold text-red-600 mt-1">{errors.phoneNumber}</p>}
                     </div>
 

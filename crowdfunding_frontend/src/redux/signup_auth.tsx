@@ -64,7 +64,6 @@ export const signupUser = createAsyncThunk<AuthResponse, SignupProps, { rejectVa
         ...(signupData.investorType && { investor_type: signupData.investorType }),
       };
 
-      console.log('Signup request data:', apiData);
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/signup/`, {
         method: 'POST',
@@ -73,7 +72,6 @@ export const signupUser = createAsyncThunk<AuthResponse, SignupProps, { rejectVa
       });
 
       const data = await response.json();
-      console.log('Signup response:', data);
 
       if (!response.ok) {
         console.log('Error response data:', data);
@@ -138,14 +136,10 @@ export const signupUser = createAsyncThunk<AuthResponse, SignupProps, { rejectVa
       const { user, access, refresh } = data;
 
       const userRole = user?.role || signupData.role;
-      console.log('User role from response:', user?.role);
-      console.log('User role from signup data:', signupData.role);
-      console.log('Final role to store:', userRole);
 
       localStorage.setItem('ACCESS_TOKEN', access);
       localStorage.setItem('REFRESH_TOKEN', refresh);
       localStorage.setItem('role', userRole);
-      console.log('Signup successful, role stored:', userRole);
 
       const correctedUser = {
         ...user,
@@ -192,7 +186,6 @@ const signupSlice = createSlice({
       const token = localStorage.getItem('ACCESS_TOKEN');
       const role = localStorage.getItem('role');
       
-      console.log('Initializing auth:', { token: !!token, role });
       
       if (token && role && role !== 'undefined') {
         try {
@@ -212,9 +205,7 @@ const signupSlice = createSlice({
             };
             state.access = token;
             state.refresh = localStorage.getItem('REFRESH_TOKEN');
-            console.log('Auth initialized from storage:', state.user);
           } else {
-            console.log('Token expired, clearing storage');
             localStorage.removeItem('ACCESS_TOKEN');
             localStorage.removeItem('REFRESH_TOKEN');
             localStorage.removeItem('role');
@@ -244,7 +235,6 @@ const signupSlice = createSlice({
         state.error = null;
         const role = action.payload.user.role;
         localStorage.setItem('role', role);
-        console.log('Signup fulfilled, role set:', role);
       })
       .addCase(signupUser.rejected, (state, action) => {
         state.loading = false;

@@ -27,7 +27,6 @@ export const investorKYC = createAsyncThunk(
         return rejectWithValue('No authentication token found. Please login again.');
       }
 
-      console.log('Submitting KYC with token:', token.substring(0, 20) + '...');
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/kyc/investor/submit/`, {
         method: 'POST',
@@ -37,7 +36,6 @@ export const investorKYC = createAsyncThunk(
         body: formData,
       });
 
-      console.log('KYC Response status:', response.status);
 
       if (!response.ok) {
         if (response.status === 401) {
@@ -58,17 +56,13 @@ export const investorKYC = createAsyncThunk(
       }
 
       const data = await response.json();
-      console.log('KYC Success response:', data);
       
-      // Ensure role is maintained after successful KYC
       const storedRole = localStorage.getItem('role');
       if (!storedRole || storedRole === 'undefined') {
-        // Try to get role from token
         try {
           const payload = JSON.parse(atob(token.split('.')[1]));
           if (payload.role && payload.role !== 'undefined') {
             localStorage.setItem('role', payload.role);
-            console.log('Role restored from token after KYC:', payload.role);
           }
         } catch (e) {
           console.error('Failed to restore role from token:', e);
@@ -96,7 +90,6 @@ export const submitFarmerKYC = createAsyncThunk(
         return rejectWithValue('No authentication token found. Please login again.');
       }
 
-      console.log('Submitting Farmer KYC with token:', token.substring(0, 20) + '...');
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/kyc/farmer/submit/`, {
         method: 'POST',
@@ -106,7 +99,6 @@ export const submitFarmerKYC = createAsyncThunk(
         body: formData,
       });
 
-      console.log('Farmer KYC Response status:', response.status);
 
       if (!response.ok) {
         if (response.status === 401) {
@@ -127,16 +119,13 @@ export const submitFarmerKYC = createAsyncThunk(
       }
 
       const data = await response.json();
-      console.log('Farmer KYC Success response:', data);
       
-      // Ensure role is maintained after successful KYC
       const storedRole = localStorage.getItem('role');
       if (!storedRole || storedRole === 'undefined') {
         try {
           const payload = JSON.parse(atob(token.split('.')[1]));
           if (payload.role && payload.role !== 'undefined') {
             localStorage.setItem('role', payload.role);
-            console.log('Role restored from token after Farmer KYC:', payload.role);
           }
         } catch (e) {
           console.error('Failed to restore role from token:', e);
@@ -163,7 +152,6 @@ export const fetchUserKYC = createAsyncThunk(
         return rejectWithValue('No access token found. Please login again.');
       }
 
-      console.log('Fetching KYC data...');
       
       const response = await fetch(`${import.meta.env.VITE_API_URL}/kyc/user/`, {
         method: 'GET',
@@ -187,9 +175,7 @@ export const fetchUserKYC = createAsyncThunk(
       }
 
       const data = await response.json();
-      console.log('KYC fetch success:', data);
       
-      // Validate the response structure
       if (!data.success) {
         return rejectWithValue(data.message || 'KYC fetch was not successful');
       }
@@ -198,7 +184,7 @@ export const fetchUserKYC = createAsyncThunk(
         return rejectWithValue('No KYC data found for your account');
       }
 
-      return data; // Return the full response object
+      return data; 
       
     } catch (err: any) {
       console.error('KYC fetch error:', err);
@@ -226,18 +212,15 @@ const kycSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Investor KYC cases
       .addCase(investorKYC.pending, (state) => {
         state.loading = true;
         state.error = null;
         state.success = false;
-        console.log('Investor KYC pending...');
       })
       .addCase(investorKYC.fulfilled, (state) => {
         state.loading = false;
         state.success = true;
         state.error = null;
-        console.log('Investor KYC fulfilled successfully');
       })
       .addCase(investorKYC.rejected, (state, action) => {
         state.loading = false;
@@ -245,21 +228,17 @@ const kycSlice = createSlice({
           ? action.payload 
           : 'KYC submission failed';
         state.success = false;
-        console.log('Investor KYC rejected:', state.error);
       })
       
-      // Farmer KYC cases
       .addCase(submitFarmerKYC.pending, (state) => {
         state.loading = true;
         state.error = null;
         state.success = false;
-        console.log('Farmer KYC pending...');
       })
       .addCase(submitFarmerKYC.fulfilled, (state) => {
         state.loading = false;
         state.success = true;
         state.error = null;
-        console.log('Farmer KYC fulfilled successfully');
       })
       .addCase(submitFarmerKYC.rejected, (state, action) => {
         state.loading = false;
@@ -267,31 +246,27 @@ const kycSlice = createSlice({
           ? action.payload 
           : 'Farmer KYC submission failed';
         state.success = false;
-        console.log('Farmer KYC rejected:', state.error);
       })
 
-      // GET USER
-.addCase(fetchUserKYC.pending, (state) => {
-  state.loading = true;
-  state.error = null;
-  console.log('Fetching KYC data...');
-})
-.addCase(fetchUserKYC.fulfilled, (state, action) => {
-  state.loading = false;
-  state.success = action.payload.success;
-  state.kycData = action.payload; 
-  state.role = action.payload.role;
-  state.error = null;
-  console.log('KYC data fetched successfully:', action.payload);
-})
-.addCase(fetchUserKYC.rejected, (state, action) => {
-  state.loading = false;
-  state.error = action.payload as string;
-  state.kycData = null;
-  state.success = false;
-  console.error('KYC fetch failed:', action.payload);
-});
-  },
+      .addCase(fetchUserKYC.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchUserKYC.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = action.payload.success;
+        state.kycData = action.payload; 
+        state.role = action.payload.role;
+        state.error = null;
+      })
+      .addCase(fetchUserKYC.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        state.kycData = null;
+        state.success = false;
+        console.error('KYC fetch failed:', action.payload);
+      });
+    },
 });
 
 export const { resetKYCState, clearKYCError } = kycSlice.actions;

@@ -108,7 +108,6 @@ const loginSlice = createSlice({
       const token = localStorage.getItem(ACCESS_TOKEN);
       const role = localStorage.getItem('role');
       
-      console.log('Login slice - Initializing auth:', { token: !!token, role });
       
       if (token && role && role !== 'undefined') {
         try {
@@ -132,9 +131,7 @@ const loginSlice = createSlice({
             };
             state.access = token;
             state.refresh = localStorage.getItem(REFRESH_TOKEN);
-            console.log('Login slice - Auth initialized from storage:', state.user);
           } else {
-            console.log('Login slice - Token expired, clearing storage');
             localStorage.removeItem(ACCESS_TOKEN);
             localStorage.removeItem(REFRESH_TOKEN);
             localStorage.removeItem('role');

@@ -21,7 +21,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     """Basic User serializer for responses"""
-    profile = UserProfileSerializer(read_only=True)
+    profile = UserProfileSerializer(source='userprofile', read_only=True)
     
     class Meta:
         model = User
@@ -87,15 +87,20 @@ class UserSignUpSerializer(serializers.ModelSerializer):
             password=validated_data['password']
         )
 
-        profile = UserProfile.objects.create(
-            user=user,
-            phone_number=phone_number,
-            role=role,
-            organization=organization,
-            investor_type=investor_type
-        )
-        
-        print(f"Created profile for user {user.email}: {profile}")  
+        # Create user profile
+        try:
+            profile = UserProfile.objects.create(
+                user=user,
+                phone_number=phone_number,
+                role=role,
+                organization=organization,
+                investor_type=investor_type
+            )
+            print(f"Created profile for user {user.email}: {profile}")
+        except Exception as e:
+            # If profile creation fails, delete the user to maintain consistency
+            user.delete()
+            raise serializers.ValidationError(f"Failed to create user profile: {str(e)}")
 
         return user
 
@@ -162,15 +167,26 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         instance.save()
         
         if profile_data:
-            profile = instance.userprofile
-            profile_data.pop('role', None)
-            
-            for attr, value in profile_data.items():
-                setattr(profile, attr, value)
-            profile.save()
+            try:
+                profile = instance.userprofile
+                # Don't allow role changes through this serializer
+                profile_data.pop('role', None)
+                
+                for attr, value in profile_data.items():
+                    setattr(profile, attr, value)
+                profile.save()
+            except UserProfile.DoesNotExist:
+                # Create profile if it doesn't exist
+                UserProfile.objects.create(
+                    user=instance,
+                    phone_number=profile_data.get('phone_number', ''),
+                    role=profile_data.get('role', 'Farmer'),
+                    organization=profile_data.get('organization', ''),
+                    investor_type=profile_data.get('investor_type', '')
+                )
         
         return instance
-    
+
 
 class InvestorKYCSerializer(serializers.ModelSerializer):
     """Serializer for Investor KYC data - Read-only after creation"""
@@ -318,15 +334,7 @@ class FarmerKYCSerializer(serializers.ModelSerializer):
         
         try:
             from .models import KYCVerificationLog
-            KYCVerificationLog.objects.create(
-                user=user,
-                action='submitted',
-            )
-        except ImportError:
-            pass  
-        
-        return kyc_instance
-
+            KYCVerificationLog.
 
 class KYCVerificationLogSerializer(serializers.ModelSerializer):
     """Serializer for KYC verification logs"""

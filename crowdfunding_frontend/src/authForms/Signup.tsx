@@ -5,8 +5,9 @@ import logo from "../assets/green_logo.png";
 import { useDispatch, useSelector } from "react-redux";
 import { signupUser, resetSignupState } from '../redux/signup_auth';
 import type { AppDispatch, RootState } from "../redux/store";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ChevronDown } from "lucide-react";
 import Loader from "../Utils/Loader";
+import { countryCodes } from "../data/data";
 
 interface Details {
   title: string;
@@ -30,6 +31,8 @@ const miniDetails: Details[] = [
   },
 ];
 
+
+
 export default function Signup() {
   const [userInput, setUserInput] = useState<{ [key: string]: string }>({
     first_name: "",
@@ -43,6 +46,8 @@ export default function Signup() {
     confirm_password: "",
   });
 
+  const [selectedCountryCode, setSelectedCountryCode] = useState("+250"); // Default to Rwanda
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -67,6 +72,11 @@ export default function Signup() {
     }
   }
 
+  function handleCountryCodeSelect(code: string) {
+    setSelectedCountryCode(code);
+    setShowCountryDropdown(false);
+  }
+
   function validateInput() {
     const newErrors: { [key: string]: string } = {};
     
@@ -82,10 +92,11 @@ export default function Signup() {
 
     if (!userInput.role) newErrors.role = "Role is required";
 
-    const phoneRegex = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/;
+    // Updated phone validation to work with country codes
+    const phoneRegex = /^[0-9]{6,15}$/; // 
     if (!userInput.phone_number.trim()) {
       newErrors.phone_number = "Phone number is required";
-    } else if (!phoneRegex.test(userInput.phone_number)) {
+    } else if (!phoneRegex.test(userInput.phone_number.replace(/[\s-]/g, ''))) {
       newErrors.phone_number = "Enter a valid phone number";
     }
 
@@ -123,7 +134,7 @@ export default function Signup() {
           password: userInput.password,
           confirm_password: userInput.confirm_password,
           role: userInput.role as "Farmer" | "Investor",
-          phone_number: userInput.phone_number.trim(),
+          phone_number: `${selectedCountryCode}${userInput.phone_number.trim()}`, // Combine country code with phone number
           ...(userInput.role === "Investor" && {
             organization: userInput.organization.trim(),
             investorType: userInput.investorType as "Individual" | "Organization",
@@ -136,15 +147,11 @@ export default function Signup() {
         console.error("Signup failed:", err);
         setErrors({ general: err || "Signup failed. Please try again." });
       }
-
-      
     }
   }
 
  useEffect(() => {
-  console.log('Signup status:', { success, role: userInput.role });
   if (success) {
-    console.log('Navigating to KYC...');
     if (userInput.role === "Farmer") {
       navigate("/kyc_farmer");
     } else if (userInput.role === "Investor") {
@@ -159,6 +166,22 @@ export default function Signup() {
       dispatch(resetSignupState());
     };
   }, [dispatch]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.country-code-selector')) {
+        setShowCountryDropdown(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const selectedCountry = countryCodes.find(country => country.code === selectedCountryCode);
 
   return (
     <>
@@ -249,14 +272,45 @@ export default function Signup() {
             </div>
 
             <div>
-              <input
-                name="phone_number"
-                type="tel"
-                placeholder="Phone Number"
-                value={userInput.phone_number}
-                onChange={handleUserInput}
-                className={`input w-full ${errors.phone_number ? 'border-red-500' : ''}`}
-              />
+              <div className={`flex border rounded-md ${errors.phone_number ? 'border-red-500' : 'border-gray-300'}`}>
+                <div className="country-code-selector relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                    className="flex items-center px-3 py-2 bg-gray-50 border-r border-gray-300 rounded-l-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  >
+                    <span className="mr-1">{selectedCountry?.flag}</span>
+                    <span className="text-sm font-medium">{selectedCountryCode}</span>
+                    <ChevronDown className={`ml-1 h-4 w-4 transform transition-transform ${showCountryDropdown ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  {showCountryDropdown && (
+                    <div className="absolute top-full left-0 z-50 w-80 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-md shadow-lg">
+                      {countryCodes.map((country, index) => (
+                        <button
+                          key={`${country.code}-${index}`}
+                          type="button"
+                          onClick={() => handleCountryCodeSelect(country.code)}
+                          className="w-full flex items-center px-3 py-2 text-left hover:bg-gray-100 focus:outline-none focus:bg-gray-100"
+                        >
+                          <span className="mr-2">{country.flag}</span>
+                          <span className="mr-2 font-medium">{country.code}</span>
+                          <span className="text-sm text-gray-600 truncate">{country.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                
+                <input
+                  name="phone_number"
+                  type="tel"
+                  placeholder="Phone Number"
+                  value={userInput.phone_number}
+                  onChange={handleUserInput}
+                  className="flex-1 px-3 py-2 border-0 rounded-r-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
               {errors.phone_number && <p className="text-xs text-red-500 mt-1">{errors.phone_number}</p>}
             </div>
 

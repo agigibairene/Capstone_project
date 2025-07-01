@@ -7,6 +7,7 @@ import KYC from './KYC';
 import logo from '../assets/green_logo.png';
 import image from '../assets/login_img.jpg';
 import Loader from '../Utils/Loader';
+import { countryCodes } from '../data/data'
 
 interface IDCard{
   "Passport": string,
@@ -37,6 +38,7 @@ export default function KYCInvestor() {
     annualIncome: '',
     purpose: '',
     phoneNumber: '',
+    countryCode: '+233', 
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -82,6 +84,13 @@ export default function KYCInvestor() {
     }
   };
 
+  function validatePhoneNumber(phone: string): boolean {
+    // Remove all non-digit characters for validation
+    const digitsOnly = phone.replace(/\D/g, '');
+    // Check if it has at least 7 digits and at most 15 digits (international standard)
+    return digitsOnly.length >= 7 && digitsOnly.length <= 15;
+  }
+
   function validateStep(step: number){
     const newErrors: { [key: string]: string } = {};
     
@@ -103,7 +112,11 @@ export default function KYCInvestor() {
           newErrors.dateOfBirth = 'You must be 18 years or older to proceed';
         }
       }
-      if (!formData.phoneNumber.trim()) newErrors.phoneNumber = 'Phone number is required';
+      if (!formData.phoneNumber.trim()) {
+        newErrors.phoneNumber = 'Phone number is required';
+      } else if (!validatePhoneNumber(formData.phoneNumber)) {
+        newErrors.phoneNumber = 'Please enter a valid phone number';
+      }
       if (!formData.nationality) newErrors.nationality = 'Nationality is required';
     }
     
@@ -158,7 +171,8 @@ export default function KYCInvestor() {
       formDataToSend.append('income_source', formData.incomeSource);
       formDataToSend.append('annual_income', formData.annualIncome);
       formDataToSend.append('purpose', formData.purpose);
-      formDataToSend.append('phone_number', formData.phoneNumber);
+      // Combine country code and phone number
+      formDataToSend.append('phone_number', `${formData.countryCode}${formData.phoneNumber}`);
       
       if (formData.idUpload) {
         const truncatedIdFile = truncateFilename(formData.idUpload);
@@ -171,7 +185,8 @@ export default function KYCInvestor() {
 
       console.log('Submitting KYC with files:', {
         idDocument: formData.idUpload?.name,
-        profilePicture: formData.profilePicture?.name
+        profilePicture: formData.profilePicture?.name,
+        phoneNumber: `${formData.countryCode}${formData.phoneNumber}`
       });
 
       await dispatch(investorKYC(formDataToSend)).unwrap();
@@ -250,14 +265,29 @@ export default function KYCInvestor() {
                     </div>
 
                     <div>
-                      <input
-                        name="phoneNumber"
-                        type="tel"
-                        value={formData.phoneNumber}
-                        onChange={handleChange}
-                        className={inputClass}
-                        placeholder='Phone Number'
-                      />
+                      <label className="block text-white font-semibold text-xs mb-1 drop-shadow">Phone Number</label>
+                      <div className="flex gap-2">
+                        <select
+                          name="countryCode"
+                          value={formData.countryCode}
+                          onChange={handleChange}
+                          className="px-2 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm min-w-[100px]"
+                        >
+                          {countryCodes.map((country) => (
+                            <option key={country.code} value={country.code}>
+                              {country.flag} {country.code}
+                            </option>
+                          ))}
+                        </select>
+                        <input
+                          name="phoneNumber"
+                          type="tel"
+                          value={formData.phoneNumber}
+                          onChange={handleChange}
+                          className={inputClass}
+                          placeholder='Phone Number'
+                        />
+                      </div>
                       {errors.phoneNumber && <p className="text-xs font-bold text-red-600 mt-1 drop-shadow">{errors.phoneNumber}</p>}
                     </div>
 
@@ -303,7 +333,7 @@ export default function KYCInvestor() {
                         <option disabled hidden value="">Select ID Type</option>
                         {
                           Object.entries(selectID).map(([label, value])=>
-                            <option value={value}>{label}</option>
+                            <option key={value} value={value}>{label}</option>
                           )
                         }
                         
