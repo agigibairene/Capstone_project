@@ -71,6 +71,8 @@ export const signupUser = createAsyncThunk<AuthResponse, SignupProps, { rejectVa
         body: JSON.stringify(apiData),
       });
 
+      console.log(`${import.meta.env.VITE_API_URL}/auth/signup/`)
+
       const data = await response.json();
 
       if (!response.ok) {
