@@ -90,13 +90,11 @@ export default function KYCInvestor() {
       if (!formData.dateOfBirth) {
         newErrors.dateOfBirth = 'Date of birth is required';
       } else {
-        // Check if user is 18 years or older
         const today = new Date();
         const birthDate = new Date(formData.dateOfBirth);
         const age = today.getFullYear() - birthDate.getFullYear();
         const monthDiff = today.getMonth() - birthDate.getMonth();
         
-        // Adjust age if birthday hasn't occurred this year
         const actualAge = monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate()) 
           ? age - 1 
           : age;

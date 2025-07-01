@@ -20,6 +20,7 @@ urlpatterns = [
     path('admin/kyc/pending/', views.admin_list_pending_kyc, name='admin_list_pending_kyc'),
     path('admin/kyc/verify/<int:user_id>/', views.admin_verify_kyc, name='admin_verify_kyc'),
     path('kyc/request-change/', views.request_kyc_change, name='request_kyc_change'),
+    path('kyc/user/', views.get_user_kyc),
     
     # OTP PATHS
     path("auth/verify-otp/", views.verify_login_otp, name="verify-otp"),

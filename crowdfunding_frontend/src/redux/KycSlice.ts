@@ -5,12 +5,16 @@ interface KYCState {
   loading: boolean;
   error: string | null;
   success: boolean;
+  kycData: any | null;
+  role: string | null;
 }
 
 const initialState: KYCState = {
   loading: false,
   error: null,
   success: false,
+  kycData: null,
+  role: null,
 };
 
 export const investorKYC = createAsyncThunk(
@@ -150,6 +154,63 @@ export const submitFarmerKYC = createAsyncThunk(
   }
 );
 
+export const fetchUserKYC = createAsyncThunk(
+  'kyc/fetchUserKYC',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('ACCESS_TOKEN');
+      if (!token) {
+        return rejectWithValue('No access token found. Please login again.');
+      }
+
+      console.log('Fetching KYC data...');
+      
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/kyc/user/`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          localStorage.removeItem('ACCESS_TOKEN');
+          localStorage.removeItem('REFRESH_TOKEN');
+          localStorage.removeItem('role');
+          return rejectWithValue('Session expired. Please login again.');
+        }
+        
+        const errorData = await response.json();
+        console.error('KYC fetch error:', errorData);
+        return rejectWithValue(errorData.message || `HTTP ${response.status}: Failed to fetch KYC data`);
+      }
+
+      const data = await response.json();
+      console.log('KYC fetch success:', data);
+      
+      // Validate the response structure
+      if (!data.success) {
+        return rejectWithValue(data.message || 'KYC fetch was not successful');
+      }
+
+      if (!data.kyc) {
+        return rejectWithValue('No KYC data found for your account');
+      }
+
+      return data; // Return the full response object
+      
+    } catch (err: any) {
+      console.error('KYC fetch error:', err);
+      if (err.name === 'TypeError' && err.message.includes('fetch')) {
+        return rejectWithValue('Network error. Please check your internet connection.');
+      }
+      return rejectWithValue(err.message || 'An unexpected error occurred while fetching KYC data');
+    }
+  }
+);
+
+
 const kycSlice = createSlice({
   name: 'kyc',
   initialState,
@@ -207,7 +268,29 @@ const kycSlice = createSlice({
           : 'Farmer KYC submission failed';
         state.success = false;
         console.log('Farmer KYC rejected:', state.error);
-      });
+      })
+
+      // GET USER
+.addCase(fetchUserKYC.pending, (state) => {
+  state.loading = true;
+  state.error = null;
+  console.log('Fetching KYC data...');
+})
+.addCase(fetchUserKYC.fulfilled, (state, action) => {
+  state.loading = false;
+  state.success = action.payload.success;
+  state.kycData = action.payload; 
+  state.role = action.payload.role;
+  state.error = null;
+  console.log('KYC data fetched successfully:', action.payload);
+})
+.addCase(fetchUserKYC.rejected, (state, action) => {
+  state.loading = false;
+  state.error = action.payload as string;
+  state.kycData = null;
+  state.success = false;
+  console.error('KYC fetch failed:', action.payload);
+});
   },
 });
 

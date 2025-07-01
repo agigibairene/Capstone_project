@@ -3,105 +3,52 @@ import { BarChart3,Users,PenLine,Bot, LogOut } from "lucide-react";
 import image from '../assets/dp.jpg'
 
 export const menuItems = [
-    {
-      name: "Dashboard",
-      icon: BarChart3,
-      color: "bg-teal-500",
-      active: true,
-    },
-    {
-      name: "Card",
-      icon: Users,
-      color: "bg-blue-500",
-      active: false,
-    },
-    {
-      name: "Log Out",
-      icon: LogOut,
-      color: "bg-green-500",
-      active: false,
-    },
-    // {
-    //   name: "Statistic",
-    //   icon: BarChart,
-    //   color: "bg-orange-500",
-    //   active: false,
-    // },
-    // {
-    //   name: "Calendar",
-    //   icon: Calendar,
-    //   color: "bg-purple-500",
-    //   active: false,
-    // },
-    // {
-    //   name: "Finance",
-    //   icon: DollarSign,
-    //   color: "bg-yellow-500",
-    //   active: false,
-    // },
-    // {
-    //   name: "Transfers",
-    //   icon: TrendingUp,
-    //   color: "bg-red-500",
-    //   active: false,
-    // },
-    // {
-    //   name: "Youth academy",
-    //   icon: GraduationCap,
-    //   color: "bg-indigo-500",
-    //   active: false,
-    // },
+  {
+    name: "Dashboard",
+    icon: BarChart3,
+    color: "bg-teal-500",
+    active: true,
+  },
+  {
+    name: "Card",
+    icon: Users,
+    color: "bg-blue-500",
+    active: false,
+  },
+  {
+    name: "Log Out",
+    icon: LogOut,
+    color: "bg-green-500",
+    active: false,
+  },
+
 ];
 
 export const farmerMenuItems = [
-    {
-      name: "Dashboard",
-      icon: BarChart3,
-      color: "bg-teal-500",
-      active: true,
-    },
-    {
-      name: "Create Project",
-      icon: PenLine,
-      color: "bg-blue-500",
-      active: false,
-    },
-    {
-      name: "ChatBot",
-      icon:  Bot,
-      color: "bg-green-500",
-      active: false,
-    },
-    {
-      name: "Log Out",
-      icon: LogOut,
-      color: "bg-orange-500",
-      active: false,
-    },
-    // {
-    //   name: "Calendar",
-    //   icon: Calendar,
-    //   color: "bg-purple-500",
-    //   active: false,
-    // },
-    // {
-    //   name: "Finance",
-    //   icon: DollarSign,
-    //   color: "bg-yellow-500",
-    //   active: false,
-    // },
-    // {
-    //   name: "Transfers",
-    //   icon: TrendingUp,
-    //   color: "bg-red-500",
-    //   active: false,
-    // },
-    // {
-    //   name: "Youth academy",
-    //   icon: GraduationCap,
-    //   color: "bg-indigo-500",
-    //   active: false,
-    // },
+  {
+    name: "Dashboard",
+    icon: BarChart3,
+    color: "bg-teal-500",
+    active: true,
+  },
+  {
+    name: "Create Project",
+    icon: PenLine,
+    color: "bg-blue-500",
+    active: false,
+  },
+  {
+    name: "ChatBot",
+    icon:  Bot,
+    color: "bg-green-500",
+    active: false,
+  },
+  {
+    name: "Log Out",
+    icon: LogOut,
+    color: "bg-orange-500",
+    active: false,
+  },
 ];
 
 export const projects = [

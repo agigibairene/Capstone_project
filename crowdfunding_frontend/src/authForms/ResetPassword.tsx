@@ -18,7 +18,7 @@ export default function ResetPassword() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const validate = () => {
+  function validate(){
     const newErrors: { password?: string; confirm_password?: string } = {};
     if (!password.trim()) newErrors.password = 'Password is required';
     if (!confirm_password.trim()) {
@@ -37,7 +37,7 @@ export default function ResetPassword() {
     if (Object.keys(validationErrors).length > 0) return;
 
     try {
-      const res = await fetch(`http://127.0.0.1:8000/auth/reset-password/${reset_id}/`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/${reset_id}/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password, confirm_password }),

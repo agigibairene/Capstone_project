@@ -14,7 +14,7 @@ async function refreshAccessToken(): Promise<string | null> {
   }
 
   try {
-    const response = await fetch('http://127.0.0.1:8000/auth/token/refresh/', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/token/refresh/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refresh }),
@@ -39,9 +39,9 @@ async function refreshAccessToken(): Promise<string | null> {
 function getUserRoleFromToken(token: string): string | null {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      const role = payload.role || payload.user_role || null;
+      const role = payload?.role || payload?.user_role || payload?.profile?.role || null;
       
-      if (role && typeof role === 'string' && role !== 'undefined') {
+      if (role && typeof role === 'string' && role.trim().length > 0 && role !== 'undefined') {
         const normalizedRole = role.toLowerCase().trim();
         localStorage.setItem('role', normalizedRole);
         return normalizedRole;
@@ -58,46 +58,49 @@ export default function ProtectedRoute({ children, userRole }: Props) {
 
   useEffect(() => {
     async function checkAuth() {
-      let access = localStorage.getItem('ACCESS_TOKEN');
+    let access = localStorage.getItem('ACCESS_TOKEN');
 
-      if (!access) {
-        access = await refreshAccessToken();
-      }
-
-      if (!access) {
-        console.log('ProtectedRoute: No valid access token');
-        setAuthorized(false);
-        return;
-      }
-
-      const roleFromToken = getUserRoleFromToken(access);
-             
-      const storedRole = localStorage.getItem('role');
-      const role = roleFromToken || (storedRole !== 'undefined' ? storedRole : null);
-
-      console.log('ProtectedRoute: Role check', {
-        roleFromToken,
-        roleFromStorage: storedRole,
-        finalRole: role,
-        requiredRole: userRole
-      });
-
-      if (!role || role === 'undefined') {
-        console.log('ProtectedRoute: No valid role found');
-        setAuthorized(false);
-        return;
-      }
-
-      if (role.toLowerCase() !== userRole.toLowerCase()) {
-        console.log('ProtectedRoute: Role mismatch');
-        setAuthorized(false);
-      } else {
-        setAuthorized(true);
-      }
+    if (!access) {
+      access = await refreshAccessToken();
     }
 
-    checkAuth();
-  }, [userRole]);
+    if (!access) {
+      console.log('ProtectedRoute: No valid access token');
+      setAuthorized(false);
+      return;
+    }
+
+    const roleFromToken = getUserRoleFromToken(access);
+    const storedRole = localStorage.getItem('role');
+    
+    // Clean the stored role value
+    let role = roleFromToken;
+    if (!role && storedRole && storedRole !== 'undefined' && storedRole !== 'null') {
+      role = storedRole;
+    }
+
+    console.log('ProtectedRoute: Role check', {
+      roleFromToken,
+      roleFromStorage: storedRole,
+      finalRole: role,
+      requiredRole: userRole
+    });
+
+    if (!role) {
+      console.log('ProtectedRoute: No valid role found');
+      setAuthorized(false);
+      return;
+    }
+
+    // Normalize roles for comparison
+    const normalizedRole = role.toLowerCase();
+    const normalizedRequired = userRole.toLowerCase();
+
+    setAuthorized(normalizedRole === normalizedRequired);
+  }
+
+  checkAuth();
+}, [userRole]);
 
   if (authorized === null) {
     return (

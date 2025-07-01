@@ -104,8 +104,17 @@ def login_view(request):
                         logger.info(f"Created OTP {otp.otp_code} for user {user.email}")
                         
                         # Send OTP email
-                        message = f"""Hi {user.username}, here is your OTP: {otp.otp_code}
-                                This OTP expires in 5 minutes. Please enter it to complete your login."""
+                        message = f"""
+                            Hello,
+
+                            Your One-Time Password (OTP) is: {otp.otp_code}
+
+                            This code will expire in 5 minutes. Please enter it to proceed with your login.
+
+                            Thank you,
+                            Agriconnect
+                            """
+
                         
                         if not hasattr(settings, 'EMAIL_HOST_USER') or not settings.EMAIL_HOST_USER:
                             logger.warning("EMAIL_HOST_USER not configured, skipping email send")
@@ -310,8 +319,17 @@ def resend_login_otp(request):
                 logger.info(f"Created new OTP {otp.otp_code} for user {user.email}")
                 
                 # Send OTP email
-                message = f"""Hi {user.username}, here is your new OTP: {otp.otp_code}
-                        This OTP expires in 5 minutes. Please enter it to complete your login."""
+                message = f"""
+                Hello {user.username},
+
+                Your One-Time Password (OTP) is: {otp.otp_code}
+
+                This code will expire in 5 minutes. Please enter it to proceed with your login.
+
+                Thank you,
+                Agriconnect
+                """
+
                 
                 if not hasattr(settings, 'EMAIL_HOST_USER') or not settings.EMAIL_HOST_USER:
                     logger.warning("EMAIL_HOST_USER not configured, skipping email send")
@@ -390,10 +408,21 @@ def forgot_password_view(request):
 
             reset_instance = PasswordReset.objects.create(user=user)
             reset_link = f"{request.scheme}://{request.get_host()}{reverse('reset-password', args=[reset_instance.reset_id])}"
+            
+            email_subject = "Reset Your Password"
+            email_body = (
+                f"Hello {user.username},\n\n"
+                f"We received a request to reset your password.\n"
+                f"Click the link below to set a new one:\n\n"
+                f"{reset_link}\n\n"
+                f"This link will expire in 10 minutes.\n"
+                f"If you didn’t request this, please ignore this email."
+            )
+
 
             email_message = EmailMessage(
-                'Reset your password',
-                f'Reset your password using the link below:\n\n{reset_link}\n\nThis link will expire in 10 minutes.',
+                email_subject,
+                email_body,
                 settings.EMAIL_HOST_USER,
                 [user.email]
             )
@@ -954,5 +983,30 @@ def request_kyc_change(request):
             'message': f'Error submitting change request: {str(e)}'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_kyc(request):
+    user = request.user
+    
+    try:
+        response_data = {
+            'success': True,
+            'role': getattr(user, 'profile', None) and user.profile.role or None,
+            'kyc': None
+        }
 
+        # Check KYC records
+        if hasattr(user, 'investor_kyc'):
+            serializer = InvestorKYCSerializer(user.investor_kyc)
+            response_data['kyc'] = serializer.data
+        elif hasattr(user, 'farmer_kyc'):
+            serializer = FarmerKYCSerializer(user.farmer_kyc)
+            response_data['kyc'] = serializer.data
 
+        return Response(response_data)
+
+    except Exception as e:
+        return Response({
+            'success': False,
+            'message': str(e)
+        }, status=500)
