@@ -150,7 +150,7 @@ export default function Grants() {
               </div>
 
               <div className="flex flex-col items-center gap-3 mb-4">
-                <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center text-white text-lg font-bold">
+                <div className="w-14 h-14 bg-gradient-to-br from-bgColor to-teal-700 rounded-lg flex items-center justify-center text-white text-lg font-bold">
                   S
                 </div>
                 <div className="text-center">
