@@ -307,7 +307,7 @@ export default function Signup() {
                   placeholder="Phone Number"
                   value={userInput.phone_number}
                   onChange={handleUserInput}
-                  className="flex-1 px-3 py-2 border-0 rounded-r-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="flex-1 px-3 py-2 border-0 text-sm font-Outfit rounded-r-md focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
               </div>
               {errors.phone_number && <p className="text-xs text-red-500 mt-1">{errors.phone_number}</p>}
