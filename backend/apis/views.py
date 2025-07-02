@@ -1,4 +1,5 @@
 from datetime import timedelta
+import json
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
@@ -23,6 +24,8 @@ from django.http import HttpResponseRedirect
 from .models import InvestorKYC, FarmerKYC, KYCVerificationLog
 import logging
 import traceback
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -30,29 +33,34 @@ logger = logging.getLogger(__name__)
 User = get_user_model()
 
 
+@csrf_exempt  
+@require_http_methods(["POST"])  
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def signup_view(request):
     """User registration endpoint"""
     try:
+        logger.info(f"Request method: {request.method}")
+        logger.info(f"Request path: {request.path}")
         logger.info(f"Signup attempt with data: {request.data}")
         
-        serializer = UserSignUpSerializer(data=request.data)
+        data = request.data if hasattr(request, 'data') else json.loads(request.body)
+        
+        serializer = UserSignUpSerializer(data=data)
         if serializer.is_valid():
             try:
                 with transaction.atomic():
                     user = serializer.save()
                     
-                    # Ensure profile exists
                     try:
                         profile = user.userprofile
                     except UserProfile.DoesNotExist:
                         profile = UserProfile.objects.create(
                             user=user,
-                            phone_number=request.data.get('phone_number', ''),
-                            role=request.data.get('role', 'Farmer'),
-                            organization=request.data.get('organization', ''),
-                            investor_type=request.data.get('investor_type', '')
+                            phone_number=data.get('phone_number', ''),
+                            role=data.get('role', 'Farmer'),
+                            organization=data.get('organization', ''),
+                            investor_type=data.get('investor_type', '')
                         )
                         logger.info(f"Created profile for user {user.email}: {profile}")
                     
@@ -93,7 +101,7 @@ def signup_view(request):
             'success': False, 
             'errors': {'general': 'An error occurred during registration. Please try again.'}
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])

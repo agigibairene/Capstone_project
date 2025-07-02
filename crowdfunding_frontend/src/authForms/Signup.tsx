@@ -293,8 +293,8 @@ export default function Signup() {
                           className="w-full flex items-center px-3 py-2 text-left hover:bg-gray-100 focus:outline-none focus:bg-gray-100"
                         >
                           <span className="mr-2">{country.flag}</span>
-                          <span className="mr-2 font-medium">{country.code}</span>
-                          <span className="text-sm text-gray-600 truncate">{country.country}</span>
+                          <span className="mr-2">{country.code}</span>
+                          <span className="text-gray-600 truncate">{country.country}</span>
                         </button>
                       ))}
                     </div>

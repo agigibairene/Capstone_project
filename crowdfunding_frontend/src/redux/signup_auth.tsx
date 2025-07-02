@@ -67,7 +67,10 @@ export const signupUser = createAsyncThunk<AuthResponse, SignupProps, { rejectVa
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/signup/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify(apiData),
       });
 
