@@ -1,7 +1,7 @@
 import ProjectCard from "../Utils/ProjectCard";
 import { projects } from "../data/data";
 
-export default function AllProjects({}){
+export default function AllProjects(){
     return(
        <section id="projects">
             <h2 className="text-center text-2xl md:text-3xl text-limeTxt font-bold mb-10">~ Projects ~</h2>

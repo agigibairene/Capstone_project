@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { API_URL } from '../Utils/constants';
 
 interface Props {
   email: string;
@@ -45,7 +46,7 @@ export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async ({ email, password }: Props, thunkAPI) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login/`, {
+      const response = await fetch(`${API_URL}/auth/login/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

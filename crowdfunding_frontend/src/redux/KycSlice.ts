@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { API_URL } from '../Utils/constants';
 
 interface KYCState {
   loading: boolean;
@@ -28,7 +29,7 @@ export const investorKYC = createAsyncThunk(
       }
 
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/kyc/investor/submit/`, {
+      const response = await fetch(`${API_URL}/kyc/investor/submit/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -91,7 +92,7 @@ export const submitFarmerKYC = createAsyncThunk(
       }
 
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/kyc/farmer/submit/`, {
+      const response = await fetch(`${API_URL}/kyc/farmer/submit/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -153,7 +154,7 @@ export const fetchUserKYC = createAsyncThunk(
       }
 
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/kyc/user/`, {
+      const response = await fetch(`${API_URL}/kyc/user/`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

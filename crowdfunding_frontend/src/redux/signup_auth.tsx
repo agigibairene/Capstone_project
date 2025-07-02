@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { API_URL } from '../Utils/constants';
 
 interface SignupProps {
   first_name: string;
@@ -65,7 +66,7 @@ export const signupUser = createAsyncThunk<AuthResponse, SignupProps, { rejectVa
       };
 
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/signup/`, {
+      const response = await fetch(`${API_URL}/auth/signup/`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { setAuthTokens } from '../redux/login_auth'; 
 import type { AppDispatch } from '../redux/store';
 import image from '../assets/login_img.jpg';
+import { API_URL } from "../Utils/constants";
 
 interface OTPLoginProps {
   length?: number;
@@ -120,7 +121,7 @@ export default function OTPLogin({ length = 5}: OTPLoginProps) {
     setError("");
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/verify-otp/`, {
+      const response = await fetch(`${API_URL}/auth/verify-otp/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -207,7 +208,7 @@ export default function OTPLogin({ length = 5}: OTPLoginProps) {
     setError("");
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/resend-otp/`, {
+      const response = await fetch(`${API_URL}/auth/resend-otp/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

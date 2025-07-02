@@ -7,6 +7,7 @@ import image from '../assets/login_img.jpg';
 import logo from '../assets/green_logo.png';
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
+import { API_URL } from '../Utils/constants';
 
 export default function ResetPassword() {
   const { reset_id } = useParams();
@@ -37,7 +38,7 @@ export default function ResetPassword() {
     if (Object.keys(validationErrors).length > 0) return;
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/${reset_id}/`, {
+      const res = await fetch(`${API_URL}/${reset_id}/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password, confirm_password }),

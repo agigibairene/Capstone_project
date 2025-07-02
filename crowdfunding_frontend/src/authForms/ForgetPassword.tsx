@@ -4,6 +4,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import image from '../assets/login_img.jpg';
 import logo from '../assets/green_logo.png';
 import { Link } from 'react-router-dom';
+import { API_URL } from '../Utils/constants';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -20,7 +21,7 @@ export default function ForgotPassword() {
     setError(null); 
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/forgot-password/`, {
+      const response = await fetch(`${API_URL}/auth/forgot-password/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
