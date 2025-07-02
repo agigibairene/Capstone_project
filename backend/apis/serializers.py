@@ -333,8 +333,15 @@ class FarmerKYCSerializer(serializers.ModelSerializer):
         kyc_instance = super().create(validated_data)
         
         try:
-            from .models import KYCVerificationLog
-            KYCVerificationLog.
+            KYCVerificationLog.objects.create(
+                user=user,
+                action='submitted',
+            )
+        except Exception as e:
+            print(f"Failed to create verification log: {str(e)}")
+        
+        return kyc_instance
+
 
 class KYCVerificationLogSerializer(serializers.ModelSerializer):
     """Serializer for KYC verification logs"""
@@ -359,4 +366,3 @@ class KYCAdminUpdateSerializer(serializers.Serializer):
     """Serializer for admin KYC updates"""
     action = serializers.ChoiceField(choices=['approved', 'rejected', 'pending'])
     allow_changes = serializers.BooleanField(default=False, help_text="Allow one-time changes to KYC data")
-
