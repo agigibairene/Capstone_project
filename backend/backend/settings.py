@@ -14,8 +14,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from datetime import timedelta
 import os
-import dj_database_url
-from decouple import config
+from urllib.parse import urlparse
 
 load_dotenv()
 
@@ -98,16 +97,21 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+DATABASE_URL = os.environ.get('DATABASE_URL')
+db_info = urlparse(DATABASE_URL)
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT')
+        'USER': db_info.username,
+        'PASSWORD': db_info.password,
+        'HOST': db_info.hostname,
+        'PORT': db_info.port,
+        'OPTIONS': {'sslmode': 'require'}
     }
 }
+
 
 # DATABASES['default'] = dj_database_url.parse(config('DB_URL')) 
 
