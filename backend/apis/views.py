@@ -25,7 +25,6 @@ from .models import InvestorKYC, FarmerKYC, KYCVerificationLog
 import logging
 import traceback
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator
 from rest_framework import status
 from django.db import models
