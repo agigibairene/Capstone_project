@@ -76,7 +76,7 @@ class OpportunityAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Basic Information', {
-            'fields': ('title', 'organization', 'location', 'team')
+            'fields': ('title', 'organization', 'location', 'theme') 
         }),
         ('Opportunity Details', {
             'fields': ('type', 'tags', 'description', 'full_description', 'amount', 'deadline', 'application_link')
