@@ -5,6 +5,8 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from .models import InvestorKYC, FarmerKYC, KYCVerificationLog, Opportunity, UserProfile
+from .opportunities import schedule_opportunity_cleanup
+
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -422,4 +424,8 @@ class OpportunityCreateSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         validated_data['created_by'] = self.context['request'].user
-        return super().create(validated_data)
+        opportunity = super().create(validated_data)
+        
+        schedule_opportunity_cleanup.delay(opportunity.id)
+        
+        return opportunity

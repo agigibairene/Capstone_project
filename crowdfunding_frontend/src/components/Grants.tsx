@@ -29,6 +29,8 @@ export default function Grants() {
     opportunities_by_type: {}
   });
 
+  console.log(opportunities)
+
   const [selectedType, setSelectedType] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState({
@@ -59,30 +61,30 @@ export default function Grants() {
 
     type TypeMappingKey = keyof typeof typeMapping;
 
-      if (type.trim()) {
-        const dbKey = typeMapping[type as TypeMappingKey] || type;
-        params.append('type', dbKey);
-      }
+    if (type.trim()) {
+      const dbKey = typeMapping[type as TypeMappingKey] || type;
+      params.append('type', dbKey);
+    }
 
-      const response = await fetch(`${API_URL}/opportunities/?${params}`);
+    const response = await fetch(`${API_URL}/opportunities/?${params}`);
       
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-      const data = await response.json();
+    const data = await response.json();
       
       if (!data.results || !Array.isArray(data.results)) {
         throw new Error('Invalid response format');
       }
       
-      setOpportunities(data.results);
-      setPagination({
-        count: data.count || 0,
-        next: !!data.next,
-        previous: !!data.previous,
-        total_pages: data.total_pages || 1
-      });
+    setOpportunities(data.results);
+    setPagination({
+      count: data.count || 0,
+      next: !!data.next,
+      previous: !!data.previous,
+      total_pages: data.total_pages || 1
+    });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch opportunities');
       console.error('Fetch opportunities error:', err);
@@ -91,6 +93,7 @@ export default function Grants() {
     }
   };
 
+  console.log(`Selected: ${selected}`)
   async function fetchStats(){
     try {
       const response = await fetch(`${API_URL}/opportunities/stats/`);
@@ -117,24 +120,6 @@ export default function Grants() {
     }
   };
 
-  async function incrementApplicants(id: number){
-    try {
-      const response = await fetch(`${API_URL}/opportunities/${id}/increment_applicants/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      fetchOpportunities(currentPage, selectedType);
-    } catch (err) {
-      console.error('Failed to increment applicants:', err);
-    }
-  };
 
   function handleTypeFilter(type: string){
     setSelectedType(type);
@@ -154,9 +139,6 @@ export default function Grants() {
     fetchOpportunities(page, selectedType);
   };
 
-  async function handleApplyNow(opportunity: Opportunity){
-    await incrementApplicants(opportunity.id);
-  };
 
   useEffect(() => {
     fetchOpportunities();
@@ -404,7 +386,7 @@ export default function Grants() {
                 <div className="mb-6">
                   <h4 className="text-lg font-semibold text-gray-800 mb-2">Full Description</h4>
                   <div className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">
-                    {selected.fullDescription || selected.description}
+                    {selected.full_description || selected.description}
                   </div>
                 </div>
 
@@ -421,14 +403,13 @@ export default function Grants() {
                   </div>
                 )}
 
-                <Link to={selected.applicationLink}>
+                <a href={selected.application_link}>
                   <button
-                    onClick={() => handleApplyNow(selected)}
                     className="w-full cursor-pointer bg-bgColor hover:bg-teal-900 text-limeTxt py-2 rounded-md font-semibold"
                   >
                     Apply Now
                   </button>
-                </Link>
+                </a>
               </div>
             </div>
           ) : (
@@ -466,7 +447,6 @@ export default function Grants() {
 
                     {/* Individual Type Options */}
                     {Object.entries(stats.opportunities_by_type).map(([type, count]) => {
-                      console.log(type, count)
                       return (<label key={type} className="flex items-center justify-between mb-3">
                         <div className="flex items-center">
                           <input
@@ -545,7 +525,7 @@ export default function Grants() {
                   Full Description
                 </h4>
                 <div className="text-gray-700 text-sm sm:text-base leading-relaxed whitespace-pre-wrap">
-                  {selected.fullDescription || selected.description}
+                  {selected.full_description || selected.description}
                 </div>
               </div>
 
@@ -565,14 +545,13 @@ export default function Grants() {
               )}
 
               <div className="sticky bottom-0 bg-white pt-4 sm:pt-6 pb-4 sm:pb-6 border-t border-gray-200 -mx-4 sm:-mx-6 px-4 sm:px-6">
-                <Link to={selected.applicationLink}>
+                <a href={selected.application_link}>
                   <button 
-                   onClick={() => handleApplyNow(selected)}
                     className="w-full cursor-pointer bg-bgColor hover:bg-teal-900 text-limeTxt py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-colors"
                   >
                   Apply Now
                 </button>
-                </Link>
+                </a>
               </div>
             </div>
           </div>

@@ -1259,29 +1259,3 @@ def opportunity_stats(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def opportunity_increment_applicants(request, pk):
-    """
-    Increment the applicants count for an opportunity
-    """
-    try:
-        opportunity = get_object_or_404(Opportunity, pk=pk, is_active=True)
-        opportunity.applicants += 1
-        opportunity.save(update_fields=['applicants'])
-        
-        return Response({
-            'message': 'Applicants count incremented successfully',
-            'applicants': opportunity.applicants
-        })
-    
-    except Opportunity.DoesNotExist:
-        return Response(
-            {'error': 'Opportunity not found'}, 
-            status=status.HTTP_404_NOT_FOUND
-        )
-    except Exception as e:
-        return Response(
-            {'error': f'An error occurred: {str(e)}'}, 
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )

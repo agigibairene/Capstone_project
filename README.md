@@ -5,7 +5,7 @@
 2. [Python](https://www.python.org/downloads/)
 
 ## Visit Frontend here  
-👉 [Visit UI](https://capstone-rdnx4.ondigitalocean.app/)
+👉 [Visit UI](https://agriconnect-frontend-rzd2q.ondigitalocean.app/)
 
 ## GitHuB Repository URL
 [GITHUB LINK](https://github.com/agigibairene/Capstone_project)

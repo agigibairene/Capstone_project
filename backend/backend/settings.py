@@ -15,6 +15,7 @@ from dotenv import load_dotenv
 from datetime import timedelta
 import os
 from urllib.parse import urlparse
+from celery.schedules import crontab
 
 load_dotenv()
 
@@ -95,6 +96,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
+CELERY_BEAT_SCHEDULE = {
+    'cleanup-expired-opportunities': {
+        'task': 'backend.opportunities.cleanup_expired_opportunities',
+        'schedule': crontab(hour=1, minute=0),  
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -102,28 +109,28 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASE_URL = os.environ.get('DATABASE_URL')
 db_info = urlparse(DATABASE_URL)
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'agriconnect-db',
-        'USER': db_info.username,
-        'PASSWORD': db_info.password,
-        'HOST': db_info.hostname,
-        'PORT': db_info.port,
-        'OPTIONS': {'sslmode': 'require'}
-    }
-}
-
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'capstone',
-#         'USER': os.getenv('DB_USER'),
-#         'PASSWORD': os.getenv('DB_PASSWORD'),
-#         'HOST': os.getenv('DB_HOST'),
-#         'PORT': os.getenv('DB_PORT'),
+#         'NAME': 'agriconnect-db',
+#         'USER': db_info.username,
+#         'PASSWORD': db_info.password,
+#         'HOST': db_info.hostname,
+#         'PORT': db_info.port,
+#         'OPTIONS': {'sslmode': 'require'}
 #     }
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'capstone',
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
+    }
+}
 
 
 # Password validation
