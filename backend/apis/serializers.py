@@ -376,7 +376,7 @@ class OpportunitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Opportunity
         fields = [
-            'id', 'title', 'organization', 'location', 'team', 'type', 
+            'id', 'title', 'organization', 'location', 'theme', 'type', 
             'tags', 'description', 'full_description', 'amount', 
             'deadline', 'application_link', 'posted', 'views', 'applicants'
         ]
@@ -398,11 +398,12 @@ class OpportunitySerializer(serializers.ModelSerializer):
         else:
             return f"{diff.days // 30} months ago"
 
+
 class OpportunityCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Opportunity
         fields = [
-            'title', 'organization', 'location', 'team', 'type', 
+            'title', 'organization', 'location', 'theme', 'type', 
             'tags', 'description', 'full_description', 'amount', 'deadline',
             'application_link'
         ]

@@ -253,14 +253,13 @@ class Opportunity(models.Model):
         ('hackathon', 'Hackathon'),
         ('funding_mentorship', 'Funding + Mentorship'),
         ('competition', 'Competition'),
-        ('accelerator', 'Accelerator'),
         ('other', 'Other'),
     ]
     
     title = models.CharField(max_length=255)
     organization = models.CharField(max_length=255)
     location = models.CharField(max_length=255)
-    team = models.CharField(max_length=255)
+    theme = models.CharField(max_length=255)
     type = models.CharField(max_length=50, choices=OPPORTUNITY_TYPES)
     tags = models.JSONField(default=list, help_text="List of tags")
     description = models.TextField()
@@ -284,3 +283,5 @@ class Opportunity(models.Model):
     def increment_views(self):
         self.views += 1
         self.save(update_fields=['views'])
+
+

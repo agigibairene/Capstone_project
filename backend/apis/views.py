@@ -618,7 +618,7 @@ def update_profile_view(request):
         }, status=status.HTTP_404_NOT_FOUND)
 
 
-# VIEWS TO GET TO KNOW YOUR CUSTOMER
+# VIEWS TO GET TO KNOW YOUR CUSTOMER KYC
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
