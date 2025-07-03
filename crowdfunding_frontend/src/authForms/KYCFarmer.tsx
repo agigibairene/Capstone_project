@@ -16,7 +16,7 @@ export default function KYCFarmer() {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    countryCode: '+233', // Default to Ghana
+    countryCode: '+233', 
     phoneNumber: '',
     role: '',
     background: '',
@@ -181,7 +181,7 @@ export default function KYCFarmer() {
               </div>
               
               <div className="mb-6">
-                <div className="flex justify-between mb-1">
+                <div className="flex justify-between font-Outfit mb-1">
                     {
                       ['Personal Info', 'Background','Docs & Verification'].map((item, index) => (
                         <span key={index} className="text-white  text-base">{item}</span>
@@ -218,7 +218,7 @@ export default function KYCFarmer() {
                       {errors.fullName && <p className="text-xs text-red-600 font-bold mt-1">{errors.fullName}</p>}
                     </div>
 
-                    <div>
+                    <div className='md:col-span-2'>
                       <input
                         name="email"
                         type="email"
@@ -230,14 +230,14 @@ export default function KYCFarmer() {
                       {errors.email && <p className="text-xs font-bold text-red-600 mt-1">{errors.email}</p>}
                     </div>
 
-                    <div>
+                    <div className="md:col-span-2">
                       <label className="block text-white/80 text-xs font-medium mb-1">Phone Number</label>
                       <div className="flex gap-2">
                         <select
                           name="countryCode"
                           value={formData.countryCode}
                           onChange={handleChange}
-                          className="px-2 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm min-w-[80px]"
+                          className="px-3 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm w-24 flex-shrink-0"
                         >
                           {countryCodes.map((country) => (
                             <option key={country.code} value={country.code} className="text-gray-900 bg-white">

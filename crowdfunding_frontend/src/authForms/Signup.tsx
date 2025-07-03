@@ -92,7 +92,7 @@ export default function Signup() {
 
     if (!userInput.role) newErrors.role = "Role is required";
 
-    const phoneRegex = /^[0-9]{6,15}$/; // 
+    const phoneRegex = /^[0-9]{6,15}$/;  
     if (!userInput.phone_number.trim()) {
       newErrors.phone_number = "Phone number is required";
     } else if (!phoneRegex.test(userInput.phone_number.replace(/[\s-]/g, ''))) {
@@ -158,15 +158,15 @@ export default function Signup() {
     }
     dispatch(resetSignupState());
   }
-}, [success, userInput.role, navigate, dispatch]);
+ }, [success, userInput.role, navigate, dispatch]);
 
-  useEffect(() => {
+ useEffect(() => {
     return () => {
       dispatch(resetSignupState());
     };
-  }, [dispatch]);
+ }, [dispatch]);
 
-  useEffect(() => {
+ useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       const target = event.target as HTMLElement;
       if (!target.closest('.country-code-selector')) {
@@ -190,9 +190,19 @@ export default function Signup() {
       <div className="w-full max-w-6xl bg-gray-200 p-4 sm:p-6 md:p-8 rounded-2xl shadow-md grid grid-cols-1 md:grid-cols-[40%_60%] gap-4">
         {/* LEFT SIDE */}
         <div className="bg-gray-200 p-4 sm:p-6 md:p-8 space-y-6">
-          <div className="flex gap-2 items-center text-xl font-semibold text-teal-700">
-            <img src={logo} className="w-[26px]" alt="Agriconnect Logo" />
-            Agriconnect
+          <div className="flex gap-8 items-center">
+            <div className="flex gap-2 items-center text-xl font-semibold text-teal-700">
+              <img src={logo} className="w-[26px]" alt="Agriconnect Logo" />
+              Agriconnect
+            </div>
+            <div className="px-2 py-3 sm:py-4">
+              <button
+                onClick={() => navigate('/')}
+                className="flex items-center cursor-pointer text-gray-500 hover:text-gray-700 text-sm sm:text-base"
+              >
+                ← Back home
+              </button>
+            </div>
           </div>
           <h2 className="text-2xl font-bold text-bgColor">
             We create a platform for farmers & investors to connect
@@ -215,7 +225,9 @@ export default function Signup() {
 
         {/* RIGHT SIDE */}
         <div className="p-4 sm:p-6 md:p-12 rounded-lg bg-white">
-          <h2 className="text-xl font-semibold text-teal-700">Create an Account on Agriconnect</h2>
+          <div className="flex gap-4 items-center">
+            <h2 className="text-xl font-semibold text-teal-700">Create an Account on Agriconnect</h2>
+          </div>
           <p className="text-sm text-gray-500 mb-6">Sign up to see more amazing features</p>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
@@ -307,7 +319,7 @@ export default function Signup() {
                   placeholder="Phone Number"
                   value={userInput.phone_number}
                   onChange={handleUserInput}
-                  className="flex-1 px-3 py-2 border-0 text-sm font-Outfit rounded-r-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className={`input w-full ${errors.phone_number ? 'border-red-500' : ''}`}
                 />
               </div>
               {errors.phone_number && <p className="text-xs text-red-500 mt-1">{errors.phone_number}</p>}
