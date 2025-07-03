@@ -31,17 +31,18 @@ from rest_framework import status
 from django.db import models
 from django.core.paginator import Paginator
 from django.db.models import Q
-
+from django.http import JsonResponse
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
+def home(request):
+    return JsonResponse({"message": "Welcome to AgriConnect API!"})
 
 @csrf_exempt  
 @require_http_methods(["POST"])  
-@api_view(['POST'])
 @permission_classes([AllowAny])
 def signup_view(request):
     """User registration endpoint"""
