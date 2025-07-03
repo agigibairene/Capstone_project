@@ -1,6 +1,7 @@
 // FarmerHome.tsx
 import { useSelector } from 'react-redux';
 import type { RootState } from '../redux/store';
+import { API_URL } from '../Utils/constants';
 
 export default function FarmerHome() {
   const { kycData, role, loading, error } = useSelector((state: RootState) => state.kycReducer);
@@ -17,7 +18,7 @@ export default function FarmerHome() {
         <div className="bg-purple-100 rounded-full flex items-center justify-center">
           {user.profile_picture && (
             <img
-              src={`${import.meta.env.VITE_API_URL}${user.profile_picture}`}
+              src={`${API_URL}${user.profile_picture}`}
               className="w-[8rem] h-[8rem] rounded-full"
               alt="Profile"
             />

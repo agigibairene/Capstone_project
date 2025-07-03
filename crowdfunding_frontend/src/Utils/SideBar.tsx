@@ -34,7 +34,7 @@ export default function SideBar({ menuItems, activeItem, setActiveItem, full_nam
 
   function handleLogout(){
     dispatch(logout());
-    navigate('/');
+    navigate('/login');
   }
 
   return (

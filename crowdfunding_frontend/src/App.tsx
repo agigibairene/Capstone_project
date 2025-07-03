@@ -1,4 +1,5 @@
 import { Outlet } from "react-router-dom";
+import 'react-toastify/ReactToastify.css';
 import { ThirdwebProvider } from "thirdweb/react";
 // import {createThirdwebClient, getContract,} from "thirdweb";
 // import { defineChain } from "thirdweb/chains";

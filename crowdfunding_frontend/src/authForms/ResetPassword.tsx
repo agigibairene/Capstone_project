@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/ReactToastify.css';
 import image from '../assets/login_img.jpg';
 import logo from '../assets/green_logo.png';
 import { Link } from 'react-router-dom';

@@ -5,6 +5,7 @@ import { setAuthTokens } from '../redux/login_auth';
 import type { AppDispatch } from '../redux/store';
 import image from '../assets/login_img.jpg';
 import { API_URL } from "../Utils/constants";
+import { toast, ToastContainer } from 'react-toastify';
 
 interface OTPLoginProps {
   length?: number;
@@ -45,7 +46,7 @@ export default function OTPLogin({ length = 5}: OTPLoginProps) {
     }
   }, [countdown]);
 
-  const resetOTPInputs = () => {
+  function resetOTPInputs(){
     setOtp(new Array(length).fill(""));
     setError("");
     if (inputRefs.current[0]) {
@@ -63,13 +64,12 @@ export default function OTPLogin({ length = 5}: OTPLoginProps) {
     setOtp(newOtp);
     setError(""); 
 
-    // Only move to next input, no auto-submission
     if (value && index < length - 1 && inputRefs.current[index + 1]) {
       inputRefs.current[index + 1]?.focus();
     }
   }
 
-  const handleClick = (index: number) => {
+  function handleClick(index: number){
     const currentInput = inputRefs.current[index];
     if (currentInput) {
       currentInput.setSelectionRange(1, 1);
@@ -94,7 +94,7 @@ export default function OTPLogin({ length = 5}: OTPLoginProps) {
     }
   }
 
-  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+  function handlePaste (e: React.ClipboardEvent<HTMLInputElement>){
     e.preventDefault();
     const pasteData = e.clipboardData.getData('text').trim();
     
@@ -107,11 +107,10 @@ export default function OTPLogin({ length = 5}: OTPLoginProps) {
         inputRefs.current[length - 1]?.focus();
       }
       
-      // Removed auto-submission after paste
     }
   };
 
-  const handleOTPSubmit = async (otpValue: string) => {
+  async function handleOTPSubmit(otpValue: string){
     if (!username) {
       setError("Username not found. Please try logging in again.");
       return;
@@ -197,7 +196,7 @@ export default function OTPLogin({ length = 5}: OTPLoginProps) {
     }
   };
 
-  const handleResendOTP = async () => {
+  async function handleResendOTP(){
     if (!username) {
       setError("Username not found. Please try logging in again.");
       return;
@@ -269,24 +268,9 @@ export default function OTPLogin({ length = 5}: OTPLoginProps) {
             Please enter the {length}-digit OTP sent to your email and click verify to complete your login
           </p>
 
-          {error && (
-            <div 
-              id="otp-error"
-              className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"
-              role="alert"
-            >
-              {error}
-            </div>
-          )}
+          {error && toast.error('error')}
 
-          {resendMessage && (
-            <div 
-              className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4"
-              role="alert"
-            >
-              {resendMessage}
-            </div>
-          )}
+          {resendMessage && toast.success(resendMessage)}
 
           <div className="flex justify-center space-x-2 mb-6">
             {otp.map((value, index) => {
@@ -366,6 +350,9 @@ export default function OTPLogin({ length = 5}: OTPLoginProps) {
           </div>
         </div>
       </div>
+      
+      <ToastContainer position="top-center" autoClose={5000} />
+
     </div>
   );
 }
