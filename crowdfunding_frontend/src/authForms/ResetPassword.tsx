@@ -29,7 +29,7 @@ export default function ResetPassword() {
     return newErrors;
   };
 
-  const handleReset = async (e: React.FormEvent) => {
+  async function handleReset(e: React.FormEvent){
     e.preventDefault();
     const validationErrors = validate();
     setErrors(validationErrors);
