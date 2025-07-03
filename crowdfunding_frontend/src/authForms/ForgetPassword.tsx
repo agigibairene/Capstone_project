@@ -86,7 +86,7 @@ export default function ForgotPassword() {
 
             <button
               type="submit"
-              className="w-full bg-bgColor text-limeTxt outline-0 backdrop-blur-sm cursor-pointer font-medium py-3 px-4 rounded-lg transition-all duration-200"
+              className="w-full bg-bgColor hover:bg-teal-700 text-limeTxt outline-0 backdrop-blur-sm cursor-pointer font-medium py-3 px-4 rounded-lg transition-all duration-200"
             >
               Send Reset Link
             </button>

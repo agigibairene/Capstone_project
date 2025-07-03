@@ -12,7 +12,6 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     strictPort: true,
     allowedHosts: [
-      'capstone-gmpuk.ondigitalocean.app',
       'localhost',
       '.vercel.app',
       '.ondigitalocean.app'

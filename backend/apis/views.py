@@ -459,7 +459,7 @@ def forgot_password_view(request):
             
             email_subject = "Reset Your Password"
             email_body = (
-                f"Hello {user.username},\n\n"
+                f"Hello {user.first_name},\n\n"
                 f"We received a request to reset your password.\n"
                 f"Click the link below to set a new one:\n\n"
                 f"{reset_link}\n\n"
@@ -503,7 +503,7 @@ def forgot_password_view(request):
 def reset_password_view(request, reset_id):
     '''View to reset password'''
     if request.method == 'GET':
-        frontend_url = f"http://localhost:8080/reset/{reset_id}"
+        frontend_url = f"https://agriconnect-frontend-rzd2q.ondigitalocean.app/reset/{reset_id}"
         return HttpResponseRedirect(frontend_url)
 
     serializer = PasswordResetSerializer(data=request.data)

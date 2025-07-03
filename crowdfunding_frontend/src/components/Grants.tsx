@@ -37,7 +37,6 @@ export default function Grants() {
     total_pages: 0
   });
 
-  // Map display labels to database keys
   const typeMapping = {
     'Grant': 'grant',
     'Hackathon': 'hackathon',
@@ -47,7 +46,7 @@ export default function Grants() {
     'Other': 'other'
   };
 
-  const fetchOpportunities = async (page = 1, type = '') => {
+  async function fetchOpportunities(page = 1, type = ''){
     try {
       setLoading(true);
       setError(null); 
@@ -91,7 +90,7 @@ export default function Grants() {
     }
   };
 
-  const fetchStats = async () => {
+  async function fetchStats(){
     try {
       const response = await fetch(`${API_URL}/opportunities/stats/`);
       if (!response.ok) {
@@ -104,7 +103,7 @@ export default function Grants() {
     }
   };
 
-  const fetchOpportunityDetail = async (id: number) => {
+  async function fetchOpportunityDetail(id: number){
     try {
       const response = await fetch(`${API_URL}/opportunities/${id}/`);
       if (!response.ok) {
@@ -117,7 +116,7 @@ export default function Grants() {
     }
   };
 
-  const incrementApplicants = async (id: number) => {
+  async function incrementApplicants(id: number){
     try {
       const response = await fetch(`${API_URL}/opportunities/${id}/increment_applicants/`, {
         method: 'POST',
@@ -137,11 +136,12 @@ export default function Grants() {
   };
 
   const handleTypeFilter = (type: string) => {
-    console.log('Filtering by type:', type); 
     setSelectedType(type);
     setCurrentPage(1);
     fetchOpportunities(1, type);
   };
+
+  console.log(opportunities)
 
   const handleClearFilters = () => {
     console.log('Clearing all filters'); 
@@ -184,7 +184,7 @@ export default function Grants() {
     {
       title: 'Favorites',
       icon: <GrFavorite size={50} className="text-white" />,
-      value: 0 // You can implement favorites functionality
+      value: 0 
     }
   ];
 
