@@ -33,7 +33,7 @@ class UserProfile(models.Model):
         ('Organization', 'Organization'),
     ]
     
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='userprofile')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     phone_number = models.CharField(max_length=20, blank=True)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
     organization = models.CharField(max_length=200, blank=True)

@@ -59,7 +59,7 @@ def signup_view(request):
                     user = serializer.save()
                     
                     try:
-                        profile = user.userprofile
+                        profile = user.profile
                     except UserProfile.DoesNotExist:
                         profile = UserProfile.objects.create(
                             user=user,
