@@ -13,6 +13,7 @@ export interface Opportunity{
   posted: string,
   views: number,
   applicants: number,
+  applicationLink: string
 }
 
 

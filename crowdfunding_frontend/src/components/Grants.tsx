@@ -7,6 +7,7 @@ import ScrollToTop from "react-scroll-to-top";
 import { FaArrowUp } from "react-icons/fa";
 import Loader from "../Utils/Loader";
 import { API_URL } from "../Utils/constants";
+import { Link } from "react-router-dom";
 
 
 interface Stats {
@@ -135,29 +136,26 @@ export default function Grants() {
     }
   };
 
-  const handleTypeFilter = (type: string) => {
+  function handleTypeFilter(type: string){
     setSelectedType(type);
     setCurrentPage(1);
     fetchOpportunities(1, type);
   };
 
-  console.log(opportunities)
 
-  const handleClearFilters = () => {
-    console.log('Clearing all filters'); 
+  function handleClearFilters(){
     setSelectedType('');
     setCurrentPage(1);
     fetchOpportunities(1, '');
   };
 
-  const handlePageChange = (page: number) => {
+  function handlePageChange(page: number){
     setCurrentPage(page);
     fetchOpportunities(page, selectedType);
   };
 
-  const handleApplyNow = async (opportunity: Opportunity) => {
+  async function handleApplyNow(opportunity: Opportunity){
     await incrementApplicants(opportunity.id);
-    console.log('Applied to:', opportunity.title);
   };
 
   useEffect(() => {
@@ -423,12 +421,14 @@ export default function Grants() {
                   </div>
                 )}
 
-                <button 
-                  onClick={() => handleApplyNow(selected)}
-                  className="w-full cursor-pointer bg-bgColor hover:bg-teal-900 text-limeTxt py-2 rounded-md font-semibold"
-                >
-                  Apply Now
-                </button>
+                <Link to={selected.applicationLink}>
+                  <button
+                    onClick={() => handleApplyNow(selected)}
+                    className="w-full cursor-pointer bg-bgColor hover:bg-teal-900 text-limeTxt py-2 rounded-md font-semibold"
+                  >
+                    Apply Now
+                  </button>
+                </Link>
               </div>
             </div>
           ) : (
@@ -565,12 +565,14 @@ export default function Grants() {
               )}
 
               <div className="sticky bottom-0 bg-white pt-4 sm:pt-6 pb-4 sm:pb-6 border-t border-gray-200 -mx-4 sm:-mx-6 px-4 sm:px-6">
-                <button 
-                  onClick={() => handleApplyNow(selected)}
-                  className="w-full cursor-pointer bg-bgColor hover:bg-teal-900 text-limeTxt py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-colors"
-                >
+                <Link to={selected.applicationLink}>
+                  <button 
+                   onClick={() => handleApplyNow(selected)}
+                    className="w-full cursor-pointer bg-bgColor hover:bg-teal-900 text-limeTxt py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-colors"
+                  >
                   Apply Now
                 </button>
+                </Link>
               </div>
             </div>
           </div>
