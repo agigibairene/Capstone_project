@@ -42,7 +42,7 @@ def home(request):
     return JsonResponse({"message": "Welcome to AgriConnect API!"})
 
 @csrf_exempt  
-@require_http_methods(["POST"])  
+@api_view(['POST'])
 @permission_classes([AllowAny])
 def signup_view(request):
     """User registration endpoint"""
