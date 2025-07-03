@@ -48,7 +48,11 @@
     color: #fff;
     bottom: 20px;
     right: 20px;
-    position: fixed,
+    position: fixed;
+}
+
+#grants.scrollToTop {
+    background-color: #032B22 !important;
 }
 
 .stroke-black {

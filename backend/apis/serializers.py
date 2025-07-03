@@ -3,7 +3,8 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from .models import InvestorKYC, FarmerKYC, KYCVerificationLog, UserProfile
+from django.utils import timezone
+from .models import InvestorKYC, FarmerKYC, KYCVerificationLog, Opportunity, UserProfile
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -18,6 +19,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'organization': {'required': False, 'allow_blank': True},
             'investor_type': {'required': False, 'allow_blank': True},
         }
+
 
 class UserSerializer(serializers.ModelSerializer):
     """Basic User serializer for responses"""
@@ -366,3 +368,57 @@ class KYCAdminUpdateSerializer(serializers.Serializer):
     """Serializer for admin KYC updates"""
     action = serializers.ChoiceField(choices=['approved', 'rejected', 'pending'])
     allow_changes = serializers.BooleanField(default=False, help_text="Allow one-time changes to KYC data")
+    
+    
+class OpportunitySerializer(serializers.ModelSerializer):
+    posted = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Opportunity
+        fields = [
+            'id', 'title', 'organization', 'location', 'team', 'type', 
+            'tags', 'description', 'full_description', 'amount', 
+            'deadline', 'application_link', 'posted', 'views', 'applicants'
+        ]
+    
+    def get_posted(self, obj):
+        now = timezone.now()
+        diff = now - obj.posted
+        
+        if diff.days == 0:
+            return "Today"
+        elif diff.days == 1:
+            return "1 day ago"
+        elif diff.days < 7:
+            return f"{diff.days} days ago"
+        elif diff.days < 14:
+            return "1 week ago"
+        elif diff.days < 30:
+            return f"{diff.days // 7} weeks ago"
+        else:
+            return f"{diff.days // 30} months ago"
+
+class OpportunityCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Opportunity
+        fields = [
+            'title', 'organization', 'location', 'team', 'type', 
+            'tags', 'description', 'full_description', 'amount', 'deadline',
+            'application_link'
+        ]
+    
+    def validate_deadline(self, value):
+        """Ensure deadline is not in the past"""
+        if value < timezone.now().date():
+            raise serializers.ValidationError("Deadline cannot be in the past.")
+        return value
+    
+    def validate_tags(self, value):
+        """Ensure tags is a list"""
+        if not isinstance(value, list):
+            raise serializers.ValidationError("Tags must be a list.")
+        return value
+    
+    def create(self, validated_data):
+        validated_data['created_by'] = self.context['request'].user
+        return super().create(validated_data)

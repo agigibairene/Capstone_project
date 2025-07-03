@@ -21,6 +21,7 @@ class PasswordReset(models.Model):
         one_day_ago = timezone.now() - timezone.timedelta(days=1)
         return cls.objects.filter(user=user, created_when__gte=one_day_ago).count()
 
+
 class UserProfile(models.Model):
     ROLE_CHOICES = [
         ('Farmer', 'Farmer'),
@@ -244,4 +245,42 @@ class KYCVerificationLog(models.Model):
         verbose_name = "KYC Verification Log"
         verbose_name_plural = "KYC Verification Logs"
         ordering = ['-created_at']
-       
+
+
+class Opportunity(models.Model):
+    OPPORTUNITY_TYPES = [
+        ('grant', 'Grant'),
+        ('hackathon', 'Hackathon'),
+        ('funding_mentorship', 'Funding + Mentorship'),
+        ('competition', 'Competition'),
+        ('accelerator', 'Accelerator'),
+        ('other', 'Other'),
+    ]
+    
+    title = models.CharField(max_length=255)
+    organization = models.CharField(max_length=255)
+    location = models.CharField(max_length=255)
+    team = models.CharField(max_length=255)
+    type = models.CharField(max_length=50, choices=OPPORTUNITY_TYPES)
+    tags = models.JSONField(default=list, help_text="List of tags")
+    description = models.TextField()
+    full_description = models.TextField()
+    amount = models.CharField(max_length=100)
+    deadline = models.DateField()
+    application_link = models.URLField(max_length=500, help_text="Link to application form or website")
+    posted = models.DateTimeField(default=timezone.now)
+    views = models.PositiveIntegerField(default=0)
+    applicants = models.PositiveIntegerField(default=0)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='opportunities')
+    is_active = models.BooleanField(default=True)
+    
+    class Meta:
+        ordering = ['-posted']
+        verbose_name_plural = "Opportunities"
+    
+    def __str__(self):
+        return self.title
+    
+    def increment_views(self):
+        self.views += 1
+        self.save(update_fields=['views'])

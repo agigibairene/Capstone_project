@@ -25,4 +25,13 @@ urlpatterns = [
     # OTP PATHS
     path("auth/verify-otp/", views.verify_login_otp, name="verify-otp"),
     path("auth/resend-otp/", views.resend_login_otp, name="resend-otp"),
+    
+    # OPPORTUNITIES
+    path('opportunities/', views.opportunity_list, name='opportunity-list'),
+    path('opportunities/<int:pk>/', views.opportunity_detail, name='opportunity-detail'),
+    path('opportunities/create/', views.opportunity_create, name='opportunity-create'),
+    path('opportunities/<int:pk>/update/', views.opportunity_update, name='opportunity-update'),
+    path('opportunities/<int:pk>/delete/', views.opportunity_delete, name='opportunity-delete'),
+    path('opportunities/<int:pk>/apply/', views.opportunity_increment_applicants, name='opportunity-apply'),
+    path('opportunities/stats/', views.opportunity_stats, name='opportunity-stats'),
 ]

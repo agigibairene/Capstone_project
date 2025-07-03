@@ -2,7 +2,8 @@ from re import I
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from .models import UserProfile, PasswordReset, KYCVerificationLog, FarmerKYC,InvestorKYC
+from .models import UserProfile, PasswordReset, KYCVerificationLog, FarmerKYC,InvestorKYC, Opportunity
+
 
 class UserProfileInline(admin.StackedInline):
     model = UserProfile
@@ -64,3 +65,33 @@ admin.site.register(User, UserAdmin)
 admin.site.register(KYCVerificationLog)
 admin.site.register(FarmerKYC)
 admin.site.register(InvestorKYC)
+
+
+@admin.register(Opportunity)
+class OpportunityAdmin(admin.ModelAdmin):
+    list_display = ['title', 'organization', 'type', 'deadline', 'views', 'applicants', 'is_active', 'posted']
+    list_filter = ['type', 'is_active', 'posted', 'deadline']
+    search_fields = ['title', 'organization', 'description']
+    readonly_fields = ['views', 'posted', 'created_by']
+    
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('title', 'organization', 'location', 'team')
+        }),
+        ('Opportunity Details', {
+            'fields': ('type', 'tags', 'description', 'full_description', 'amount', 'deadline', 'application_link')
+        }),
+        ('Statistics', {
+            'fields': ('views', 'applicants'),
+            'classes': ('collapse',)
+        }),
+        ('Meta', {
+            'fields': ('is_active', 'posted', 'created_by'),
+            'classes': ('collapse',)
+        })
+    )
+    
+    def save_model(self, request, obj, form, change):
+        if not change:  
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
