@@ -6,8 +6,8 @@ import { GrFavorite } from "react-icons/gr";
 import ScrollToTop from "react-scroll-to-top";
 import { FaArrowUp } from "react-icons/fa";
 import Loader from "../Utils/Loader";
+import { API_URL } from "../Utils/constants";
 
-const API_BASE_URL = 'http://localhost:8000'; 
 
 interface Stats {
   total_opportunities: number;
@@ -64,7 +64,7 @@ export default function Grants() {
         params.append('type', dbKey);
       }
 
-      const response = await fetch(`${API_BASE_URL}/opportunities/?${params}`);
+      const response = await fetch(`${API_URL}/opportunities/?${params}`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -93,7 +93,7 @@ export default function Grants() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/opportunities/stats/`);
+      const response = await fetch(`${API_URL}/opportunities/stats/`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -106,7 +106,7 @@ export default function Grants() {
 
   const fetchOpportunityDetail = async (id: number) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/opportunities/${id}/`);
+      const response = await fetch(`${API_URL}/opportunities/${id}/`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -119,7 +119,7 @@ export default function Grants() {
 
   const incrementApplicants = async (id: number) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/opportunities/${id}/increment_applicants/`, {
+      const response = await fetch(`${API_URL}/opportunities/${id}/increment_applicants/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
