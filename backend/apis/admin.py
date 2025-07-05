@@ -2,7 +2,8 @@ from re import I
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from .models import UserProfile, PasswordReset, KYCVerificationLog, FarmerKYC,InvestorKYC, Opportunity
+from .models import Project, UserProfile, PasswordReset, KYCVerificationLog, FarmerKYC,InvestorKYC, Opportunity
+from django.utils.html import format_html
 
 
 class UserProfileInline(admin.StackedInline):
@@ -95,3 +96,33 @@ class OpportunityAdmin(admin.ModelAdmin):
         if not change:  
             obj.created_by = request.user
         super().save_model(request, obj, form, change)
+
+
+@admin.register(Project)
+class ProjectAdmin(admin.ModelAdmin):
+    list_display = ('title', 'farmer', 'status', 'target_amount', 'deadline', 'created_at')
+    list_filter = ('status', 'created_at', 'deadline')
+    search_fields = ('title', 'farmer__username', 'email', 'brief', 'description')
+    readonly_fields = ('watermarked_proposal', 'created_at', 'updated_at')
+
+    def watermarked_link(self, obj):
+        if obj.watermarked_proposal:
+            return format_html("<a href='{}'>Download</a>", obj.watermarked_proposal.url)
+        return "No file"
+    
+    watermarked_link.short_description = "Watermarked Proposal" 
+    
+    fieldsets = (
+        (None, {
+            'fields': ('farmer', 'name', 'title', 'email', 'brief', 'description', 'benefits')
+        }),
+        ('Funding Info', {
+            'fields': ('target_amount', 'deadline')
+        }),
+        ('Media & Files', {
+            'fields': ('image_url', 'original_proposal', 'watermarked_proposal')
+        }),
+        ('Status & Timestamps', {
+            'fields': ('status', 'created_at', 'updated_at')
+        }),
+    )

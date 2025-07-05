@@ -22,6 +22,7 @@ urlpatterns = [
     path('admin/kyc/verify/<int:user_id>/', views.admin_verify_kyc, name='admin_verify_kyc'),
     path('kyc/request-change/', views.request_kyc_change, name='request_kyc_change'),
     path('kyc/user/', views.get_user_kyc),
+    path('kyc/status', views.get_kyc_status),
     
     # OTP PATHS
     path("auth/verify-otp/", views.verify_login_otp, name="verify-otp"),
@@ -34,4 +35,11 @@ urlpatterns = [
     path('opportunities/<int:pk>/update/', views.opportunity_update, name='opportunity-update'),
     path('opportunities/<int:pk>/delete/', views.opportunity_delete, name='opportunity-delete'),
     path('opportunities/stats/', views.opportunity_stats, name='opportunity-stats'),
+    
+    # Project URLs
+    path('projects/create/', views.create_project, name='project-create'),
+    path('projects/', views.list_projects, name='project-list'),
+    path('projects/<uuid:project_id>/', views.project_detail, name='project-detail'),
+    path('farmer/projects/', views.farmer_projects, name='farmer-project-list'),
 ]
+

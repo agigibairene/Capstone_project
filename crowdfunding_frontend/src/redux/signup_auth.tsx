@@ -75,7 +75,6 @@ export const signupUser = createAsyncThunk<AuthResponse, SignupProps, { rejectVa
         body: JSON.stringify(apiData),
       });
 
-      console.log(`${API_URL}/auth/signup/`)
 
       const data = await response.json();
 

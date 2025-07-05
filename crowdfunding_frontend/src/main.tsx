@@ -16,6 +16,7 @@ import ForgotPassword from "./authForms/ForgetPassword.tsx";
 import KYCFarmer from "./authForms/KYCFarmer.tsx";
 import KYCInvestor from "./authForms/KYCInvestor.tsx";
 import OTPLogin from "./authForms/OTP.tsx";
+import DocumentViewer from "./Utils/DetailedProject.tsx";
 
 
 const routes = createBrowserRouter([
@@ -88,6 +89,10 @@ const routes = createBrowserRouter([
   {
     path: '/otp/:username',
     element: <OTPLogin />
+  },
+  {
+    path: '/detailedpage',
+    element: <DocumentViewer />
   }
 ]);
 

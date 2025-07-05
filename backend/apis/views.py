@@ -12,12 +12,13 @@ from django.core.mail import EmailMessage
 from django.conf import settings
 from django.urls import reverse
 from django.db import transaction
-from .models import OTPToken, Opportunity, PasswordReset, UserProfile
+from .models import OTPToken, Opportunity, PasswordReset, Project, UserProfile
 from .serializers import (
-    OpportunityCreateSerializer, OpportunitySerializer, UserProfileSerializer, UserSignUpSerializer, UserLoginSerializer,
+    OpportunityCreateSerializer, OpportunitySerializer,  ProjectCreateSerializer,  UserProfileSerializer, UserSignUpSerializer, UserLoginSerializer,
     PasswordResetRequestSerializer, PasswordResetSerializer, UserSerializer,
     UserUpdateSerializer, InvestorKYCSerializer, FarmerKYCSerializer, 
-    KYCVerificationLogSerializer, KYCStatusSerializer, KYCAdminUpdateSerializer
+    KYCVerificationLogSerializer, KYCStatusSerializer, KYCAdminUpdateSerializer,
+    ProjectSerializer
 )
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.http import HttpResponseRedirect
@@ -28,9 +29,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
 from rest_framework import status
 from django.db import models
-from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import JsonResponse
+from rest_framework.pagination import PageNumberPagination
+from .watermark import watermark_pdf
+
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -143,14 +146,11 @@ def login_view(request):
                         
                         # Send OTP email
                         message = f"""
-                            Hello,
-
-                            Your One-Time Password (OTP) is: {otp.otp_code}
-
-                            This code will expire in 5 minutes. Please enter it to proceed with your login.
-
-                            Thank you,
-                            Agriconnect
+                        Hello,
+                        Your One-Time Password (OTP) is: {otp.otp_code}
+                        This code will expire in 5 minutes. Please enter it to proceed with your login.
+                        Thank you,
+                        Agriconnect
                         """
                                                     
                         if not hasattr(settings, 'EMAIL_HOST_USER') or not settings.EMAIL_HOST_USER:
@@ -765,6 +765,7 @@ def submit_farmer_kyc(request):
             'errors': {'general': 'Internal server error'}
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_kyc_status(request):
@@ -965,16 +966,18 @@ def admin_verify_kyc(request, user_id):
         if action == 'approved':
             kyc.is_verified = True
             kyc.verification_date = timezone.now()
+            kyc.changes_allowed = allow_changes
         elif action == 'rejected':
             kyc.is_verified = False
             kyc.verification_date = None
-        else:  
+            kyc.changes_allowed = False
+        else:
             kyc.is_verified = False
             kyc.verification_date = None
+            kyc.changes_allowed = False
         
         kyc.save()
         
-            
         KYCVerificationLog.objects.create(
             user=user,
             action=action,
@@ -989,7 +992,7 @@ def admin_verify_kyc(request, user_id):
                 'action': action,
                 'is_verified': kyc.is_verified,
                 'verification_date': kyc.verification_date,
-                'changes_allowed': allow_changes
+                'changes_allowed': kyc.changes_allowed
             }
         }, status=status.HTTP_200_OK)
         
@@ -998,6 +1001,7 @@ def admin_verify_kyc(request, user_id):
             'success': False,
             'message': f'Error verifying KYC: {str(e)}'
         }, status=status.HTTP_404_NOT_FOUND if 'not found' in str(e).lower() else status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -1258,4 +1262,79 @@ def opportunity_stats(request):
             {'error': f'An error occurred: {str(e)}'}, 
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+
+# PROJECT VIEWS 
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Project
+from .serializers import ProjectSerializer, ProjectCreateSerializer
+from .permissions import IsVerifiedFarmer, CanViewProject
+from django.shortcuts import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, IsVerifiedFarmer])
+def create_project(request):
+    """
+    Create a new project (only for verified farmers)
+    """
+    try:
+        serializer = ProjectCreateSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            project = serializer.save(farmer=request.user)
+            return Response({
+                'success': True,
+                'message': 'Project created successfully',
+                'data': ProjectSerializer(project, context={'request': request}).data
+            }, status=status.HTTP_201_CREATED)
+        
+        return Response({
+            'success': False,
+            'errors': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    except Exception as e:
+        return Response({
+            'success': False,
+            'message': f'Error creating project: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, CanViewProject])
+def list_projects(request):
+    """
+    List all approved projects (viewable by all authenticated users)
+    """
+    projects = Project.objects.filter(status='approved').order_by('-created_at')
+    serializer = ProjectSerializer(projects, many=True, context={'request': request})
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, CanViewProject])
+def project_detail(request, project_id):
+    """
+    Get details of a specific project
+    """
+    project = get_object_or_404(Project, id=project_id)
+    serializer = ProjectSerializer(project, context={'request': request})
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, IsVerifiedFarmer])
+def farmer_projects(request):
+    """
+    List all projects for the authenticated farmer
+    """
+    if not hasattr(request.user, 'profile') or request.user.profile.role != 'Farmer':
+        return Response({'error': 'User is not a farmer'}, 
+            status=status.HTTP_403_FORBIDDEN)
+    
+    projects = Project.objects.filter(farmer=request.user).order_by('-created_at')
+    serializer = ProjectSerializer(projects, many=True, context={'request': request})
+    return Response(serializer.data)
 

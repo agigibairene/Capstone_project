@@ -1,106 +1,116 @@
 import { useState, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { API_URL } from './constants';
+
 
 interface Props {
   children: React.ReactNode;
   userRole: string;
 }
 
-async function refreshAccessToken(): Promise<string | null> {
+async function refreshAccessToken(): Promise<string | null | 'expired'> {
   const refresh = localStorage.getItem('REFRESH_TOKEN');
   if (!refresh) {
-    console.error('No refresh token found');
-    return null;
+    return 'expired';
   }
 
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/token/refresh/`, {
+    const response = await fetch(`${API_URL}/auth/token/refresh/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refresh }),
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      throw new Error('Refresh failed');
+      if (
+        data?.detail === 'Token is invalid or expired' ||
+        data?.detail === 'Session expired. Please login again.'
+      ) {
+        localStorage.removeItem('ACCESS_TOKEN');
+        localStorage.removeItem('REFRESH_TOKEN');
+        localStorage.removeItem('role');
+        return 'expired';
+      }
+
+      throw new Error(data?.detail || 'Refresh failed');
     }
 
-    const data = await response.json();
     localStorage.setItem('ACCESS_TOKEN', data.access);
     if (data.refresh) {
       localStorage.setItem('REFRESH_TOKEN', data.refresh);
     }
+
     return data.access;
   } catch (error) {
     console.error('Token refresh failed:', error);
+    return 'expired';
+  }
+}
+
+
+function getUserRoleFromToken(token: string): string | null {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const role = payload?.role || payload?.user_role || payload?.profile?.role || null;
+
+    if (role && typeof role === 'string' && role.trim().length > 0 && role !== 'undefined') {
+      const normalizedRole = role.toLowerCase().trim();
+      localStorage.setItem('role', normalizedRole);
+      return normalizedRole;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to decode token:', error);
     return null;
   }
 }
 
-function getUserRoleFromToken(token: string): string | null {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const role = payload?.role || payload?.user_role || payload?.profile?.role || null;
-      
-      if (role && typeof role === 'string' && role.trim().length > 0 && role !== 'undefined') {
-        const normalizedRole = role.toLowerCase().trim();
-        localStorage.setItem('role', normalizedRole);
-        return normalizedRole;
-      }
-      return null;
-    } catch (error) {
-      console.error('Failed to decode token:', error);
-      return null;
-    }
-}
-
 export default function ProtectedRoute({ children, userRole }: Props) {
   const [authorized, setAuthorized] = useState<boolean | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function checkAuth() {
-    let access = localStorage.getItem('ACCESS_TOKEN');
+      let access = localStorage.getItem('ACCESS_TOKEN');
 
-    if (!access) {
-      access = await refreshAccessToken();
+      if (!access) {
+        const refreshed = await refreshAccessToken();
+        if (refreshed === 'expired') {
+          console.log('Session expired. Redirecting to home.');
+          navigate('/', { replace: true });
+          return;
+        }
+        access = refreshed;
+      }
+
+      if (!access) {
+        setAuthorized(false);
+        return;
+      }
+
+      const roleFromToken = getUserRoleFromToken(access);
+      const storedRole = localStorage.getItem('role');
+
+      let role = roleFromToken;
+      if (!role && storedRole && storedRole !== 'undefined' && storedRole !== 'null') {
+        role = storedRole;
+      }
+
+      if (!role) {
+        setAuthorized(false);
+        return;
+      }
+
+      const normalizedRole = role.toLowerCase();
+      const normalizedRequired = userRole.toLowerCase();
+
+      setAuthorized(normalizedRole === normalizedRequired);
     }
 
-    if (!access) {
-      console.log('ProtectedRoute: No valid access token');
-      setAuthorized(false);
-      return;
-    }
-
-    const roleFromToken = getUserRoleFromToken(access);
-    const storedRole = localStorage.getItem('role');
-    
-    // Clean the stored role value
-    let role = roleFromToken;
-    if (!role && storedRole && storedRole !== 'undefined' && storedRole !== 'null') {
-      role = storedRole;
-    }
-
-    console.log('ProtectedRoute: Role check', {
-      roleFromToken,
-      roleFromStorage: storedRole,
-      finalRole: role,
-      requiredRole: userRole
-    });
-
-    if (!role) {
-      console.log('ProtectedRoute: No valid role found');
-      setAuthorized(false);
-      return;
-    }
-
-    // Normalize roles for comparison
-    const normalizedRole = role.toLowerCase();
-    const normalizedRequired = userRole.toLowerCase();
-
-    setAuthorized(normalizedRole === normalizedRequired);
-  }
-
-  checkAuth();
-}, [userRole]);
+    checkAuth();
+  }, [userRole, navigate]);
 
   if (authorized === null) {
     return (

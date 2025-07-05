@@ -1,12 +1,16 @@
 from datetime import date
+from django.conf import settings
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from .models import InvestorKYC, FarmerKYC, KYCVerificationLog, Opportunity, UserProfile
+from .models import InvestorKYC, FarmerKYC, KYCVerificationLog, Opportunity, Project, UserProfile
 from .opportunities import schedule_opportunity_cleanup
-
+from .watermark import watermark_pdf
+import os
+import logging
+from django.conf import settings
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -429,3 +433,82 @@ class OpportunityCreateSerializer(serializers.ModelSerializer):
         schedule_opportunity_cleanup.delay(opportunity.id)
         
         return opportunity
+    
+
+# PROJECT SERIALIZER
+
+class ProjectSerializer(serializers.ModelSerializer):
+    farmer_name = serializers.CharField(source='farmer.get_full_name', read_only=True)
+    days_remaining = serializers.SerializerMethodField()
+    is_farmer = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Project
+        fields = [
+            'id', 'farmer', 'farmer_name', 'name', 'title', 'email', 
+            'brief', 'description', 'benefits', 'target_amount', 
+            'deadline', 'days_remaining', 'image_url', 
+            'watermarked_proposal', 'status', 'created_at', 'is_farmer'
+        ]
+        read_only_fields = [
+            'id', 'farmer', 'farmer_name', 'status', 'created_at', 
+            'updated_at', 'watermarked_proposal', 'days_remaining',
+            'is_farmer'
+        ]
+    
+    def get_days_remaining(self, obj):
+        if obj.deadline:
+            delta = obj.deadline - timezone.now().date()
+            return max(delta.days, 0)
+        return None
+    
+    def get_is_farmer(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return hasattr(request.user, 'profile') and request.user.profile.role == 'Farmer'
+        return False
+
+
+
+
+
+class ProjectCreateSerializer(serializers.ModelSerializer):
+    file = serializers.FileField(write_only=True)
+
+    class Meta:
+        model = Project
+        fields = [
+            'name', 'title', 'email', 'brief', 'description',
+            'benefits', 'target_amount', 'deadline', 'image_url', 'file'
+        ]
+
+    def create(self, validated_data):
+        file = validated_data.pop('file')
+        farmer = self.context['request'].user
+
+        validated_data.pop('farmer', None)
+
+        project = Project.objects.create(
+            farmer=farmer,
+            original_proposal=file,
+            **validated_data
+        )
+
+        if project.original_proposal:
+            try:
+                watermarked_path = watermark_pdf(
+                    input_path=project.original_proposal.path,
+                    watermark_text="Agriconnect",
+                    project_id=str(project.id)
+                )
+                project.watermarked_proposal.name = os.path.relpath(
+                    watermarked_path, settings.MEDIA_ROOT
+                )
+                project.save(update_fields=['watermarked_proposal'])
+
+            except Exception as e:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Failed to watermark proposal for project {project.id}: {str(e)}")
+
+        return project

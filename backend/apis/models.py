@@ -1,4 +1,5 @@
 from datetime import timedelta
+import os
 from django.utils import timezone
 import secrets
 from django.conf import settings
@@ -7,6 +8,8 @@ from django.contrib.auth.models import User
 import uuid
 from django.core.validators import MinValueValidator
 from django.forms import ValidationError
+from .watermark import watermark_pdf
+
 
 class PasswordReset(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -86,61 +89,62 @@ class OTPToken(models.Model):
         
         super().save(*args, **kwargs)
                
-        
+
 class InvestorKYC(models.Model):
     """KYC information for investors - Immutable once created"""
-    
+
     ID_TYPE_CHOICES = [
         ('passport', 'Passport'),
         ('national_id', 'National ID'),
         ('driver_license', 'Driver\'s License'),
     ]
-    
+
     INCOME_SOURCE_CHOICES = [
         ('salary', 'Salary'),
         ('business', 'Business'),
         ('investment', 'Investment'),
         ('other', 'Other'),
     ]
-    
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='investor_kyc')
-    
+
     full_name = models.CharField(max_length=255)
     date_of_birth = models.DateField()
     nationality = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=20)
-    
+
     id_type = models.CharField(max_length=20, choices=ID_TYPE_CHOICES)
     id_number = models.CharField(max_length=100)
     id_document = models.FileField(upload_to='documents/id/')
     profile_picture = models.ImageField(upload_to='profiles/')
-    
+
     address = models.TextField()
     occupation = models.CharField(max_length=200)
     income_source = models.CharField(max_length=20, choices=INCOME_SOURCE_CHOICES)
     annual_income = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator(0)])
     purpose = models.TextField(help_text="Purpose of the investment account")
-    
+
     is_verified = models.BooleanField(default=False)
     verification_date = models.DateTimeField(null=True, blank=True)
-    
+    changes_allowed = models.BooleanField(default=False)  # New field to allow changes post-verification
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        """Override save to prevent updates after creation"""
-        if self.pk is not None:  
+        """Override save to prevent updates after creation except allowed fields"""
+        if self.pk is not None:
             original = InvestorKYC.objects.get(pk=self.pk)
-            
-            admin_updatable_fields = ['is_verified', 'verification_date']
-            
+            admin_updatable_fields = ['is_verified', 'verification_date', 'changes_allowed']
+
             for field in self._meta.fields:
-                if field.name not in admin_updatable_fields and field.name not in ['updated_at']:
-                    old_value = getattr(original, field.name)
-                    new_value = getattr(self, field.name)
+                field_name = field.name
+                if field_name not in admin_updatable_fields and field_name not in ['updated_at']:
+                    old_value = getattr(original, field_name)
+                    new_value = getattr(self, field_name)
                     if old_value != new_value:
-                        raise ValidationError(f"KYC data is immutable. Cannot update field: {field.name}")
-        
+                        raise ValidationError(f"KYC data is immutable. Cannot update field: {field_name}")
+
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -149,62 +153,63 @@ class InvestorKYC(models.Model):
     class Meta:
         verbose_name = "Investor KYC"
         verbose_name_plural = "Investor KYCs"
-        
+
 
 class FarmerKYC(models.Model):
     """KYC information for farmers/project seekers - Immutable once created"""
-    
+
     ROLE_CHOICES = [
         ('Student', 'Student'),
         ('Farmer', 'Farmer'),
         ('Entrepreneur', 'Entrepreneur'),
         ('Other', 'Other'),
     ]
-    
+
     ID_TYPE_CHOICES = [
         ('National ID', 'National ID'),
         ('Passport', 'Passport'),
         ('Driver\'s License', 'Driver\'s License'),
         ('Voter ID', 'Voter ID'),
     ]
-    
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='farmer_kyc')
-    
+
     full_name = models.CharField(max_length=255)
     email = models.EmailField()
     phone_number = models.CharField(max_length=20)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     date_of_birth = models.DateField()
     nationality = models.CharField(max_length=100)
-    
+
     background = models.TextField(help_text="Brief background information")
     address = models.TextField(help_text="Complete address")
-    
+
     id_type = models.CharField(max_length=20, choices=ID_TYPE_CHOICES)
     id_number = models.CharField(max_length=100)
     id_document = models.FileField(upload_to='documents/id/')
     profile_picture = models.ImageField(upload_to='profiles/')
-    
+
     is_verified = models.BooleanField(default=False)
     verification_date = models.DateTimeField(null=True, blank=True)
-    
+    changes_allowed = models.BooleanField(default=False)  # New field to allow changes post-verification
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        """Override save to prevent updates after creation"""
-        if self.pk is not None:  
+        """Override save to prevent updates after creation except allowed fields"""
+        if self.pk is not None:
             original = FarmerKYC.objects.get(pk=self.pk)
-            
-            admin_updatable_fields = ['is_verified', 'verification_date']
-            
+            admin_updatable_fields = ['is_verified', 'verification_date', 'changes_allowed']
+
             for field in self._meta.fields:
-                if field.name not in admin_updatable_fields and field.name not in ['updated_at']:
-                    old_value = getattr(original, field.name)
-                    new_value = getattr(self, field.name)
+                field_name = field.name
+                if field_name not in admin_updatable_fields and field_name not in ['updated_at']:
+                    old_value = getattr(original, field_name)
+                    new_value = getattr(self, field_name)
                     if old_value != new_value:
-                        raise ValidationError(f"KYC data is immutable. Cannot update field: {field.name}")
-        
+                        raise ValidationError(f"KYC data is immutable. Cannot update field: {field_name}")
+
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -213,7 +218,6 @@ class FarmerKYC(models.Model):
     class Meta:
         verbose_name = "Farmer KYC"
         verbose_name_plural = "Farmer KYCs"
-
 
 class KYCVerificationLog(models.Model):
     """Log of KYC verification actions"""
@@ -284,4 +288,123 @@ class Opportunity(models.Model):
         self.views += 1
         self.save(update_fields=['views'])
 
+# PROJECTS
+
+import logging
+
+
+logger = logging.getLogger(__name__)
+
+class Project(models.Model):
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('pending', 'Pending Approval'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('funded', 'Funded'),
+        ('completed', 'Completed'),
+    ]
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    farmer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='projects'
+    )
+    name = models.CharField(max_length=100)
+    title = models.CharField(max_length=200)
+    email = models.EmailField()
+    brief = models.TextField(max_length=500)
+    description = models.TextField()
+    benefits = models.TextField(blank=True)
+    target_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(0.01)]
+    )
+    deadline = models.DateField()
+    image_url = models.URLField(blank=True, null=True)
+    original_proposal = models.FileField(
+        upload_to='proposals/original/',
+        help_text="Upload your project proposal PDF"
+    )
+    watermarked_proposal = models.FileField(
+        upload_to='proposals/watermarked/',
+        blank=True,
+        null=True,
+        editable=False
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='draft'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        permissions = [
+            ('can_view_project', 'Can view project'),
+            ('can_create_project', 'Can create project'),
+        ]
+        verbose_name = "Project"
+        verbose_name_plural = "Projects"
+    
+    def __str__(self):
+        return f"{self.title} by {self.farmer.username}"
+    
+    def save(self, *args, **kwargs):
+        is_new = not self.pk
+        previous_file = None
+
+        if not is_new:
+            try:
+                previous_file = Project.objects.get(pk=self.pk).original_proposal
+            except Project.DoesNotExist:
+                pass
+
+        super().save(*args, **kwargs)  # Save first to access file path
+
+        proposal_changed = (
+            is_new or
+            (previous_file and previous_file != self.original_proposal)
+        )
+
+        if proposal_changed and self.original_proposal:
+            try:
+                watermarked_path = watermark_pdf(
+                    self.original_proposal.path,
+                    watermark_text="AGRICONNECT",
+                    project_id=str(self.id)
+                )
+
+                self.watermarked_proposal.name = os.path.relpath(
+                    watermarked_path, settings.MEDIA_ROOT
+                )
+
+                # Save again to persist the watermarked file path
+                super().save(update_fields=['watermarked_proposal'])
+
+            except Exception as e:
+                logger.error(f"Failed to watermark proposal for project {self.id}: {str(e)}")
+
+    @property
+    def days_remaining(self):
+        if self.deadline:
+            delta = self.deadline - timezone.now().date()
+            return max(delta.days, 0)
+        return None
+
+    @property
+    def is_active(self):
+        return (
+            self.status in ['approved', 'funded'] and
+            (self.days_remaining is None or self.days_remaining > 0)
+        )
+
+    def get_watermarked_proposal_url(self):
+        if self.watermarked_proposal:
+            return self.watermarked_proposal.url
+        return None
 
