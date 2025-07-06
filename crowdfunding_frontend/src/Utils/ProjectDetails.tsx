@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { FileText, Download, Share2, ZoomIn, ZoomOut, RotateCw, Users, Calendar, MapPin, MessageCircle } from 'lucide-react';
 
-export default function DocumentViewer() {
+export default function ProjectDetails() {
   const [currentPage, setCurrentPage] = useState(1);
   const [zoom, setZoom] = useState(100);
   const totalPages = 4;
@@ -40,15 +40,6 @@ export default function DocumentViewer() {
         <div className="flex-1 flex overflow-hidden">
           {/* Document Content */}
           <div className="flex-1 bg-gray-900 overflow-y-auto scrollbar-hide">
-            <style jsx>{`
-              .scrollbar-hide {
-                -ms-overflow-style: none;
-                scrollbar-width: none;
-              }
-              .scrollbar-hide::-webkit-scrollbar {
-                display: none;
-              }
-            `}</style>
             <div className="p-6">
               <div className="bg-white rounded-lg shadow-2xl p-8 text-gray-900 max-w-4xl mx-auto">
                 {/* Document Header */}

@@ -3,7 +3,6 @@ import { projectReducer } from './web3Contract';
 import { loginReducer } from './login_auth';
 import { signupReducer } from './signup_auth';
 import {  kycReducer } from './KycSlice';
-import { projectsReducer } from './ProjectSlice';
 
 
 const store = configureStore({
@@ -12,7 +11,6 @@ const store = configureStore({
         loginReducer,
         signupReducer,
         kycReducer,
-        projectsReducer,
     }
 });
 
