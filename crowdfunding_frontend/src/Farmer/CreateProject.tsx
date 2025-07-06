@@ -8,6 +8,8 @@ import { API_URL } from "../Utils/constants";
 
 export default function CreateProject() {
   const [isLoading, setIsLoading] = useState(false);
+  const [projectSubmitted, setProjectSubmitted] = useState(false);
+  const [kycNotVerified, setKycNotVerified] = useState(false);
   const [form, setForm] = useState({
     name: '',
     title: '',
@@ -75,8 +77,7 @@ export default function CreateProject() {
 
     setIsLoading(true);
 
-    // Get token with consistent key - use the same key as your Redux store
-    const token = localStorage.getItem("ACCESS_TOKEN") || localStorage.getItem("access_token");
+    const token = localStorage.getItem("ACCESS_TOKEN");
     
     if (!token) {
       toast.error("Authentication required. Please login again.");
@@ -104,7 +105,6 @@ export default function CreateProject() {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
-          // Don't set Content-Type for FormData - let the browser set it
         },
         body: formData,
       });
@@ -116,11 +116,9 @@ export default function CreateProject() {
       console.log("Response data:", data);
 
       if (!response.ok) {
-        // Handle specific error cases
         if (response.status === 401) {
           toast.error("Authentication failed. Please login again.");
           localStorage.removeItem("ACCESS_TOKEN");
-          localStorage.removeItem("access_token");
           localStorage.removeItem("REFRESH_TOKEN");
           localStorage.removeItem("role");
           navigate("/login");
@@ -128,11 +126,10 @@ export default function CreateProject() {
         }
 
         if (response.status === 403) {
-          toast.error("Permission denied. Please ensure your KYC is verified.");
+          setKycNotVerified(true);
           return;
         }
 
-        // Handle backend validation errors
         if (data.errors) {
           const backendErrors: Record<string, string> = {};
           Object.keys(data.errors).forEach(key => {
@@ -147,8 +144,9 @@ export default function CreateProject() {
       }
 
       // Success handling
+      setProjectSubmitted(true);
       toast.success("Project created successfully!");
-      navigate("/projects"); // Redirect to projects list
+      
       
     } catch (error: any) {
       console.error("Submission error:", error);
@@ -162,6 +160,92 @@ export default function CreateProject() {
       setIsLoading(false);
     }
   };
+
+  const resetForm = () => {
+    setForm({
+      name: '',
+      title: '',
+      email: '',
+      brief: '',
+      description: '',
+      benefits: '',
+      target_amount: '',
+      deadline: '',
+      image: '',
+      file: null,
+    });
+    setFormErrors({});
+    setProjectSubmitted(false);
+    setKycNotVerified(false);
+  };
+
+  // Success Card Component
+  const SuccessCard = () => (
+    <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center max-w-md mx-auto">
+      <div className="mb-4">
+        <svg className="mx-auto h-12 w-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <h3 className="text-lg font-semibold text-green-800 mb-2">Project Successfully Submitted!</h3>
+      <p className="text-green-700 text-sm mb-4">
+        Your project has been submitted for review. You will be notified once it's approved.
+      </p>
+      <button 
+        onClick={resetForm}
+        className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-200"
+      >
+        Submit Another Project
+      </button>
+    </div>
+  );
+
+  // KYC Not Verified Card Component
+  const KycNotVerifiedCard = () => (
+    <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center max-w-md mx-auto">
+      <div className="mb-4">
+        <svg className="mx-auto h-12 w-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+        </svg>
+      </div>
+      <h3 className="text-lg font-semibold text-red-800 mb-2">Verification Required</h3>
+      <p className="text-red-700 text-sm mb-4">
+        You need to complete KYC verification before you can submit a project.
+      </p>
+      <div className="space-y-2">
+        <button 
+          onClick={() => navigate("/kyc-verification")}
+          className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition duration-200 w-full"
+        >
+          Complete KYC Verification
+        </button>
+        <button 
+          onClick={() => setKycNotVerified(false)}
+          className="bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded-md transition duration-200 w-full"
+        >
+          Go Back
+        </button>
+      </div>
+    </div>
+  );
+
+  // Show success card if project is submitted
+  if (projectSubmitted) {
+    return (
+      <div className="bg-white/20 backdrop-blur-sm mx-auto w-[85%] flex justify-center items-center flex-col rounded-lg sm:p-10 p-4">
+        <SuccessCard />
+      </div>
+    );
+  }
+
+  // Show KYC not verified card if KYC is not verified
+  if (kycNotVerified) {
+    return (
+      <div className="bg-white/20 backdrop-blur-sm mx-auto w-[85%] flex justify-center items-center flex-col rounded-lg sm:p-10 p-4">
+        <KycNotVerifiedCard />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white/20 backdrop-blur-sm mx-auto w-[85%] flex justify-center items-center flex-col rounded-lg sm:p-10 p-4">
@@ -292,7 +376,7 @@ export default function CreateProject() {
               isLoading ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
-            {isLoading ? 'Processing...' : 'Submit your project'}
+            {isLoading ? <Loader text="Submitting" /> : 'Submit your project'}
           </button>
         </div>
       </form>

@@ -7,10 +7,9 @@ from reportlab.lib.colors import gray
 from PyPDF2 import PdfReader, PdfWriter
 from django.conf import settings
 
-# Set absolute font path
-FONT_PATH = os.path.join(settings.BASE_DIR, "apis", "fonts", "Outfit.ttf")
+FONT_PATH = os.path.join(settings.BASE_DIR, "apis", "fonts", "DynaPuff.ttf")
 if os.path.exists(FONT_PATH):
-    pdfmetrics.registerFont(TTFont("Outfit", FONT_PATH))
+    pdfmetrics.registerFont(TTFont("DynaPuff", FONT_PATH))
 else:
     raise FileNotFoundError(f"Font file not found at: {FONT_PATH}")
 
@@ -18,7 +17,7 @@ def create_watermark_pdf(watermark_path, text):
     c = canvas.Canvas(watermark_path, pagesize=letter)
     c.saveState()
 
-    c.setFont("Outfit", 80)
+    c.setFont("DynaPuff", 80)
     c.setFillColor(gray)
     c.setFillAlpha(0.2)
 

@@ -9,7 +9,8 @@ interface InputProps {
   rows?: number;
   acceptFile?: string;
   error?: string;
-  fileName?: string; // Add fileName prop for file inputs
+  fileName?: string; 
+  accept?: string;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
 
