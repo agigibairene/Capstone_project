@@ -2,7 +2,6 @@ import { Search } from "lucide-react";
 import SideBar from "../Utils/SideBar";
 import { menuItems } from "../data/data";
 import { useEffect, useState, type JSX } from "react";
-import CreateProject from "../Farmer/CreateProject";
 import AllProjects from "./AllProjects";
 import { useSelector, shallowEqual, useDispatch } from "react-redux";
 import { fetchUserKYC } from "../redux/KycSlice";
@@ -30,8 +29,9 @@ export default function InvestorDashboard(){
 
     if (loading) return <Loader text="Loading" />;
     if (error) return <p className="text-red-500">Error: {error}</p>;
-    if (!kycData || !kycData.kyc)
+    if (!kycData || !kycData.kyc){
         return <p className="text-white">No KYC data found for your account</p>;
+    }
     
     const userKYC = kycData.kyc;
     const initials = userKYC?.full_name?.split(" ").map((name: string) => name[0]).join("").toUpperCase() || "";
@@ -39,8 +39,8 @@ export default function InvestorDashboard(){
 
     const mainContent: MainContentMap = {
         Dashboard: <Card />,
-        'Create Project': <CreateProject />,
-        'Card': <AllProjects />
+        // 'Create Project': <CreateProject />,
+        'Projects': <AllProjects />
     }
 
     return(

@@ -12,6 +12,7 @@ from django.core.mail import EmailMessage
 from django.conf import settings
 from django.urls import reverse
 from django.db import transaction
+from .permissions import CanViewProject, IsVerifiedFarmer
 from .models import OTPToken, Opportunity, PasswordReset, Project, UserProfile
 from .serializers import (
     KYCPreFillSerializer, OpportunityCreateSerializer, OpportunitySerializer,  ProjectCreateSerializer,  UserProfileSerializer, UserSignUpSerializer, UserLoginSerializer,
@@ -1283,14 +1284,7 @@ def opportunity_stats(request):
 
 
 # PROJECT VIEWS 
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
-from rest_framework import status
-from .models import Project
-from .serializers import ProjectSerializer, ProjectCreateSerializer
-from .permissions import IsVerifiedFarmer, CanViewProject
-from django.shortcuts import get_object_or_404
-from rest_framework.permissions import IsAuthenticated
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, IsVerifiedFarmer])
@@ -1323,9 +1317,7 @@ def create_project(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, CanViewProject])
 def list_projects(request):
-    """
-    List all approved projects (viewable by all authenticated users)
-    """
+    """List all approved projects (viewable by all authenticated users)"""
     projects = Project.objects.filter(status='approved').order_by('-created_at')
     serializer = ProjectSerializer(projects, many=True, context={'request': request})
     return Response(serializer.data)

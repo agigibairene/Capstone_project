@@ -206,6 +206,8 @@ const kycSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.success = false;
+      state.kycData = null;
+      state.role = null;
     },
     clearKYCError(state) {
       state.error = null;
