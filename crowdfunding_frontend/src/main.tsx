@@ -17,12 +17,14 @@ import KYCFarmer from "./authForms/KYCFarmer.tsx";
 import KYCInvestor from "./authForms/KYCInvestor.tsx";
 import OTPLogin from "./authForms/OTP.tsx";
 import ProjectDetails from "./Utils/ProjectDetails.tsx";
+import ErrorPage from "./components/Errorpage.tsx";
 
 
 const routes = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    errorElement: <ErrorPage />,
     children: [
       {
         path: "/",

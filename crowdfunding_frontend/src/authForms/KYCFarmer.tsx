@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import image from '../assets/login_img.jpg';
 import logo from '../assets/green_logo.png';
@@ -9,6 +9,7 @@ import type { AppDispatch, RootState } from '../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import Loader from '../Utils/Loader';
 import { countryCodes } from '../data/data';
+import { API_URL } from '../Utils/constants';
 
 export default function KYCFarmer() {
   const navigate = useNavigate();
@@ -34,6 +35,46 @@ export default function KYCFarmer() {
   const { loading, error } = useSelector((state: RootState) => state.kycReducer);
  
 
+
+  useEffect(() => {
+    async function fetchPrefillData() {
+      try {
+        const token = localStorage.getItem('ACCESS_TOKEN');
+        if (!token) return;
+
+        const response = await fetch(`${API_URL}/kyc/autofill/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          console.error("Prefill fetch error:", await response.json());
+          return;
+        }
+
+        const data = await response.json();
+
+        const phoneMatch = data.phone_number?.match(/^\+(\d{1,3})(\d{7,15})$/);
+        const countryCode = phoneMatch ? `+${phoneMatch[1]}` : '+233';
+        const phoneNumber = phoneMatch ? phoneMatch[2] : '';
+
+        setFormData((prev) => ({
+          ...prev,
+          fullName: data.full_name || '',
+          email: data.email || '',
+          countryCode,
+          phoneNumber,
+          role: data.role || '',
+        }));
+      } catch (err) {
+        console.error("Failed to fetch prefill data:", err);
+      }
+    }
+
+    fetchPrefillData();
+  }, []);
+
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     const { name, value, files } = e.target as HTMLInputElement;
     setFormData((prev) => ({
@@ -48,14 +89,13 @@ export default function KYCFarmer() {
 
   function validateStep(step: number) {
     const newErrors: { [key: string]: string } = {};
-    
+
     if (step === 1) {
       if (!formData.fullName.trim()) newErrors.fullName = 'Full name is required';
       if (!formData.email.trim()) newErrors.email = 'Email is required';
       if (!formData.phoneNumber.trim()) {
         newErrors.phoneNumber = 'Phone number is required';
-      } 
-      else {
+      } else {
         const phoneRegex = /^\d{7,15}$/;
         if (!phoneRegex.test(formData.phoneNumber.replace(/\s+/g, ''))) {
           newErrors.phoneNumber = 'Please enter a valid phone number (7-15 digits)';
@@ -69,23 +109,21 @@ export default function KYCFarmer() {
         const birthDate = new Date(formData.dateOfBirth);
         const age = today.getFullYear() - birthDate.getFullYear();
         const monthDiff = today.getMonth() - birthDate.getMonth();
-        
-        const actualAge = monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate()) 
-          ? age - 1 
+        const actualAge = monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())
+          ? age - 1
           : age;
-        
         if (actualAge < 18) {
           newErrors.dateOfBirth = 'You must be 18 years or older to proceed';
         }
       }
       if (!formData.nationality.trim()) newErrors.nationality = 'Nationality is required';
     }
-    
+
     if (step === 2) {
       if (!formData.background.trim()) newErrors.background = 'Background info is required';
       if (!formData.address.trim()) newErrors.address = 'Address is required';
     }
-    
+
     if (step === 3) {
       if (!formData.idType.trim()) newErrors.idType = 'ID type is required';
       if (!formData.idNumber.trim()) newErrors.idNumber = 'ID number is required';
@@ -103,11 +141,11 @@ export default function KYCFarmer() {
       return;
     }
     setErrors({});
-    setCurrentStep(prev => prev + 1);
+    setCurrentStep((prev) => prev + 1);
   }
 
   function handlePrevious() {
-    setCurrentStep(prev => prev - 1);
+    setCurrentStep((prev) => prev - 1);
     setErrors({});
   }
 
@@ -122,7 +160,6 @@ export default function KYCFarmer() {
     const data = new FormData();
     data.append('full_name', formData.fullName);
     data.append('email', formData.email);
-    // Combine country code and phone number
     data.append('phone_number', `${formData.countryCode}${formData.phoneNumber}`);
     data.append('role', formData.role);
     data.append('background', formData.background);
@@ -137,7 +174,7 @@ export default function KYCFarmer() {
     try {
       const resultAction = await dispatch(submitFarmerKYC(data));
       if (submitFarmerKYC.fulfilled.match(resultAction)) {
-        navigate('/farmer'); 
+        navigate('/farmer');
       } else {
         console.error('KYC submission error:', resultAction.payload);
       }
@@ -146,9 +183,9 @@ export default function KYCFarmer() {
     }
   }
 
-  const inputClass = 'w-full px-3 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm';
-  const selectClass = 'w-full px-3 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm';
-  const fileInputClass = 'w-full px-3 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-emerald-100 file:text-emerald-700 hover:file:bg-emerald-200 file:cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm';
+  const inputClass = 'w-full px-3 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-bgColor focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm';
+  const selectClass = 'w-full px-3 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 appearance-none focus:outline-none focus:ring-2 focus:ring-bgColor focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm';
+  const fileInputClass = 'w-full px-3 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-emerald-100 file:text-emerald-700 hover:file:bg-emerald-200 file:cursor-pointer focus:outline-none focus:ring-2 focus:ring-bgColor focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm';
 
   return (
     <>
@@ -237,7 +274,7 @@ export default function KYCFarmer() {
                           name="countryCode"
                           value={formData.countryCode}
                           onChange={handleChange}
-                          className="px-3 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm w-24 flex-shrink-0"
+                          className="px-3 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 appearance-none focus:outline-none focus:ring-2 focus:ring-bgColor focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm w-24 flex-shrink-0"
                         >
                           {countryCodes.map((country) => (
                             <option key={country.code} value={country.code} className="text-gray-900 bg-white">
@@ -291,7 +328,7 @@ export default function KYCFarmer() {
                         onChange={handleChange}
                         className={selectClass}
                       >
-                        <option value="" disabled hidden>Select Role</option>
+                        <option value="" disabled hidden>Select Occupation</option>
                         {['Student', 'Farmer', 'Entrepreneur', 'Other'].map((item) => (
                           <option key={item} value={item} className="text-gray-900 bg-white">
                             {item}
@@ -312,7 +349,7 @@ export default function KYCFarmer() {
                         name="background"
                         value={formData.background}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm"
+                        className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-bgColor focus:border-emerald-500 transition-all duration-200 text-sm"
                         rows={3}
                         placeholder="Tell us about your experience and background"
                       />
@@ -325,7 +362,7 @@ export default function KYCFarmer() {
                         name="address"
                         value={formData.address}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 resize-none text-sm"
+                        className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-bgColor focus:border-emerald-500 transition-all duration-200 resize-none text-sm"
                         rows={3}
                         placeholder="Enter your complete address"
                       />

@@ -1,13 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import InputField from "../Utils/InputField";
 import Loader from "../Utils/Loader";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { API_URL } from "../Utils/constants";
 
+
 export default function CreateProject() {
   const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingKyc, setIsCheckingKyc] = useState(true);
   const [projectSubmitted, setProjectSubmitted] = useState(false);
   const [kycNotVerified, setKycNotVerified] = useState(false);
   const [form, setForm] = useState({
@@ -26,20 +28,64 @@ export default function CreateProject() {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
 
-  const handleFormFieldChange = (
-    fieldName: keyof typeof form,
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  useEffect(() => {
+    checkKycStatus();
+  }, []);
+
+  async function checkKycStatus() {
+    const token = localStorage.getItem("ACCESS_TOKEN");
+    
+    if (!token) {
+      toast.error("Authentication required. Please login again.");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/kyc/status/`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          toast.error("Authentication failed. Please login again.");
+          localStorage.removeItem("ACCESS_TOKEN");
+          localStorage.removeItem("REFRESH_TOKEN");
+          localStorage.removeItem("role");
+          navigate("/login");
+          return;
+        }
+        throw new Error("Failed to check KYC status");
+      }
+
+      const data = await response.json();
+      
+  
+      if (!data.kyc_verified) {
+        setKycNotVerified(true);
+      }
+    } catch (error: any) {
+      console.error("KYC status check error:", error);
+      toast.error("Unable to verify KYC status. Please try again.");
+    } finally {
+      setIsCheckingKyc(false);
+    }
+  }
+
+  function handleFormFieldChange(fieldName: keyof typeof form, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>){
     if (fieldName === "file" && e.target instanceof HTMLInputElement && e.target.files) {
       setForm({ ...form, file: e.target.files[0] });
     } else {
       setForm({ ...form, [fieldName]: e.target.value });
     }
-    // Clear error when field changes
     setFormErrors(prev => ({ ...prev, [fieldName]: '' }));
   };
 
-  const validateForm = (): boolean => {
+  function validateForm (): boolean{
     const errors: Record<string, string> = {};
 
     // Required field validation
@@ -57,7 +103,7 @@ export default function CreateProject() {
       errors.file = "Proposal PDF is required";
     } else if (form.file.type !== "application/pdf") {
       errors.file = "Only PDF files are accepted";
-    } else if (form.file.size > 5 * 1024 * 1024) { // 5MB limit
+    } else if (form.file.size > 25 * 1024 * 1024) { 
       errors.file = "File size must be less than 5MB";
     }
 
@@ -71,7 +117,7 @@ export default function CreateProject() {
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  async function handleSubmit (e: React.FormEvent){
     e.preventDefault();
     if (!validateForm()) return;
 
@@ -109,11 +155,7 @@ export default function CreateProject() {
         body: formData,
       });
 
-      console.log("Response status:", response.status);
-      console.log("Response headers:", response.headers);
-
       const data = await response.json();
-      console.log("Response data:", data);
 
       if (!response.ok) {
         if (response.status === 401) {
@@ -143,10 +185,8 @@ export default function CreateProject() {
         throw new Error(data.message || `HTTP ${response.status}: Failed to create project`);
       }
 
-      // Success handling
       setProjectSubmitted(true);
-      toast.success("Project created successfully!");
-      
+      setTimeout(()=> toast.success("Project created successfully!"), 4000)
       
     } catch (error: any) {
       console.error("Submission error:", error);
@@ -161,7 +201,7 @@ export default function CreateProject() {
     }
   };
 
-  const resetForm = () => {
+  function resetForm(){
     setForm({
       name: '',
       title: '',
@@ -179,7 +219,6 @@ export default function CreateProject() {
     setKycNotVerified(false);
   };
 
-  // Success Card Component
   const SuccessCard = () => (
     <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center max-w-md mx-auto">
       <div className="mb-4">
@@ -193,7 +232,7 @@ export default function CreateProject() {
       </p>
       <button 
         onClick={resetForm}
-        className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-200"
+        className="bg-bgColor hover:bg-teal-700 text-limeTxt cursor-pointer font-medium py-2 px-4 rounded-md transition duration-200"
       >
         Submit Another Project
       </button>
@@ -215,13 +254,13 @@ export default function CreateProject() {
       <div className="space-y-2">
         <button 
           onClick={() => navigate("/kyc-verification")}
-          className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition duration-200 w-full"
+          className="bg-red-600 hover:bg-red-700 cursor-pointer text-white font-medium py-2 px-4 rounded-md transition duration-200 w-full"
         >
           Complete KYC Verification
         </button>
         <button 
-          onClick={() => setKycNotVerified(false)}
-          className="bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded-md transition duration-200 w-full"
+          onClick={() => navigate(-1)}
+          className="bg-gray-300 hover:bg-gray-400 cursor-pointer text-gray-700 font-medium py-2 px-4 rounded-md transition duration-200 w-full"
         >
           Go Back
         </button>
@@ -229,11 +268,10 @@ export default function CreateProject() {
     </div>
   );
 
-  // Show success card if project is submitted
-  if (projectSubmitted) {
+  if (isCheckingKyc) {
     return (
       <div className="bg-white/20 backdrop-blur-sm mx-auto w-[85%] flex justify-center items-center flex-col rounded-lg sm:p-10 p-4">
-        <SuccessCard />
+        <Loader text="Checking verification status..." />
       </div>
     );
   }
@@ -241,9 +279,14 @@ export default function CreateProject() {
   // Show KYC not verified card if KYC is not verified
   if (kycNotVerified) {
     return (
-      <div className="bg-white/20 backdrop-blur-sm mx-auto w-[85%] flex justify-center items-center flex-col rounded-lg sm:p-10 p-4">
-        <KycNotVerifiedCard />
-      </div>
+      <KycNotVerifiedCard />
+    );
+  }
+
+  // Show success card if project is submitted
+  if (projectSubmitted) {
+    return (
+      <SuccessCard />
     );
   }
 
@@ -377,7 +420,7 @@ export default function CreateProject() {
             }`}
           >
             {isLoading ? <Loader text="Submitting" /> : 'Submit your project'}
-          </button>
+          </button>    
         </div>
       </form>
     </div>

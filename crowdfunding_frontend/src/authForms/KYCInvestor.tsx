@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import type { AppDispatch, RootState } from '../redux/store';
@@ -8,6 +8,7 @@ import logo from '../assets/green_logo.png';
 import image from '../assets/login_img.jpg';
 import Loader from '../Utils/Loader';
 import { countryCodes } from '../data/data'
+import { API_URL } from '../Utils/constants';
 
 interface IDCard{
   "Passport": string,
@@ -26,6 +27,7 @@ export default function KYCInvestor() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     fullName: '',
+    email: '',
     dateOfBirth: '',
     nationality: '',
     idType: '',
@@ -44,6 +46,44 @@ export default function KYCInvestor() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const dispatch = useDispatch<AppDispatch>();
   const { loading, error } = useSelector((state: RootState) => state.kycReducer);
+
+  useEffect(() => {
+    async function fetchPrefillData() {
+    try {
+      const token = localStorage.getItem('ACCESS_TOKEN');
+      if (!token) return;
+
+      const response = await fetch(`${API_URL}/kyc/autofill/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        console.error("Prefill fetch error:", await response.json());
+        return;
+      }
+
+      const data = await response.json();
+
+      const phoneMatch = data.phone_number?.match(/^\+(\d{1,3})(\d{7,15})$/);
+      const countryCode = phoneMatch ? `+${phoneMatch[1]}` : '+233';
+      const phoneNumber = phoneMatch ? phoneMatch[2] : '';
+
+      setFormData((prev) => ({
+        ...prev,
+        fullName: data.full_name || '',
+        email: data.email,
+        phoneNumber,
+        countryCode,
+      }));
+    } catch (err) {
+      console.error("Failed to fetch prefill data:", err);
+    }
+   }
+   fetchPrefillData();
+  }, []);
+
 
   function truncateFilename(file: File, maxLength: number = 95): File{
     if (file.name.length <= maxLength) return file;
@@ -87,7 +127,6 @@ export default function KYCInvestor() {
   function validatePhoneNumber(phone: string): boolean {
     // Remove all non-digit characters for validation
     const digitsOnly = phone.replace(/\D/g, '');
-    // Check if it has at least 7 digits and at most 15 digits (international standard)
     return digitsOnly.length >= 7 && digitsOnly.length <= 15;
   }
 
@@ -96,6 +135,11 @@ export default function KYCInvestor() {
     
     if (step === 1) {
       if (!formData.fullName.trim()) newErrors.fullName = 'Full name is required';
+      if (!formData.email.trim()) {
+        newErrors.email = 'Email is required';
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        newErrors.email = 'Invalid email format';
+      }
       if (!formData.dateOfBirth) {
         newErrors.dateOfBirth = 'Date of birth is required';
       } else {
@@ -162,6 +206,7 @@ export default function KYCInvestor() {
     try {
       const formDataToSend = new FormData();
       formDataToSend.append('full_name', formData.fullName);
+      formDataToSend.append('email', formData.email);
       formDataToSend.append('date_of_birth', formData.dateOfBirth);
       formDataToSend.append('nationality', formData.nationality);
       formDataToSend.append('id_type', formData.idType);
@@ -171,7 +216,6 @@ export default function KYCInvestor() {
       formDataToSend.append('income_source', formData.incomeSource);
       formDataToSend.append('annual_income', formData.annualIncome);
       formDataToSend.append('purpose', formData.purpose);
-      // Combine country code and phone number
       formDataToSend.append('phone_number', `${formData.countryCode}${formData.phoneNumber}`);
       
       if (formData.idUpload) {
@@ -195,9 +239,9 @@ export default function KYCInvestor() {
     }
   };
 
-  const inputClass = 'w-full px-3 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm';
-  const selectClass = 'w-full px-3 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm';
-  const fileInputClass = 'w-full px-3 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-emerald-100 file:text-emerald-700 hover:file:bg-emerald-200 file:cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm';
+  const inputClass = 'w-full px-3 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-bgColor focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm';
+  const selectClass = 'w-full px-3 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 appearance-none focus:outline-none focus:ring-2 focus:ring-bgColor focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm';
+  const fileInputClass = 'w-full px-3 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-emerald-100 file:text-emerald-700 hover:file:bg-emerald-200 file:cursor-pointer focus:outline-none focus:ring-2 focus:ring-bgColor focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm';
 
   return (
     <>
@@ -265,13 +309,25 @@ export default function KYCInvestor() {
                     </div>
 
                     <div>
+                      <input
+                        name="email"
+                        type="text"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className={inputClass}
+                        placeholder='Email Address'
+                      />
+                      {errors.fullName && <p className="text-xs font-bold text-red-600 mt-1 drop-shadow">{errors.email}</p>}
+                    </div>
+
+                    <div>
                       <label className="block text-white font-semibold text-xs mb-1 drop-shadow">Phone Number</label>
                       <div className="flex gap-2">
                         <select
                           name="countryCode"
                           value={formData.countryCode}
                           onChange={handleChange}
-                          className="px-2 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm min-w-[100px]"
+                          className="px-2 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 appearance-none focus:outline-none focus:ring-2 focus:ring-bgColor focus:border-emerald-500 transition-all duration-200 text-sm shadow-sm min-w-[100px]"
                         >
                           {countryCodes.map((country) => (
                             <option key={country.code} value={country.code}>
@@ -387,7 +443,7 @@ export default function KYCInvestor() {
                         value={formData.address}
                         onChange={handleChange}
                         placeholder='Residential Address'
-                        className="w-full px-3 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 resize-none text-sm shadow-sm"
+                        className="w-full px-3 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-bgColor focus:border-emerald-500 transition-all duration-200 resize-none text-sm shadow-sm"
                         rows={2}
                       />
                       {errors.address && <p className="text-xs font-bold text-red-600 mt-1 drop-shadow">{errors.address}</p>}
@@ -439,7 +495,7 @@ export default function KYCInvestor() {
                         name="purpose"
                         value={formData.purpose}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 resize-none text-sm shadow-sm"
+                        className="w-full px-3 py-2 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg text-gray-900 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-bgColor focus:border-emerald-500 transition-all duration-200 resize-none text-sm shadow-sm"
                         rows={2}
                         placeholder='Purpose of Account'
                       />
@@ -466,7 +522,7 @@ export default function KYCInvestor() {
                       <button
                         type="button"
                         onClick={handleNext}
-                        className="bg-bgColor cursor-pointer hover:bg-white/30 font-medium py-2 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm shadow-lg"
+                        className="bg-bgColor cursor-pointer hover:bg-white/30 font-medium py-2 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-bgColor text-sm shadow-lg"
                       >
                         <ArrowRight className='text-limeTxt'/>
                       </button>
@@ -474,7 +530,7 @@ export default function KYCInvestor() {
                       <button
                         type="submit"
                         disabled={loading}
-                        className={`bg-bgColor cursor-pointer hover:bg-white/30 text-limeTxt font-medium py-2 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm shadow-lg ${
+                        className={`bg-bgColor cursor-pointer hover:bg-white/30 text-limeTxt font-medium py-2 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-bgColor text-sm shadow-lg ${
                           loading ? 'opacity-50 cursor-not-allowed' : ''
                         }`}
                       >
