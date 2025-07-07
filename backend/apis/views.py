@@ -14,7 +14,7 @@ from django.urls import reverse
 from django.db import transaction
 from .models import OTPToken, Opportunity, PasswordReset, Project, UserProfile
 from .serializers import (
-    OpportunityCreateSerializer, OpportunitySerializer,  ProjectCreateSerializer,  UserProfileSerializer, UserSignUpSerializer, UserLoginSerializer,
+    KYCPreFillSerializer, OpportunityCreateSerializer, OpportunitySerializer,  ProjectCreateSerializer,  UserProfileSerializer, UserSignUpSerializer, UserLoginSerializer,
     PasswordResetRequestSerializer, PasswordResetSerializer, UserSerializer,
     UserUpdateSerializer, InvestorKYCSerializer, FarmerKYCSerializer, 
     KYCVerificationLogSerializer, KYCStatusSerializer, KYCAdminUpdateSerializer,
@@ -1034,6 +1034,7 @@ def request_kyc_change(request):
             'message': f'Error submitting change request: {str(e)}'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_kyc(request):
@@ -1062,6 +1063,23 @@ def get_user_kyc(request):
             'message': str(e)
         }, status=500)
         
+       
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def kyc_autofill_data(request):
+    user = request.user
+    profile = getattr(user, 'profile', None)
+
+    data = {
+        "full_name": f"{user.first_name} {user.last_name}".strip(),
+        "email": user.email,
+        "phone_number": profile.phone_number if profile else "",
+        "role": profile.role if profile else "",
+    }
+
+    serializer = KYCPreFillSerializer(data)
+    return Response(serializer.data)
+
         
 # OPPORTUNITIES
 

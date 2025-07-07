@@ -9,20 +9,9 @@ import uuid
 from django.core.validators import MinValueValidator
 from django.forms import ValidationError
 from .watermark import watermark_pdf
+import logging
 
-
-class PasswordReset(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    reset_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
-    created_when = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Password reset for {self.user.username} at {self.created_when}"
-
-    @classmethod
-    def recent_reset_count(cls, user):
-        one_day_ago = timezone.now() - timezone.timedelta(days=1)
-        return cls.objects.filter(user=user, created_when__gte=one_day_ago).count()
+logger = logging.getLogger(__name__)
 
 
 class UserProfile(models.Model):
@@ -44,52 +33,23 @@ class UserProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def get_autofill_data(self):
+        """Get autofill data for KYC forms"""
+        return {
+            'full_name': f"{self.user.first_name} {self.user.last_name}".strip(),
+            'email': self.user.email,
+            'phone_number': self.phone_number,
+            'role': self.role,
+        }
+
     def __str__(self):
         return f"{self.user.get_full_name()} - {self.role}"
 
     class Meta:
         verbose_name = "User Profile"
         verbose_name_plural = "User Profiles"
-
-
-class OTPToken(models.Model):
-    """OTP Token model for authentication"""
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, 
-        on_delete=models.CASCADE, 
-        related_name="otps"
-    )
-    otp_code = models.CharField(max_length=5, blank=True)
-    otp_created_at = models.DateTimeField(auto_now_add=True)  
-    otp_expires_at = models.DateTimeField(blank=True, null=True)
-    
-    class Meta:
-        ordering = ['-otp_created_at']
-    
-    def __str__(self):
-        return f"OTP for {self.user.username} - {self.otp_code}"
-    
-    def is_expired(self):
-        """Check if OTP is expired"""
-        if self.otp_expires_at:
-            return timezone.now() > self.otp_expires_at
-        return False
-    
-    def generate_otp_code(self):
-        """Generate a 5-digit OTP code"""
-        return str(secrets.randbelow(90000) + 10000)
-    
-    def save(self, *args, **kwargs):
-        """Generate OTP code and set expiry time if not provided"""
-        if not self.otp_code:
-            self.otp_code = self.generate_otp_code()
         
-        if not self.otp_expires_at:
-            self.otp_expires_at = timezone.now() + timedelta(minutes=5)
         
-        super().save(*args, **kwargs)
-               
-
 class InvestorKYC(models.Model):
     """KYC information for investors - Immutable once created"""
 
@@ -112,6 +72,7 @@ class InvestorKYC(models.Model):
     date_of_birth = models.DateField()
     nationality = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=20)
+    email = models.EmailField()
 
     id_type = models.CharField(max_length=20, choices=ID_TYPE_CHOICES)
     id_number = models.CharField(max_length=100)
@@ -219,6 +180,7 @@ class FarmerKYC(models.Model):
         verbose_name = "Farmer KYC"
         verbose_name_plural = "Farmer KYCs"
 
+
 class KYCVerificationLog(models.Model):
     """Log of KYC verification actions"""
     
@@ -250,6 +212,58 @@ class KYCVerificationLog(models.Model):
         verbose_name_plural = "KYC Verification Logs"
         ordering = ['-created_at']
 
+
+class PasswordReset(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    reset_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    created_when = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Password reset for {self.user.username} at {self.created_when}"
+
+    @classmethod
+    def recent_reset_count(cls, user):
+        one_day_ago = timezone.now() - timezone.timedelta(days=1)
+        return cls.objects.filter(user=user, created_when__gte=one_day_ago).count()
+
+
+class OTPToken(models.Model):
+    """OTP Token model for authentication"""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name="otps"
+    )
+    otp_code = models.CharField(max_length=5, blank=True)
+    otp_created_at = models.DateTimeField(auto_now_add=True)  
+    otp_expires_at = models.DateTimeField(blank=True, null=True)
+    
+    class Meta:
+        ordering = ['-otp_created_at']
+    
+    def __str__(self):
+        return f"OTP for {self.user.username} - {self.otp_code}"
+    
+    def is_expired(self):
+        """Check if OTP is expired"""
+        if self.otp_expires_at:
+            return timezone.now() > self.otp_expires_at
+        return False
+    
+    def generate_otp_code(self):
+        """Generate a 5-digit OTP code"""
+        return str(secrets.randbelow(90000) + 10000)
+    
+    def save(self, *args, **kwargs):
+        """Generate OTP code and set expiry time if not provided"""
+        if not self.otp_code:
+            self.otp_code = self.generate_otp_code()
+        
+        if not self.otp_expires_at:
+            self.otp_expires_at = timezone.now() + timedelta(minutes=5)
+        
+        super().save(*args, **kwargs)
+               
 
 class Opportunity(models.Model):
     OPPORTUNITY_TYPES = [
@@ -289,11 +303,6 @@ class Opportunity(models.Model):
         self.save(update_fields=['views'])
 
 # PROJECTS
-
-import logging
-
-
-logger = logging.getLogger(__name__)
 
 class Project(models.Model):
     STATUS_CHOICES = [

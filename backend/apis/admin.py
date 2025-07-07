@@ -1,3 +1,4 @@
+from datetime import timezone
 from re import I
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -64,7 +65,6 @@ class PasswordResetAdmin(admin.ModelAdmin):
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 admin.site.register(KYCVerificationLog)
-admin.site.register(FarmerKYC)
 admin.site.register(InvestorKYC)
 
 
@@ -95,6 +95,17 @@ class OpportunityAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if not change:  
             obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
+@admin.register(FarmerKYC)
+class FarmerKYCAdmin(admin.ModelAdmin):
+    ...
+    fields = ('user', 'full_name', 'role', 'nationality', 'is_verified', 'verification_date')
+    readonly_fields = ('created_at', 'updated_at')
+
+    def save_model(self, request, obj, form, change):
+        if obj.is_verified and not obj.verification_date:
+            obj.verification_date = timezone.now()
         super().save_model(request, obj, form, change)
 
 

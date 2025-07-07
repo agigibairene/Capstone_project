@@ -23,6 +23,8 @@ urlpatterns = [
     path('kyc/request-change/', views.request_kyc_change, name='request_kyc_change'),
     path('kyc/user/', views.get_user_kyc),
     path('kyc/status', views.get_kyc_status),
+    path('kyc/autofill/', views.kyc_autofill_data, name='kyc-prefill'),
+
     
     # OTP PATHS
     path("auth/verify-otp/", views.verify_login_otp, name="verify-otp"),

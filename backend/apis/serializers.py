@@ -198,11 +198,11 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
 class InvestorKYCSerializer(serializers.ModelSerializer):
     """Serializer for Investor KYC data - Read-only after creation"""
-    
+
     class Meta:
         model = InvestorKYC
         fields = [
-            'id', 'full_name', 'date_of_birth', 'nationality', 'phone_number',
+            'id', 'full_name', 'email', 'date_of_birth', 'nationality', 'phone_number',
             'id_type', 'id_number', 'id_document', 'profile_picture',
             'address', 'occupation', 'income_source', 'annual_income', 'purpose',
             'is_verified', 'verification_date', 'created_at', 'updated_at'
@@ -210,6 +210,7 @@ class InvestorKYCSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'is_verified', 'verification_date', 'created_at', 'updated_at']
         extra_kwargs = {
             'full_name': {'required': True},
+            'email': {'required': True},
             'date_of_birth': {'required': True},
             'nationality': {'required': True},
             'phone_number': {'required': True},
@@ -235,26 +236,30 @@ class InvestorKYCSerializer(serializers.ModelSerializer):
         raise serializers.ValidationError("KYC data cannot be updated once submitted. Please contact support if changes are needed.")
 
     def create(self, validated_data):
-        """Create investor KYC record"""
+        """Create investor KYC record with auto-filled data"""
         user = self.context['request'].user
         validated_data['user'] = user
-        
-        # Create verification log
-        KYCVerificationLog.objects.create(
-            user=user,
-            action='submitted',
-        )
-        
+
+        # Auto-fill full name if not provided
+        validated_data.setdefault('full_name', f"{user.first_name} {user.last_name}".strip())
+
+        # Auto-fill phone number from user profile
+        if not validated_data.get('phone_number') and hasattr(user, 'profile'):
+            validated_data['phone_number'] = user.profile.phone_number or ''
+
+        # Log KYC submission
+        KYCVerificationLog.objects.create(user=user, action='submitted')
+
         return super().create(validated_data)
 
 
 class FarmerKYCSerializer(serializers.ModelSerializer):
     """Serializer for Farmer KYC data - Read-only after creation"""
-    
+
     class Meta:
         model = FarmerKYC
         fields = [
-            'id', 'full_name', 'email', 'phone_number', 'role', 
+            'id', 'full_name', 'email', 'phone_number', 'role',
             'date_of_birth', 'nationality', 'background', 'address',
             'id_type', 'id_number', 'id_document', 'profile_picture',
             'is_verified', 'verification_date', 'created_at', 'updated_at'
@@ -276,57 +281,49 @@ class FarmerKYCSerializer(serializers.ModelSerializer):
         }
 
     def validate_date_of_birth(self, value):
-        """Validate that user is at least 18 years old"""
+        """Ensure user is at least 18 years old"""
         today = date.today()
         age = today.year - value.year - ((today.month, today.day) < (value.month, value.day))
-        
         if age < 18:
             raise serializers.ValidationError("You must be at least 18 years old to register.")
-        
         return value
 
     def validate_email(self, value):
-        """Validate email format and uniqueness within KYC records"""
-        if self.instance is None:  
-            if FarmerKYC.objects.filter(email=value).exists():
-                raise serializers.ValidationError("A KYC record with this email already exists.")
+        """Ensure email is unique among KYC records"""
+        if self.instance is None and FarmerKYC.objects.filter(email=value).exists():
+            raise serializers.ValidationError("A KYC record with this email already exists.")
         return value
 
     def validate_phone_number(self, value):
-        """Basic phone number validation"""
+        """Basic phone number format check"""
         if not value.replace('+', '').replace('-', '').replace(' ', '').isdigit():
             raise serializers.ValidationError("Please enter a valid phone number.")
         return value
 
     def validate_id_number(self, value):
-        """Validate ID number uniqueness"""
-        if self.instance is None:  
-            if FarmerKYC.objects.filter(id_number=value).exists():
-                raise serializers.ValidationError("A KYC record with this ID number already exists.")
+        """Ensure ID number is unique"""
+        if self.instance is None and FarmerKYC.objects.filter(id_number=value).exists():
+            raise serializers.ValidationError("A KYC record with this ID number already exists.")
         return value
 
     def validate_id_document(self, value):
-        """Validate ID document file"""
+        """Check size and format of ID document"""
         if value:
             if value.size > 5 * 1024 * 1024:
                 raise serializers.ValidationError("ID document file size must be less than 5MB.")
-            
             allowed_extensions = ['.pdf', '.jpg', '.jpeg', '.png']
             if not any(value.name.lower().endswith(ext) for ext in allowed_extensions):
                 raise serializers.ValidationError("ID document must be a PDF, JPG, JPEG, or PNG file.")
-        
         return value
 
     def validate_profile_picture(self, value):
-        """Validate profile picture file"""
+        """Check size and format of profile picture"""
         if value:
             if value.size > 2 * 1024 * 1024:
                 raise serializers.ValidationError("Profile picture file size must be less than 2MB.")
-            
             allowed_extensions = ['.jpg', '.jpeg', '.png']
             if not any(value.name.lower().endswith(ext) for ext in allowed_extensions):
                 raise serializers.ValidationError("Profile picture must be a JPG, JPEG, or PNG file.")
-        
         return value
 
     def update(self, instance, validated_data):
@@ -334,23 +331,35 @@ class FarmerKYCSerializer(serializers.ModelSerializer):
         raise serializers.ValidationError("KYC data cannot be updated once submitted. Please contact support if changes are needed.")
 
     def create(self, validated_data):
-        """Create farmer KYC record"""
+        """Create farmer KYC record with auto-filled data"""
         user = self.context['request'].user
         validated_data['user'] = user
-        
-        kyc_instance = super().create(validated_data)
-        
+
+        # Auto-fill full name
+        validated_data.setdefault('full_name', f"{user.first_name} {user.last_name}".strip())
+
+        # Auto-fill email
+        validated_data.setdefault('email', user.email)
+
+        # Auto-fill phone number from profile
+        if not validated_data.get('phone_number') and hasattr(user, 'profile'):
+            validated_data['phone_number'] = user.profile.phone_number or ''
+
+        # Auto-fill role from profile
+        if not validated_data.get('role') and hasattr(user, 'profile'):
+            validated_data['role'] = user.profile.role
+
+        # Create and log KYC
+        instance = super().create(validated_data)
+
         try:
-            KYCVerificationLog.objects.create(
-                user=user,
-                action='submitted',
-            )
+            KYCVerificationLog.objects.create(user=user, action='submitted')
         except Exception as e:
-            print(f"Failed to create verification log: {str(e)}")
-        
-        return kyc_instance
+            print(f"KYC log failed: {str(e)}")
 
+        return instance
 
+    
 class KYCVerificationLogSerializer(serializers.ModelSerializer):
     """Serializer for KYC verification logs"""
     admin_username = serializers.CharField(source='admin_user.username', read_only=True)
@@ -469,9 +478,6 @@ class ProjectSerializer(serializers.ModelSerializer):
         return False
 
 
-
-
-
 class ProjectCreateSerializer(serializers.ModelSerializer):
     file = serializers.FileField(write_only=True)
 
@@ -512,3 +518,10 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
                 logger.error(f"Failed to watermark proposal for project {project.id}: {str(e)}")
 
         return project
+
+
+class KYCPreFillSerializer(serializers.Serializer):
+    full_name = serializers.CharField()
+    email = serializers.EmailField()
+    phone_number = serializers.CharField()
+    role = serializers.CharField()
