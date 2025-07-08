@@ -1,4 +1,4 @@
-import { BarChart3,Users,PenLine,Bot, LogOut } from "lucide-react";
+import { BarChart3,PenLine,Bot, LogOut,FolderOpen } from "lucide-react";
 
 import image from '../assets/dp.jpg'
 
@@ -10,8 +10,8 @@ export const menuItems = [
     active: true,
   },
   {
-    name: "Card",
-    icon: Users,
+    name: "All Projects",
+    icon: FolderOpen,
     color: "bg-blue-500",
     active: false,
   },

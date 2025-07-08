@@ -1,5 +1,6 @@
 from datetime import timedelta
 import json
+import os
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
@@ -22,7 +23,7 @@ from .serializers import (
     ProjectSerializer
 )
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from .models import InvestorKYC, FarmerKYC, KYCVerificationLog
 import logging
 import traceback
@@ -32,8 +33,8 @@ from rest_framework import status
 from django.db import models
 from django.db.models import Q
 from django.http import JsonResponse
-from rest_framework.pagination import PageNumberPagination
-from .watermark import watermark_pdf
+from django.views.decorators.clickjacking import xframe_options_exempt
+from django.http import FileResponse
 
 
 # Set up logging
@@ -1282,9 +1283,7 @@ def opportunity_stats(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
-
 # PROJECT VIEWS 
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, IsVerifiedFarmer])
@@ -1347,4 +1346,14 @@ def farmer_projects(request):
     projects = Project.objects.filter(farmer=request.user).order_by('-created_at')
     serializer = ProjectSerializer(projects, many=True, context={'request': request})
     return Response(serializer.data)
+
+
+@xframe_options_exempt
+def serve_watermarked_proposal(request, filename):
+    full_path = os.path.join(settings.MEDIA_ROOT, 'proposals', 'watermarked', filename)
+
+    if not os.path.exists(full_path):
+        raise Http404("Watermarked proposal not found.")
+
+    return FileResponse(open(full_path, 'rb'), content_type='application/pdf')
 

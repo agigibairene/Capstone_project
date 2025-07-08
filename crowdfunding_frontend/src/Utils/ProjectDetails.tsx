@@ -1,304 +1,277 @@
-import  { useState } from 'react';
-import { FileText, Download, Share2, ZoomIn, ZoomOut, RotateCw, Users, Calendar, MapPin, MessageCircle } from 'lucide-react';
+import { useState } from 'react';
+import {
+  Download,
+  Calendar,
+  MapPin,
+  ExternalLink,
+  AlertCircle,
+  ArrowLeft
+} from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-export default function ProjectDetails() {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [zoom, setZoom] = useState(100);
-  const totalPages = 4;
+interface ProjectDetailsProps {
+  project?: {
+    id: string;
+    name: string;
+    title: string;
+    brief: string;
+    description: string;
+    target_amount: string;
+    farmer_name: string;
+    deadline: string;
+    days_remaining: number;
+    status: string;
+    created_at: string;
+    watermarked_proposal: string;
+    benefits: string;
+    email: string;
+  };
+}
 
-  const collaborators = [
-    { name: 'Jon T.', avatar: 'JT', color: 'bg-blue-500' },
-    { name: 'Richard P.', avatar: 'RP', color: 'bg-green-500' },
-    { name: 'Jon C.', avatar: 'JC', color: 'bg-purple-500' },
-    { name: 'View A.', avatar: 'VA', color: 'bg-orange-500' },
-    { name: 'George H. (You)', avatar: 'GH', color: 'bg-red-500' }
-  ];
+export default function ProjectDetails({ project: propProject }: ProjectDetailsProps) {
+  const [pdfError, setPdfError] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const project = propProject || location.state?.project;
+
+  const handleDownload = () => {
+    if (project?.watermarked_proposal) {
+      window.open(project.watermarked_proposal, '_blank');
+    }
+  };
+
+  if (!project) {
+    return (
+      <div className="flex flex-col h-screen bg-gray-400 text-white items-center justify-center">
+        <div className="text-center px-4 max-w-md">
+          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold mb-2">Project Not Found</h3>
+          <p className="text-gray-400 mb-4">
+            The project details could not be loaded.
+          </p>
+          <button
+            onClick={() => navigate('/investor')}
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'approved':
+        return 'bg-green-100 text-green-800';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'rejected':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   return (
-    <div className="flex h-screen bg-gray-900 text-white">
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Top Navigation */}
-        <div className="bg-gray-800 border-b border-gray-700 px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center">
-              <FileText className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-sm font-medium">License Agreement on Waterfall Inc.pdf</span>
+    <div className="flex flex-col h-screen bg-gray-400 text-white overflow-hidden">
+      <div className="lg:hidden flex items-center justify-between p-4 bg-bgColor border-b border-gray-700">
+        <button 
+          onClick={() => navigate('/investor')}
+          className="p-2 bg-limeTxt cursor-pointer rounded-full transition-colors border border-gray-700"
+          title="Go back"
+        >
+          <ArrowLeft className="w-6 h-6 text-bgColor" />
+        </button>
+        <h1 className="text-lg font-semibold truncate mx-4">{project.name}</h1>
+        <button 
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="p-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors"
+        >
+          <div className="w-6 h-6 flex flex-col justify-center items-center">
+            <div className="w-4 h-0.5 bg-white mb-1"></div>
+            <div className="w-4 h-0.5 bg-white mb-1"></div>
+            <div className="w-4 h-0.5 bg-white"></div>
           </div>
-          <div className="flex items-center space-x-2">
-            <button className="p-2 hover:bg-gray-700 rounded">
-              <Download className="w-4 h-4" />
-            </button>
-            <button className="p-2 hover:bg-gray-700 rounded">
-              <Share2 className="w-4 h-4" />
-            </button>
+        </button>
+      </div>
+
+      {/* Desktop Back Button */}
+      <div className="hidden lg:block absolute top-4 left-4 z-20">
+        <button 
+          onClick={() => navigate('/investor')}
+          className="p-2 bg-limeTxt cursor-pointer rounded-full transition-colors border border-gray-700 hover:bg-opacity-90"
+          title="Go back"
+        >
+          <ArrowLeft className="w-8 h-8 text-bgColor" />
+        </button>
+      </div>
+
+      <div className="flex flex-1 overflow-hidden">
+        {/* PDF Viewer */}
+        <div className="flex-1 bg-gray-600 overflow-hidden relative">
+          <div className="h-full p-2 sm:p-4 overflow-auto no-scrollbar">
+            {!pdfError ? (
+              <div className="h-full w-full flex justify-center items-center">
+                <iframe
+                  src={project.watermarked_proposal}
+                  className="rounded-lg border border-gray-700 bg-white w-full h-full"
+                  title="Project Proposal PDF"
+                  onError={() => setPdfError(true)}
+                />
+              </div>
+            ) : (
+              <div className="h-full flex items-center justify-center">
+                <div className="text-center px-4 max-w-md">
+                  <AlertCircle className="w-12 h-12 sm:w-16 sm:h-16 text-red-500 mx-auto mb-4" />
+                  <h3 className="text-lg sm:text-xl font-semibold mb-2">Unable to load PDF</h3>
+                  <p className="text-gray-400 mb-4 text-sm sm:text-base">
+                    The PDF document could not be displayed in the browser.
+                  </p>
+                  <button
+                    onClick={handleDownload}
+                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors text-sm sm:text-base"
+                  >
+                    Download PDF Instead
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Document Viewer */}
-        <div className="flex-1 flex overflow-hidden">
-          {/* Document Content */}
-          <div className="flex-1 bg-gray-900 overflow-y-auto scrollbar-hide">
-            <div className="p-6">
-              <div className="bg-white rounded-lg shadow-2xl p-8 text-gray-900 max-w-4xl mx-auto">
-                {/* Document Header */}
-                <div className="text-center mb-8">
-                  <h1 className="text-xl font-bold mb-2">WATERFALL INC</h1>
-                  <h2 className="text-lg font-semibold">SOFTWARE END USER LICENSE AGREEMENT</h2>
-                </div>
+        {/* Sidebar */}
+        <div className={`
+          ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
+          fixed lg:relative top-0 right-0 h-full w-full sm:w-96 lg:w-80 xl:w-96
+          bg-bgColor border-l border-gray-700 p-4 overflow-y-auto
+          transition-transform duration-300 ease-in-out z-30
+          lg:flex-shrink-0
+        `}>
+          {/* Mobile Close Button */}
+          <div className="lg:hidden flex justify-end mb-4">
+            <button 
+              onClick={() => setSidebarOpen(false)}
+              className="p-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors"
+            >
+              <div className="w-6 h-6 flex items-center justify-center relative">
+                <div className="w-4 h-0.5 bg-white rotate-45 absolute" />
+                <div className="w-4 h-0.5 bg-white -rotate-45 absolute" />
+              </div>
+            </button>
+          </div>
 
-                {/* Document Content */}
-                <div className="space-y-4 text-sm leading-relaxed">
-                  <p>
-                    This End User License Agreement ("License") is an agreement between you and Waterfall Inc. By 
-                    downloading and using the SOFTWARE, you agree to be bound by the terms of this License. If you do not 
-                    agree to the terms of this License, do not download or use the SOFTWARE.
-                  </p>
-                  
-                  <p>
-                    You may use the SOFTWARE only on devices that you own or control and as permitted by the App Store 
-                    Terms of Service. The SOFTWARE is licensed, not sold, to you by Waterfall Inc for use strictly in 
-                    accordance with the terms of this License.
-                  </p>
-
-                  <p>
-                    By installing or using the Application, you consent to be bound by this License, Service Level License 
-                    Agreement, and Privacy Policy. If you do not agree to be bound by the terms of this License, you may not 
-                    download or use the Application. Waterfall Inc reserves the right to modify and change these terms at any 
-                    time with or without notice to you.
-                  </p>
-
-                  <p>
-                    Waterfall Inc makes no warranties or representations about the suitability of the information 
-                    contained in the documents and related graphics published on this server for any purpose. All such 
-                    documents and related graphics are provided "as is" without warranty of any kind.
-                  </p>
-
-                  <h3 className="font-semibold mt-6 mb-3">1. LICENSE GRANT AND RESTRICTIONS</h3>
-                  
-                  <p>
-                    A. Grant of License: You are granted a limited, non-exclusive license to install and use the Application for 
-                    your personal, non-commercial use on a single device. You may not copy, modify, distribute, sell, or lease 
-                    any part of the Application or included software, nor may you reverse engineer or attempt to extract the 
-                    source code of the Application.
-                  </p>
-
-                  <p>
-                    B. Restrictions: You may not use the Application for any purpose that is unlawful or prohibited by this 
-                    Agreement. You may not modify the Application or use it on any device that you do not own or control.
-                  </p>
-
-                  <p>
-                    C. Copies: You may download the Application onto an authorized device. The number of copies that you 
-                    may download during any particular period of time may be limited. You may not have more than one 
-                    Application installed at a time, and you may not make copies of any part of the Application.
-                  </p>
-
-                  <h3 className="font-semibold mt-6 mb-3">2. OWNERSHIP AND INTELLECTUAL PROPERTY</h3>
-                  
-                  <p>
-                    The Application and all copyrights, patents, trade secrets, trademarks, and other intellectual property 
-                    rights in the Application are owned by Waterfall Inc. You acknowledge that you are obtaining only a 
-                    limited license right to use the Application and that irrespective of any use of the words "purchase," 
-                    "sale," or like terms, no ownership rights are being conveyed to you under this Agreement.
-                  </p>
-
-                  <p>
-                    You may not modify, reverse engineer, decompile, or disassemble the Application in whole or in part, 
-                    or create derivative works from the Application. You may not remove, alter, or obscure any proprietary 
-                    notices on the Application.
-                  </p>
-
-                  <h3 className="font-semibold mt-6 mb-3">3. PRIVACY AND DATA COLLECTION</h3>
-                  
-                  <p>
-                    Waterfall Inc respects your privacy and is committed to protecting your personal information. Our 
-                    Privacy Policy explains how we collect, use, and protect your information when you use our Application. 
-                    By using the Application, you consent to the collection and use of your information as described in our 
-                    Privacy Policy.
-                  </p>
-
-                  <p>
-                    We may collect anonymous usage data to improve our services. This data does not identify you personally 
-                    and is used solely for analytical purposes to enhance user experience and application performance.
-                  </p>
-
-                  <h3 className="font-semibold mt-6 mb-3">4. UPDATES AND MODIFICATIONS</h3>
-                  
-                  <p>
-                    Waterfall Inc may provide updates to the Application from time to time. These updates may include bug 
-                    fixes, security patches, and new features. You agree to install updates as they become available to 
-                    maintain the security and functionality of the Application.
-                  </p>
-
-                  <p>
-                    We reserve the right to modify or discontinue the Application at any time without notice. We will not 
-                    be liable to you or any third party for any modification, suspension, or discontinuation of the Application.
-                  </p>
-
-                  <h3 className="font-semibold mt-6 mb-3">5. TERMINATION</h3>
-                  
-                  <p>
-                    This License is effective until terminated. You may terminate this License at any time by destroying 
-                    all copies of the Application in your possession or control. This License will terminate immediately 
-                    without notice from Waterfall Inc if you fail to comply with any provision of this License.
-                  </p>
-
-                  <p>
-                    Upon termination, you must cease all use of the Application and destroy all copies of the Application 
-                    in your possession or control. The terms of this License that by their nature should survive termination 
-                    will survive termination, including but not limited to ownership provisions, warranty disclaimers, 
-                    and limitations of liability.
-                  </p>
-
-                  <h3 className="font-semibold mt-6 mb-3">6. DISCLAIMER OF WARRANTIES</h3>
-                  
-                  <p>
-                    THE APPLICATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND. WATERFALL INC DISCLAIMS ALL 
-                    WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY, 
-                    FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
-                  </p>
-
-                  <p>
-                    WATERFALL INC DOES NOT WARRANT THAT THE APPLICATION WILL MEET YOUR REQUIREMENTS OR THAT THE OPERATION 
-                    OF THE APPLICATION WILL BE UNINTERRUPTED OR ERROR-FREE.
-                  </p>
-
-                  <h3 className="font-semibold mt-6 mb-3">7. LIMITATION OF LIABILITY</h3>
-                  
-                  <p>
-                    IN NO EVENT SHALL WATERFALL INC BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR 
-                    PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO LOSS OF PROFITS, DATA, OR USE, ARISING OUT OF OR IN 
-                    CONNECTION WITH THIS LICENSE OR THE USE OF THE APPLICATION.
-                  </p>
-
-                  <p>
-                    WATERFALL INC'S TOTAL LIABILITY TO YOU FOR ALL DAMAGES SHALL NOT EXCEED THE AMOUNT PAID BY YOU FOR 
-                    THE APPLICATION, IF ANY.
-                  </p>
-
-                  <h3 className="font-semibold mt-6 mb-3">8. GOVERNING LAW</h3>
-                  
-                  <p>
-                    This License shall be governed by and construed in accordance with the laws of the State of California, 
-                    without regard to its conflict of laws principles. Any disputes arising under this License shall be 
-                    resolved in the courts of California.
-                  </p>
-
-                  <p>
-                    If any provision of this License is held to be invalid or unenforceable, the remaining provisions 
-                    shall remain in full force and effect.
-                  </p>
-
-                  <div className="mt-8 pt-6 border-t border-gray-200">
-                    <p className="text-sm text-gray-600">
-                      By installing or using the Application, you acknowledge that you have read this License, understand 
-                      it, and agree to be bound by its terms and conditions.
-                    </p>
-                    <p className="text-sm text-gray-600 mt-2">
-                      Last updated: January 25, 2025
-                    </p>
-                  </div>
-                </div>
+          {/* Project Details */}
+          <div className="mb-6">
+            <h3 className="text-sm font-medium mb-3 text-gray-300">Project Details</h3>
+            <div className="bg-gray-700 rounded-lg p-3 text-sm">
+              <div className="text-white font-medium mb-1 break-words">{project.name}</div>
+              <div className="text-gray-400 mb-2 break-words">{project.title}</div>
+              <div className="text-xs text-gray-500 mb-3 break-words leading-relaxed">{project.brief}</div>
+              <div className="flex flex-col gap-2">
+                <span className="text-emerald-400 font-medium text-lg">
+                  ${parseFloat(project.target_amount).toLocaleString()}
+                </span>
+                <span className={`px-2 py-1 rounded text-xs self-start ${getStatusColor(project.status)}`}>
+                  {project.status}
+                </span>
               </div>
             </div>
           </div>
 
-          <div className="w-80 bg-gray-800 border-l border-gray-700 p-4 overflow-y-auto">
-            {/* File Details */}
+          {/* Document Info */}
+          <div className="mb-6">
+            <h3 className="text-sm font-medium mb-3 text-gray-300">Document Info</h3>
+            <div className="space-y-3 text-sm">
+              <div className="flex items-start space-x-2">
+                <Calendar className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                  <span className="text-gray-400">Created:</span>
+                  <span className="text-white">{new Date(project.created_at).toLocaleDateString()}</span>
+                </div>
+              </div>
+              <div className="flex items-start space-x-2">
+                <Calendar className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                  <span className="text-gray-400">Deadline:</span>
+                  <span className="text-white">{new Date(project.deadline).toLocaleDateString()}</span>
+                </div>
+              </div>
+              <div className="flex items-start space-x-2">
+                <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                  <span className="text-gray-400">Farmer:</span>
+                  <span className="text-white break-words">{project.farmer_name}</span>
+                </div>
+              </div>
+              <div className="flex items-start space-x-2">
+                <AlertCircle className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                  <span className="text-gray-400">Days Left:</span>
+                  <span className="text-orange-400 font-medium">{project.days_remaining} days</span>
+                </div>
+              </div>
+              {project.email && (
+                <div className="flex items-start space-x-2">
+                  <ExternalLink className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                    <span className="text-gray-400">Email:</span>
+                    <span className="text-white break-words">{project.email}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Description */}
+          {project.description && (
             <div className="mb-6">
-              <h3 className="text-sm font-medium mb-3 text-gray-300">File Details</h3>
+              <h3 className="text-sm font-medium mb-3 text-gray-300">Description</h3>
               <div className="bg-gray-700 rounded-lg p-3 text-sm">
-                <div className="text-gray-400 mb-1">License Agreement on Waterfall Inc.pdf</div>
-                <div className="text-xs text-gray-500">1.1 MB</div>
+                <p className="text-gray-300 leading-relaxed break-words">{project.description}</p>
               </div>
             </div>
+          )}
 
-            {/* Document Info */}
+          {/* Benefits */}
+          {project.benefits && (
             <div className="mb-6">
-              <h3 className="text-sm font-medium mb-3 text-gray-300">Document Info</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center space-x-2">
-                  <Calendar className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-400">Last Modified:</span>
-                  <span>Jan 25, 2025</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <MapPin className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-400">Location:</span>
-                  <span>07 Cyber</span>
-                </div>
+              <h3 className="text-sm font-medium mb-3 text-gray-300">Benefits</h3>
+              <div className="bg-gray-700 rounded-lg p-3 text-sm">
+                <p className="text-gray-300 leading-relaxed break-words">{project.benefits}</p>
               </div>
             </div>
+          )}
 
-            {/* Collaborators */}
-            <div>
-              <h3 className="text-sm font-medium mb-3 text-gray-300">Collaborators</h3>
-              <div className="space-y-2">
-                {collaborators.map((collaborator, index) => (
-                  <div key={index} className="flex items-center space-x-3">
-                    <div className={`w-8 h-8 rounded-full ${collaborator.color} flex items-center justify-center text-white text-xs font-medium`}>
-                      {collaborator.avatar}
-                    </div>
-                    <span className="text-sm">{collaborator.name}</span>
-                    <div className="w-3 h-3 bg-green-500 rounded-full ml-auto"></div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom Toolbar */}
-        <div className="bg-gray-800 border-t border-gray-700 px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <button 
-                onClick={() => setZoom(Math.max(50, zoom - 10))}
-                className="p-1 hover:bg-gray-700 rounded"
-              >
-                <ZoomOut className="w-4 h-4" />
-              </button>
-              <span className="text-sm font-medium min-w-12 text-center">{zoom}%</span>
-              <button 
-                onClick={() => setZoom(Math.min(200, zoom + 10))}
-                className="p-1 hover:bg-gray-700 rounded"
-              >
-                <ZoomIn className="w-4 h-4" />
-              </button>
-            </div>
-            <button className="p-1 hover:bg-gray-700 rounded">
-              <RotateCw className="w-4 h-4" />
-            </button>
-          </div>
-          
-          <div className="flex items-center space-x-2">
+          {/* Action Buttons */}
+          <div className="space-y-3">
             <button 
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
-              className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm disabled:opacity-50"
+              onClick={handleDownload}
+              className="w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors flex items-center justify-center space-x-2 text-sm font-medium"
             >
-              Previous
+              <Download className="w-4 h-4" />
+              <span>Download PDF</span>
             </button>
-            <span className="text-sm">
-              {currentPage} of {totalPages}
-            </span>
             <button 
-              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-              disabled={currentPage === totalPages}
-              className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm disabled:opacity-50"
+              onClick={() => window.open(project.watermarked_proposal, '_blank')}
+              className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors flex items-center justify-center space-x-2 text-sm font-medium"
             >
-              Next
+              <ExternalLink className="w-4 h-4" />
+              <span>Open in New Tab</span>
             </button>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <MessageCircle className="w-4 h-4 text-gray-400" />
-            <Users className="w-4 h-4 text-gray-400" />
           </div>
         </div>
       </div>
+
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-20"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
     </div>
   );
 }

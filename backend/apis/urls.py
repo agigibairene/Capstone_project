@@ -43,5 +43,7 @@ urlpatterns = [
     path('projects/', views.list_projects, name='project-list'),
     path('projects/<uuid:project_id>/', views.project_detail, name='project-detail'),
     path('farmer/projects/', views.farmer_projects, name='farmer-project-list'),
+    path('media/proposals/watermarked/<str:filename>', views.serve_watermarked_proposal),
+
 ]
 

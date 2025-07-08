@@ -95,6 +95,10 @@ const routes = createBrowserRouter([
   {
     path: '/detailedpage',
     element: <ProjectDetails />
+  },
+  {
+  path: '/projects/:id',
+  element: <ProjectDetails />
   }
 ]);
 
