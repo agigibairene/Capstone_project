@@ -1,0 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=DynaPuff:wght@400..700&family=Outfit:wght@100..900&display=swap');
+body{
+    font-family: "Outfit", sans-serif;
+    background-color: #e2e6e4;
+}
+
+.wrapper{
+    font-family: "Outfit", sans-serif;
+}
+
+aside.main-sidebar{
+    background-color: #032B22;
+    color: white !important;
+}
+
+.nav-sidebar > .nav-item > .nav-link.active {
+    background-color: #C9FF30 !important;
+    color: #032B22 !important;
+    font-weight: 600 !important;
+}
+
+.btn.btn-success.float-right{
+    background-color: #032B22;
+    color: #C9FF30;
+}
+
+.btn.btn-primary{
+    background-color: #032B22;
+    border: none;
+    outline: none;
+}
+
+.card{
+    border-radius: 0.5rem;
+    background-color: #fff;
+}
+
+.accent-primary .btn-link,
+.accent-primary .nav-tabs .nav-link,
+.accent-primary a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.btn) {
+  color: teal;
+  text-decoration: none;
+}
+
+.accent-primary .btn-link:hover,
+.accent-primary .nav-tabs .nav-link:hover,
+.accent-primary a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.btn):hover {
+  color: #032B22;
+  cursor: pointer;
+}
+
+.btn.btn-xs.btn-success.addlink{
+    background-color: #032B22;
+    color: #C9FF30;
+}
+
+.btn.btn-xs.btn-info.changelink{
+    background-color: teal;
+    color: white;
+}
+
+.d-block.active{
+    color: white !important;
+}
+
+.info .d-block{
+    color: #C9FF30 !important;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.nav-header{
+    color: white !important;
+}
+
+.btn.btn-success.form-control{
+    background-color: #032B22;
+    color: #C9FF30;
+}
+
+.btn.btn-danger.form-control{
+    background-color: red;
+    color: white;
+}
+
+.btn.btn-info.form-control{
+    background-color: teal;
+    color: white;
+}
+
+.brand-text.font-weight-light{
+    font-family: "DynaPuff", system-ui;
+    color: white !important;
+}

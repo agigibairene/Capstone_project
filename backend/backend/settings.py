@@ -110,28 +110,28 @@ CELERY_BEAT_SCHEDULE = {
 DATABASE_URL = os.environ.get('DATABASE_URL')
 db_info = urlparse(DATABASE_URL)
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'agriconnect-db',
-        'USER': db_info.username,
-        'PASSWORD': db_info.password,
-        'HOST': db_info.hostname,
-        'PORT': db_info.port,
-        'OPTIONS': {'sslmode': 'require'}
-    }
-}
-
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'capstone',
-#         'USER': os.getenv('DB_USER'),
-#         'PASSWORD': os.getenv('DB_PASSWORD'),
-#         'HOST': os.getenv('DB_HOST'),
-#         'PORT': os.getenv('DB_PORT'),
+#         'NAME': 'agriconnect-db',
+#         'USER': db_info.username,
+#         'PASSWORD': db_info.password,
+#         'HOST': db_info.hostname,
+#         'PORT': db_info.port,
+#         'OPTIONS': {'sslmode': 'require'}
 #     }
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'capstone',
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
+    }
+}
 
 
 # Password validation
@@ -205,3 +205,15 @@ FILE_UPLOAD_PERMISSIONS = 0o644
 FILE_UPLOAD_MAX_MEMORY_SIZE = 26214400  
 DATA_UPLOAD_MAX_MEMORY_SIZE = 26214400  
 
+JAZZMIN_SETTINGS = {
+    "site_title": "Agriconnect Admin",
+    "site_header": "Agriconnect",
+    "site_brand": "Agriconnect",
+    "site_logo": "logo.png",
+    "login_logo": "green_logo.png",
+    "login_logo_dark": "logo.png",
+    "welcome_sign": "Welcome to the Agriconnect",
+    "copyright": "Agriconnect",
+    "custom_css": "custom_admin.css", 
+
+}

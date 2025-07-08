@@ -4,3 +4,4 @@ Dockerfile
 nginx.config
 docker-compose.yml
 media/
+staticfiles/
