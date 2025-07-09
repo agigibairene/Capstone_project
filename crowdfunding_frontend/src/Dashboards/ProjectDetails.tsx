@@ -233,8 +233,8 @@ export default function ProjectDetails({ project: propProject, role }: ProjectDe
           {project.description && (
             <div className="mb-6">
               <h3 className="text-sm font-medium mb-3 text-gray-300">Description</h3>
-              <div className="bg-gray-700 rounded-lg p-3 text-sm">
-                <p className="text-gray-300 leading-relaxed break-words">{project.description}</p>
+              <div className="bg-white rounded-lg p-3 text-sm">
+                <p className="text-bgColor leading-relaxed break-words">{project.description}</p>
               </div>
             </div>
           )}
@@ -243,8 +243,8 @@ export default function ProjectDetails({ project: propProject, role }: ProjectDe
           {project.benefits && (
             <div className="mb-6">
               <h3 className="text-sm font-medium mb-3 text-gray-300">Benefits</h3>
-              <div className="bg-gray-700 rounded-lg p-3 text-sm">
-                <p className="text-gray-300 leading-relaxed break-words">{project.benefits}</p>
+              <div className="bg-white rounded-lg p-3 text-sm">
+                <p className="text-bgColor leading-relaxed break-words">{project.benefits}</p>
               </div>
             </div>
           )}

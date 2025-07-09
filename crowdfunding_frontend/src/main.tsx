@@ -16,7 +16,7 @@ import ForgotPassword from "./authForms/ForgetPassword.tsx";
 import KYCFarmer from "./authForms/KYCFarmer.tsx";
 import KYCInvestor from "./authForms/KYCInvestor.tsx";
 import OTPLogin from "./authForms/OTP.tsx";
-import ProjectDetails from "./Utils/ProjectDetails.tsx";
+import ProjectDetails from "./Dashboards/ProjectDetails.tsx";
 import ErrorPage from "./components/Error.tsx";
 
 

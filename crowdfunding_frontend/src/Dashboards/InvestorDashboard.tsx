@@ -8,7 +8,7 @@ import { useSelector, shallowEqual, useDispatch } from "react-redux";
 import { fetchUserKYC } from "../redux/KycSlice";
 import type { AppDispatch, RootState } from "../redux/store";
 import Loader from "../Utils/Loader";
-import Card from "./FarmerHome";
+import Card from "../Farmer/FarmerHome";
 import { API_URL } from "../Utils/constants";
 
 export interface Project {

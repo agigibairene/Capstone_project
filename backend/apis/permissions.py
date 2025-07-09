@@ -92,7 +92,8 @@ class IsVerifiedInvestor(permissions.BasePermission):
 
 class CanViewProject(permissions.BasePermission):
     """
-    Check if user can view project details based on their role and KYC status
+    Check if user can view project details based on their role and KYC status.
+    Farmers can only view their own projects.
     """
     message = "Permission denied to view project details."
     
@@ -101,13 +102,12 @@ class CanViewProject(permissions.BasePermission):
             self.message = "Authentication required."
             return False
         
-        # Check if user has profile
         if not hasattr(request.user, 'profile'):
             self.message = "User profile not found. Please complete your profile first."
             return False
         
         user_role = request.user.profile.role
-        
+
         # Investors can view projects if verified
         if user_role == 'Investor':
             if not hasattr(request.user, 'investor_kyc'):
@@ -119,7 +119,7 @@ class CanViewProject(permissions.BasePermission):
                 return False
             
             return True
-        
+
         elif user_role in ['Farmer', 'Student', 'Entrepreneur']:
             if request.method in permissions.SAFE_METHODS:
                 if view.action in ['retrieve', 'download_proposal']:
@@ -134,44 +134,37 @@ class CanViewProject(permissions.BasePermission):
                 return True
             
             return False
-        
+
         # Admin users can view all projects
         elif request.user.is_staff or request.user.is_superuser:
             return True
         
         self.message = "Invalid user role for this action."
         return False
-    
+
     def has_object_permission(self, request, view, obj):
         """
-        Object-level permission to check if user can view specific project
+        Object-level permission to check if user can view specific project.
+        Farmers can only view their own projects.
         """
         if not request.user.is_authenticated:
             return False
-        
-        # Admin can view all projects
+
+        # Admins can view everything
         if request.user.is_staff or request.user.is_superuser:
             return True
-        
-        # Project owner can always view their own project
-        if obj.farmer == request.user:
-            return True
-        
-        # For other users, check role-based permissions
+
         user_role = request.user.profile.role
-        
-        # Investors can view projects if verified
+
+        # Farmers can only view their own projects
+        if user_role in ['Farmer', 'Student', 'Entrepreneur']:
+            return obj.farmer == request.user
+
         if user_role == 'Investor':
             return (hasattr(request.user, 'investor_kyc') and 
-                   request.user.investor_kyc.is_verified)
-        
-        # Other farmers can view projects if verified
-        elif user_role in ['Farmer', 'Student', 'Entrepreneur']:
-            return (hasattr(request.user, 'farmer_kyc') and 
-                   request.user.farmer_kyc.is_verified)
-        
-        return False
+                    request.user.investor_kyc.is_verified)
 
+        return False
 
 class IsProjectOwner(permissions.BasePermission):
     """

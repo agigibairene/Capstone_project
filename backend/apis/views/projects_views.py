@@ -10,6 +10,7 @@ from ..models import  Project
 from ..serializers import  ProjectCreateSerializer, ProjectSerializer
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.http import FileResponse, Http404
+from django.db.models import Sum, Count
 
 
 # PROJECT VIEWS 
@@ -109,3 +110,42 @@ def search_projects(request):
     projects = projects.order_by('-created_at')
     serializer = ProjectSerializer(projects, many=True, context={'request': request})
     return Response(serializer.data)
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, IsVerifiedFarmer])
+def farmer_projects_sum(request):
+    """
+    Get the total sum of target amounts for all projects belonging to the authenticated farmer,
+    excluding rejected projects.
+    """
+    if not hasattr(request.user, 'profile') or request.user.profile.role != 'Farmer':
+        return Response(
+            {'success': False, 'error': 'User is not a farmer'}, 
+            status=status.HTTP_403_FORBIDDEN
+        )
+    
+    try:
+        # Calculate the total sum, excluding rejected projects
+        result = Project.objects.filter(
+            farmer=request.user
+        ).exclude(
+            status='rejected'
+        ).aggregate(
+            total_sum=Sum('target_amount'),
+            project_count=Count('id')
+        )
+        
+        return Response({
+            'success': True,
+            'total_amount_needed': result['total_sum'] or 0,
+            'project_count': result['project_count'] or 0,
+            'currency': 'USD'
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({
+            'success': False,
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

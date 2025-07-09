@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Minus, Eye, FileText, CheckCircle, Clock, XCircle, AlertCircle, Loader2 } from 'lucide-react';
-import { API_URL } from './constants';
+import { API_URL } from '../Utils/constants';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
@@ -31,6 +31,7 @@ export default function FarmerProjects() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const navigate = useNavigate()
 
+  console.log(projects)
   const API_ENDPOINTS = {
     allProjects: `${API_URL}/projects/`,
     farmerProjects: `${API_URL}/farmer/projects/`,
@@ -153,7 +154,7 @@ export default function FarmerProjects() {
   }
 
   return (
-    <div className="max-h-screen rounded-2xl bg-white/20 backdrop-blur-sm border w-[28rem] border-white/30 h-auto">
+    <div className="max-h-screen rounded-2xl bg-white/20 backdrop-blur-sm border w-full border-white/30 h-auto">
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-4">
         {sections.map((section, index) => {
           const isExpanded = selectedIndex === index;

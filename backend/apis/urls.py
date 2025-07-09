@@ -47,6 +47,7 @@ urlpatterns = [
     path('farmer/projects/', projects_views.farmer_projects, name='farmer-project-list'),
     path('media/proposals/watermarked/<str:filename>', projects_views.serve_watermarked_proposal),
     path('projects/search/', projects_views.search_projects, name='search_projects'),
+    path('projects/sum/', projects_views.farmer_projects_sum)
 
 ]
 
