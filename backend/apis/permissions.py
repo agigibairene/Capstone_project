@@ -120,11 +120,8 @@ class CanViewProject(permissions.BasePermission):
             
             return True
         
-        # Farmers can view their own projects and public project listings
         elif user_role in ['Farmer', 'Student', 'Entrepreneur']:
-            # For detailed project views, they need to be verified
             if request.method in permissions.SAFE_METHODS:
-                # Allow viewing project lists without KYC, but detailed views require KYC
                 if view.action in ['retrieve', 'download_proposal']:
                     if not hasattr(request.user, 'farmer_kyc'):
                         self.message = "KYC verification required to view detailed project information."

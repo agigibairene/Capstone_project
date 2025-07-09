@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import ProjectCard from "../Utils/ProjectCard";
 import Loader from "../Utils/Loader";
 
-// Updated Project interface to match your API response
 interface Project {
   id: string;
   title: string;
@@ -29,7 +28,7 @@ type Props = {
   forbidden: boolean,
   projects: Project[],
   error: string | null,
-  onProjectClick?: (project: Project) => void; // Add callback for project selection
+  onProjectClick?: (project: Project) => void; 
 }
 
 export default function AllProjects({loading, forbidden, projects, error, onProjectClick}: Props) {
@@ -39,8 +38,7 @@ export default function AllProjects({loading, forbidden, projects, error, onProj
     if (onProjectClick) {
       onProjectClick(project);
     } else {
-      // Default behavior - navigate to project details
-      navigate(`/projects/${project.id}`, { state: { project } });
+      navigate(`/projects/${project.id}`, { state: { project, role:"investor" } });
     }
   };
 

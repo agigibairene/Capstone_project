@@ -93,13 +93,9 @@ const routes = createBrowserRouter([
     element: <OTPLogin />
   },
   {
-    path: '/detailedpage',
-    element: <ProjectDetails />
+    path: '/projects/:id',
+    element: <ProjectDetails role={""} />
   },
-  {
-  path: '/projects/:id',
-  element: <ProjectDetails />
-  }
 ]);
 
 

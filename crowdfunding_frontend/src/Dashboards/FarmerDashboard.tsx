@@ -1,15 +1,14 @@
-// FarmerDashboard.tsx
 import { useEffect, useState, type JSX } from "react";
 import { Search } from "lucide-react";
 import SideBar from "../Utils/SideBar";
 import CreateProject from "../Farmer/CreateProject";
 import { farmerMenuItems } from "../data/data";
 import ChatBot from "../chatbot/ChatBot";
-import Card from './Card';
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import type { AppDispatch, RootState } from "../redux/store";
 import { fetchUserKYC } from "../redux/KycSlice";
 import Loader from "../Utils/Loader";
+import FarmerHome from "./FarmerHome";
 
 type MainContentMap = {
   [key: string]: JSX.Element;
@@ -35,7 +34,7 @@ export default function FarmerDashboard() {
   const initials = userKYC?.full_name?.split(" ").map((name: string) => name[0]).join("").toUpperCase() || "";
 
   const mainContent: MainContentMap = {
-    Dashboard: <Card />,
+    Dashboard: <FarmerHome />,
     "Create Project": <CreateProject />,
     ChatBot: <ChatBot />,
   };

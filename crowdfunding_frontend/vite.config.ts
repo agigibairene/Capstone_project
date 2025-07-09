@@ -16,6 +16,6 @@ export default defineConfig(({ mode }) => ({
       '.vercel.app',
       '.ondigitalocean.app'
     ],
-    hmr: false,
+    hmr: true,
   } : undefined,
 }));

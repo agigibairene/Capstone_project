@@ -87,7 +87,7 @@ class InvestorKYC(models.Model):
 
     is_verified = models.BooleanField(default=False)
     verification_date = models.DateTimeField(null=True, blank=True)
-    changes_allowed = models.BooleanField(default=False)  # New field to allow changes post-verification
+    changes_allowed = models.BooleanField(default=False)  
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -173,8 +173,9 @@ class FarmerKYC(models.Model):
 
         super().save(*args, **kwargs)
 
+    
     def __str__(self):
-        return f"KYC for {self.full_name}"
+        return f"KYC for {self.full_name} - {'Verified' if self.is_verified else 'Pending'}"
 
     class Meta:
         verbose_name = "Farmer KYC"
@@ -373,7 +374,7 @@ class Project(models.Model):
             except Project.DoesNotExist:
                 pass
 
-        super().save(*args, **kwargs)  # Save first to access file path
+        super().save(*args, **kwargs)  
 
         proposal_changed = (
             is_new or

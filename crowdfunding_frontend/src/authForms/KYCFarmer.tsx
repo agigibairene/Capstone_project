@@ -328,7 +328,7 @@ export default function KYCFarmer() {
                         onChange={handleChange}
                         className={selectClass}
                       >
-                        <option value="" disabled hidden>Select Occupation</option>
+                        <option value="" disabled>Select Occupation</option>
                         {['Student', 'Farmer', 'Entrepreneur', 'Other'].map((item) => (
                           <option key={item} value={item} className="text-gray-900 bg-white">
                             {item}

@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-interface ProjectDetailsProps {
+export interface ProjectDetailsProps {
   project?: {
     id: string;
     name: string;
@@ -26,17 +26,22 @@ interface ProjectDetailsProps {
     benefits: string;
     email: string;
   };
+  role: string
 }
 
-export default function ProjectDetails({ project: propProject }: ProjectDetailsProps) {
+export default function ProjectDetails({ project: propProject, role }: ProjectDetailsProps) {
   const [pdfError, setPdfError] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   const project = propProject || location.state?.project;
+  const backToDashboard = location.state?.from || (role === 'investor' ? '/investor' : '/farmer');
+  const handleBack = () => navigate(backToDashboard);
 
-  const handleDownload = () => {
+
+
+  function handleDownload(){
     if (project?.watermarked_proposal) {
       window.open(project.watermarked_proposal, '_blank');
     }
@@ -52,7 +57,7 @@ export default function ProjectDetails({ project: propProject }: ProjectDetailsP
             The project details could not be loaded.
           </p>
           <button
-            onClick={() => navigate('/investor')}
+            onClick={() =>navigate(role === 'investor'?'/investor': '/farmer')}
             className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
           >
             Back to Dashboard
@@ -79,7 +84,7 @@ export default function ProjectDetails({ project: propProject }: ProjectDetailsP
     <div className="flex flex-col h-screen bg-gray-400 text-white overflow-hidden">
       <div className="lg:hidden flex items-center justify-between p-4 bg-bgColor border-b border-gray-700">
         <button 
-          onClick={() => navigate('/investor')}
+          onClick={handleBack}
           className="p-2 bg-limeTxt cursor-pointer rounded-full transition-colors border border-gray-700"
           title="Go back"
         >
@@ -101,7 +106,7 @@ export default function ProjectDetails({ project: propProject }: ProjectDetailsP
       {/* Desktop Back Button */}
       <div className="hidden lg:block absolute top-4 left-4 z-20">
         <button 
-          onClick={() => navigate('/investor')}
+          onClick={handleBack}
           className="p-2 bg-limeTxt cursor-pointer rounded-full transition-colors border border-gray-700 hover:bg-opacity-90"
           title="Go back"
         >
@@ -166,10 +171,9 @@ export default function ProjectDetails({ project: propProject }: ProjectDetailsP
           {/* Project Details */}
           <div className="mb-6">
             <h3 className="text-sm font-medium mb-3 text-gray-300">Project Details</h3>
-            <div className="bg-gray-700 rounded-lg p-3 text-sm">
-              <div className="text-white font-medium mb-1 break-words">{project.name}</div>
+            <div className="bg-white rounded-lg p-3 text-sm">
+              <div className="text-bgColor font-medium mb-1 break-words">{project.farmer_name}</div>
               <div className="text-gray-400 mb-2 break-words">{project.title}</div>
-              <div className="text-xs text-gray-500 mb-3 break-words leading-relaxed">{project.brief}</div>
               <div className="flex flex-col gap-2">
                 <span className="text-emerald-400 font-medium text-lg">
                   ${parseFloat(project.target_amount).toLocaleString()}

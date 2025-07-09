@@ -20,9 +20,7 @@ export default function GrantsHeader(){
                     whileInView={{ opacity: 1, scale: 1}}
                     className="flex items-center gap-4"
                 >
-                    <i className="text-2xl text-white bi bi-house-heart"></i>
-                    <NavLink className="font-bold font-text text-xl text-white rounded-lg" to="/">Home</NavLink>
-                    
+                 <NavLink className="font-bold font-text border-0 outline-0 text-xl text-white rounded-lg" to="/">Home</NavLink>  
                 </motion.div>
 
             </nav>

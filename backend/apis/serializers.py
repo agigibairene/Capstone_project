@@ -9,7 +9,6 @@ from .models import InvestorKYC, FarmerKYC, KYCVerificationLog, Opportunity, Pro
 from .opportunities import schedule_opportunity_cleanup
 from .watermark import watermark_pdf
 import os
-import logging
 from django.conf import settings
 
 

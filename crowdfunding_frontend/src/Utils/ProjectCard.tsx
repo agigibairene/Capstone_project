@@ -53,7 +53,6 @@ export default function ProjectCard({
     if (onClick) {
       onClick();
     } else {
-      // Navigate to project details page
       navigate(`/projects/${id}`);
     }
   };

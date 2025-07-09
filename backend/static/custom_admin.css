@@ -1,38 +1,38 @@
 @import url('https://fonts.googleapis.com/css2?family=DynaPuff:wght@400..700&family=Outfit:wght@100..900&display=swap');
 body{
-    font-family: "Outfit", sans-serif;
-    background-color: #e2e6e4;
+  font-family: "Outfit", sans-serif;
+  background-color: #e2e6e4;
 }
 
 .wrapper{
-    font-family: "Outfit", sans-serif;
+  font-family: "Outfit", sans-serif;
 }
 
 aside.main-sidebar{
-    background-color: #032B22;
-    color: white !important;
+  background-color: #032B22;
+  color: white !important;
 }
 
 .nav-sidebar > .nav-item > .nav-link.active {
-    background-color: #C9FF30 !important;
-    color: #032B22 !important;
-    font-weight: 600 !important;
+  background-color: #C9FF30 !important;
+  color: #032B22 !important;
+  font-weight: 600 !important;
 }
 
 .btn.btn-success.float-right{
-    background-color: #032B22;
-    color: #C9FF30;
+  background-color: #032B22;
+  color: #C9FF30;
 }
 
 .btn.btn-primary{
-    background-color: #032B22;
-    border: none;
-    outline: none;
+  background-color: #032B22;
+  border: none;
+  outline: none;
 }
 
 .card{
-    border-radius: 0.5rem;
-    background-color: #fff;
+  border-radius: 0.5rem;
+  background-color: #fff;
 }
 
 .accent-primary .btn-link,
@@ -50,45 +50,55 @@ aside.main-sidebar{
 }
 
 .btn.btn-xs.btn-success.addlink{
-    background-color: #032B22;
-    color: #C9FF30;
+  background-color: #2b6777;
+  color: #C9FF30;
 }
 
 .btn.btn-xs.btn-info.changelink{
-    background-color: teal;
-    color: white;
+  border-color: #00796B;
+  background: transparent;
+  color: #032B22;
 }
 
 .d-block.active{
-    color: white !important;
+  color: white !important;
 }
 
 .info .d-block{
-    color: #C9FF30 !important;
-    font-weight: 700;
-    font-size: 1.1rem;
+  color: #C9FF30 !important;
+  font-weight: 700;
+  font-size: 1.1rem;
 }
 
 .nav-header{
-    color: white !important;
+  color: white !important;
 }
 
 .btn.btn-success.form-control{
-    background-color: #032B22;
-    color: #C9FF30;
+  background-color: #032B22;
+  color: #C9FF30;
 }
 
 .btn.btn-danger.form-control{
-    background-color: red;
-    color: white;
+  background-color: red;
+  color: white;
 }
 
 .btn.btn-info.form-control{
-    background-color: teal;
-    color: white;
+  background-color: teal;
+  color: white;
 }
 
 .brand-text.font-weight-light{
-    font-family: "DynaPuff", system-ui;
-    color: white !important;
+  font-family: "DynaPuff", system-ui;
+  color: white !important;
+}
+
+.login-logo img {
+  width: 3rem;
+  height: 3rem;
+}
+
+.row .btn.btn-primary.btn-block{
+  color: #C9FF30;
 }

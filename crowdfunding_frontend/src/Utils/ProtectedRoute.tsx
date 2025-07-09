@@ -78,8 +78,7 @@ export default function ProtectedRoute({ children, userRole }: Props) {
       if (!access) {
         const refreshed = await refreshAccessToken();
         if (refreshed === 'expired') {
-          console.log('Session expired. Redirecting to home.');
-          navigate('/', { replace: true });
+          navigate('/login', { replace: true });
           return;
         }
         access = refreshed;

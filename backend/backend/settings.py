@@ -219,4 +219,21 @@ JAZZMIN_SETTINGS = {
     "welcome_sign": "Welcome to the Agriconnect",
     "copyright": "Agriconnect",
     "custom_css": "custom_admin.css", 
+    "icons": {
+        "apis.farmerkyc": "fa-solid fa-tractor",
+        "apis.investorkyc": "fas fa-briefcase",
+        "apis.kycverificationlog": "fas fa-check-circle",
+        "apis.opportunity": "fas fa-seedling",
+        "apis.passwordreset": "fas fa-key",  
+        "apis.project": "fa-solid fa-folder-open",
+        "apis.userprofile": "fas fa-address-card",
+         "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+    },
+    "related_modal_active": False,
 }
+
+
+
+X_FRAME_OPTIONS = 'SAMEORIGIN'

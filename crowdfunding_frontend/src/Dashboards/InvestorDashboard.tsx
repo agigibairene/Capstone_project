@@ -8,7 +8,7 @@ import { useSelector, shallowEqual, useDispatch } from "react-redux";
 import { fetchUserKYC } from "../redux/KycSlice";
 import type { AppDispatch, RootState } from "../redux/store";
 import Loader from "../Utils/Loader";
-import Card from "./Card";
+import Card from "./FarmerHome";
 import { API_URL } from "../Utils/constants";
 
 export interface Project {
@@ -47,9 +47,9 @@ export default function InvestorDashboard(){
     const [forbidden, setForbidden] = useState(false);
 
     useEffect(() => {
-        if (!kycData) {
-          dispatch(fetchUserKYC());
-        }
+      if (!kycData) {
+        dispatch(fetchUserKYC());
+      }
     }, [dispatch, kycData]);
 
     useEffect(() => {
@@ -116,7 +116,6 @@ export default function InvestorDashboard(){
 
                 {/* Main Content */}
                  <div className="flex-1 ml-72">
-                    {/* Header - Only show when Dashboard is selected */}
                     {activeItem === "Dashboard" && (
                         <header className="rounded-lg backdrop-blur-lg border-b border-white/30 p-6">
                             <div className="flex items-center justify-between">
