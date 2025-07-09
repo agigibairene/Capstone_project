@@ -24,14 +24,13 @@ export interface Project {
   watermarked_proposal: string;
 }
 
-export default function FarmerProjects() {
+export default function FarmerProjectsAccordion() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const navigate = useNavigate()
 
-  console.log(projects)
   const API_ENDPOINTS = {
     allProjects: `${API_URL}/projects/`,
     farmerProjects: `${API_URL}/farmer/projects/`,

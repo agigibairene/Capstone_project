@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux';
 import type { RootState } from '../redux/store';
 import { API_URL } from '../Utils/constants';
-import FarmerProjects from './FarmerProject';
+import FarmerProjectsAccordion from './FarmerProjectAccordion';
 import TotalAmount from './TotalAmount';
 
 export default function FarmerHome() {
@@ -43,6 +43,7 @@ export default function FarmerHome() {
   }
 
   const user = kycData.kyc;
+
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -125,8 +126,8 @@ export default function FarmerHome() {
         </div>
 
         <div className="xl:col-span-2 space-y-6 lg:space-y-8">
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-white/20">
-            <FarmerProjects />
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-6 h-auto border border-white/20">
+            <FarmerProjectsAccordion />
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-white/20">
             <TotalAmount />
