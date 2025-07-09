@@ -194,7 +194,11 @@ EMAIL_HOST_PASSWORD=os.getenv('EMAIL_HOST_PASSWORD')
 
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+    BASE_DIR / 'media', 
+
+]
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
@@ -237,3 +241,8 @@ JAZZMIN_SETTINGS = {
 
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = True
+
+WHITENOISE_ROOT = MEDIA_ROOT

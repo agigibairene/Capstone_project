@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useNavigate } from "react-router-dom";
-import ProjectCard from "../Utils/ProjectCard";
+import ProjectCard from "./ProjectCard";
 import Loader from "../Utils/Loader";
 
 interface Project {

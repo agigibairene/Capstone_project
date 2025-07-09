@@ -1,0 +1,31 @@
+# .do/app.yaml or app spec configuration
+name: agriconnect
+services:
+- name: web
+  source_dir: /backend
+  github:
+    repo: https://github.com/agigibairene/Capstone_project
+    branch: main
+  run_command: gunicorn --worker-tmp-dir /dev/shm backend.wsgi
+  environment_slug: python
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  envs:
+  - key: DEBUG
+    value: "False"
+  - key: SECRET_KEY
+    value: "your-secret-key"
+  - key: DATABASE_URL
+    value: "your-database-url"
+  # Add other environment variables
+  
+  # Configure static and media file serving
+  static_sites:
+  - name: static
+    source_dir: /staticfiles
+    routes:
+    - path: /static
+  - name: media
+    source_dir: /media
+    routes:
+    - path: /media
