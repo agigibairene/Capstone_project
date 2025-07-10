@@ -255,4 +255,5 @@ AWS_S3_ENDPOINT_URL = 'https://sgp1.digitaloceanspaces.com'
 AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
 AWS_LOCATION = 'media' 
 DEFAULT_FILE_STORAGE = 'backend.storage_backends.MediaStorage'
-MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/media/'
+MEDIA_URL = 'https://sgp1.digitaloceanspaces.com/agriconnect-storage/media/'
+
