@@ -251,9 +251,9 @@ import os
 AWS_ACCESS_KEY_ID = os.environ.get('SPACES_KEY')
 AWS_SECRET_ACCESS_KEY = os.environ.get('SPACES_SECRET')
 AWS_STORAGE_BUCKET_NAME = 'agriconnect-storage'  
-AWS_S3_ENDPOINT_URL = 'https://sgp1.digitaloceanspaces.com'
+AWS_S3_ENDPOINT_URL = 'https://agriconnect-storage.sgp1.digitaloceanspaces.com'
 AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
 AWS_LOCATION = 'media' 
 DEFAULT_FILE_STORAGE = 'backend.storage_backends.MediaStorage'
-MEDIA_URL = 'https://sgp1.digitaloceanspaces.com/agriconnect-storage/media/'
+MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_LOCATION}/'
 
