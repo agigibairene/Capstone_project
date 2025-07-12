@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Plus, Minus, Eye, FileText, CheckCircle, Clock, XCircle, AlertCircle, Loader2 } from 'lucide-react';
-import { API_URL } from '../Utils/constants';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
@@ -24,47 +23,18 @@ export interface Project {
   watermarked_proposal: string;
 }
 
-export default function FarmerProjectsAccordion() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface Props{
+  projects: Project[]
+  projectLoading: boolean,
+  projectError: string | null,
+  fetchProjects: ()=>void
+}
+
+export default function FarmerProjectsAccordion({ projects, projectLoading, projectError, fetchProjects} : Props) {
+
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const navigate = useNavigate()
 
-  const API_ENDPOINTS = {
-    allProjects: `${API_URL}/projects/`,
-    farmerProjects: `${API_URL}/farmer/projects/`,
-  };
-
-  useEffect(() => {
-    fetchProjects();
-  }, []);
-
-  const fetchProjects = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const token = localStorage.getItem('ACCESS_TOKEN');
-      const headers = {
-        'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` })
-      };
-
-      let response = await fetch(API_ENDPOINTS.farmerProjects, { headers });
-      if (!response.ok) {
-        response = await fetch(API_ENDPOINTS.allProjects, { headers });
-      }
-
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      const data = await response.json();
-      const projectsData = Array.isArray(data) ? data : (data.data || data.results || []);
-      setProjects(projectsData);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch projects');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   function getStatusIcon(status: string){
     switch (status?.toLowerCase()) {
@@ -84,8 +54,9 @@ export default function FarmerProjectsAccordion() {
     }
   };
 
-  const filterProjectsByStatus = (status: string) =>
-    projects.filter(p => p.status?.toLowerCase() === status.toLowerCase());
+  function filterProjectsByStatus(status: string){
+    return projects.filter(p => p.status?.toLowerCase() === status.toLowerCase());
+  }
 
   const sections = [
     {
@@ -127,7 +98,7 @@ export default function FarmerProjectsAccordion() {
     },
   ];
 
-  if (loading) {
+  if (projectLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-limeTxt" />
@@ -135,12 +106,12 @@ export default function FarmerProjectsAccordion() {
     );
   }
 
-  if (error) {
+  if (projectError) {
     return (
       <div className="min-h-screen flex items-center justify-center text-center">
         <div>
           <XCircle className="w-8 h-8 text-red-500 mx-auto mb-4" />
-          <p className="text-red-600 mb-4">Error loading projects: {error}</p>
+          <p className="text-red-600 mb-4">Error loading projects: {projectError}</p>
           <button
             onClick={fetchProjects}
             className="px-4 py-2 bg-bgColor text-limeTxt rounded-lg"

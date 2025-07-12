@@ -40,7 +40,6 @@ export default function ProjectDetails({ project: propProject, role }: ProjectDe
   const handleBack = () => navigate(backToDashboard);
 
 
-
   function handleDownload(){
     if (project?.watermarked_proposal) {
       window.open(project.watermarked_proposal, '_blank');

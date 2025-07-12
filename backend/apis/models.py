@@ -420,9 +420,6 @@ class Project(models.Model):
 
 
 
-    # myapp/models.py
-    from django.db import models
-
 class MyModel(models.Model):
     image = models.ImageField(upload_to='images/') 
     document = models.FileField(upload_to='documents/') 

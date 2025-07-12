@@ -3,11 +3,54 @@ import type { RootState } from '../redux/store';
 import { API_URL } from '../Utils/constants';
 import FarmerProjectsAccordion from './FarmerProjectAccordion';
 import TotalAmount from './TotalAmount';
+import { useEffect, useState } from 'react';
+import type { Project } from './FarmerProjectAccordion';
 
 export default function FarmerHome() {
-  const { kycData, role, loading, error } = useSelector(
-    (state: RootState) => state.kycReducer
-  );
+  const { kycData, role, loading, error } = useSelector((state: RootState) => state.kycReducer);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [projectLoading, setLoading] = useState(true);
+  const [projectError, setError] = useState<string | null>(null);
+
+  const API_ENDPOINTS = {
+    allProjects: `${API_URL}/projects/`,
+    farmerProjects: `${API_URL}/farmer/projects/`,
+  };
+
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const fetchProjects = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const token = localStorage.getItem('ACCESS_TOKEN');
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` })
+      };
+
+      let response = await fetch(API_ENDPOINTS.farmerProjects, { headers });
+      if (!response.ok) {
+        response = await fetch(API_ENDPOINTS.allProjects, { headers });
+      }
+
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      const projectsData = Array.isArray(data) ? data : (data.data || data.results || []);
+      setProjects(projectsData);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch projects');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  function filterProjectsByStatus(status: string){
+    return projects.filter(p => p.status?.toLowerCase() === status.toLowerCase());
+  }
 
   if (loading) {
     return (
@@ -43,12 +86,43 @@ export default function FarmerHome() {
   }
 
   const user = kycData.kyc;
+  
+  const sections = [
+    {
+      title: 'Approved',
+      count: filterProjectsByStatus('approved').length,
+      status: 'approved',
+      bgColor: 'text-limeTxt/80',
+      textColor: 'text-green-400',
+    },
+    {
+      title: 'Pending',
+      count: filterProjectsByStatus('pending').length,
+      status: 'pending',
+      bgColor: 'text-limeTxt/80',
+      textColor: 'text-yellow-400',
+    },
+    {
+      title: 'Rejected',
+      count: filterProjectsByStatus('rejected').length,
+      status: 'rejected',
+      bgColor: 'text-limeTxt/80',
+      textColor: 'text-red-400',
+    },
+    {
+      title: 'Approved',
+      count: filterProjectsByStatus('approved').length,
+      status: 'approved',
+      bgColor: 'text-limeTxt/80',
+      textColor: 'text-blue-400',
+    },
+  ];
+
 
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
-        {/* Left Column - Profile and Stats */}
         <div className="space-y-6 lg:space-y-8 xl:col-span-1">
           {/* Profile Card */}
           <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-white/30 hover:bg-white/25 transition-all duration-300">
@@ -100,26 +174,22 @@ export default function FarmerHome() {
                 <h3 className="text-base sm:text-lg font-medium text-limeTxt mb-1 sm:mb-2">
                   Total Projects
                 </h3>
-                <p className="text-xl sm:text-2xl font-bold text-white">1 project</p>
+                <p className="text-xl sm:text-2xl font-bold text-white">{projects.length} project</p>
               </div>
               
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                <div className="bg-white/10 rounded-lg p-3 sm:p-4 text-center">
-                  <h4 className="text-xs sm:text-sm text-limeTxt/80 mb-1">Approved</h4>
-                  <p className="text-lg sm:text-xl font-bold text-green-400">1</p>
-                </div>
-                <div className="bg-white/10 rounded-lg p-3 sm:p-4 text-center">
-                  <h4 className="text-xs sm:text-sm text-limeTxt/80 mb-1">Pending</h4>
-                  <p className="text-lg sm:text-xl font-bold text-yellow-400">0</p>
-                </div>
-                <div className="bg-white/10 rounded-lg p-3 sm:p-4 text-center">
-                  <h4 className="text-xs sm:text-sm text-limeTxt/80 mb-1">Rejected</h4>
-                  <p className="text-lg sm:text-xl font-bold text-red-400">0</p>
-                </div>
-                <div className="bg-white/10 rounded-lg p-3 sm:p-4 text-center">
-                  <h4 className="text-xs sm:text-sm text-limeTxt/80 mb-1">Active</h4>
-                  <p className="text-lg sm:text-xl font-bold text-blue-400">1</p>
-                </div>
+                {
+                  sections.map((section)=>{
+                    const {title, count, status, bgColor, textColor} = section;
+                    return(
+                      <div key={status} className="bg-white/10 rounded-lg p-3 sm:p-4 text-center">
+                        <h4 className={`text-xs sm:text-sm ${bgColor} mb-1`}>{title}</h4>
+                        <p className={`text-lg sm:text-xl font-bold ${textColor}`}>{count}</p>
+                      </div>
+                    )
+                  })
+                }
+               
               </div>
             </div>
           </div>
@@ -127,7 +197,12 @@ export default function FarmerHome() {
 
         <div className="xl:col-span-2 space-y-6 lg:space-y-8">
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-6 h-auto border border-white/20">
-            <FarmerProjectsAccordion />
+            <FarmerProjectsAccordion 
+              projectError={projectError} 
+              projectLoading={projectLoading} 
+              projects={projects}
+              fetchProjects={fetchProjects}
+            />
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-white/20">
             <TotalAmount />
