@@ -27,6 +27,16 @@ export default function TotalAmount() {
       const response = await fetch(`${API_URL}/projects/sum/`, { headers });
       
       if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          const defaultData: TotalAmountData = {
+            total_amount_needed: 0,
+            project_count: 0,
+            currency: 'USD'
+          };
+          setData(defaultData);
+          setError(null);
+          return;
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
@@ -45,7 +55,22 @@ export default function TotalAmount() {
       setData(processedData);
     } catch (err) {
       console.error('Error fetching total amount:', err);
-      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      
+      // Check if it's a verification error or similar
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      if (errorMessage.includes('403') || errorMessage.includes('401') || 
+          errorMessage.includes('verification') || errorMessage.includes('not verified')) {
+        // Show 0 values instead of error for verification issues
+        const defaultData: TotalAmountData = {
+          total_amount_needed: 0,
+          project_count: 0,
+          currency: 'USD'
+        };
+        setData(defaultData);
+        setError(null);
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
@@ -93,8 +118,8 @@ export default function TotalAmount() {
     );
   }
 
-  const fundedAmount =  0;
-  const remainingAmount =  0;
+  const fundedAmount = 0;
+  const remainingAmount = 0;
 
   return (
     <div className="bg-white/20 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 p-6 max-w-md mx-auto hover:shadow-xl transition-shadow duration-300">
@@ -133,8 +158,6 @@ export default function TotalAmount() {
           <p className="text-xs text-white">Remaining</p>
         </div>
       </div>
-
-      
     </div>
   );
 }

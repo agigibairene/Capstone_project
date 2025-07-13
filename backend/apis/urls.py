@@ -48,7 +48,6 @@ urlpatterns = [
     path('media/proposals/watermarked/<str:filename>', projects_views.serve_watermarked_proposal),
     path('projects/search/', projects_views.search_projects, name='search_projects'),
     path('projects/sum/', projects_views.farmer_projects_sum),
-    path('projects/deadline', projects_views.projects_closer_deadlines),
-    path('projects/budget', projects_views.projects_within_investor_budget)
+    path('projects/recommended/', projects_views.get_recommended_projects, name='recommended-projects'),
 ]
 

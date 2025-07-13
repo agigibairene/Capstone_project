@@ -152,44 +152,42 @@ def farmer_projects_sum(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated, CanViewProject])
-def projects_within_investor_budget(request):
-    """
-    List approved projects that fall within the investor's annual income.
-    """
-    # Get the investor's KYC
-    kyc = get_object_or_404(InvestorKYC, user=request.user)
-
-    # Ensure the KYC is verified
-    if not kyc.is_verified:
-        return Response({"detail": "KYC not verified."}, status=403)
-
-    # Filter projects
-    projects = Project.objects.filter(
-        status='approved',
-        target_amount__lte=kyc.annual_income
-    ).order_by('-created_at')
-
-    serializer = ProjectSerializer(projects, many=True, context={'request': request})
-    return Response(serializer.data)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, CanViewProject])
-def projects_closer_deadlines(request):
-    """
-    List approved projects whose deadlines are within the next 5 days.
-    """
+def get_recommended_projects(request):
+    user = request.user
     today = timezone.now().date()
-    five_days_from_now = today + timedelta(days=5)
+    deadline_cutoff = today + timedelta(days=5)
 
-    projects = Project.objects.filter(
+    try:
+        kyc = InvestorKYC.objects.get(user=user, is_verified=True)
+        annual_income = kyc.annual_income
+    except InvestorKYC.DoesNotExist:
+        return Response({
+            "success": False,
+            "message": "Investor KYC not found or not verified."
+        }, status=status.HTTP_403_FORBIDDEN)
+
+    # Separate filters
+    projects_due_soon = Project.objects.filter(
         status='approved',
-        deadline__gte=today,
-        deadline__lte=five_days_from_now
+        deadline__range=[today, deadline_cutoff]
     ).order_by('deadline')
 
-    serializer = ProjectSerializer(projects, many=True, context={'request': request})
-    return Response(serializer.data)
+    projects_within_budget = Project.objects.filter(
+        status='approved',
+        target_amount__lte=annual_income
+    ).order_by('deadline')
 
+    # Serialize separately
+    due_soon_serialized = ProjectSerializer(projects_due_soon, many=True, context={'request': request})
+    within_budget_serialized = ProjectSerializer(projects_within_budget, many=True, context={'request': request})
+
+    return Response({
+        "success": True,
+        "message": "Projects fetched successfully.",
+        "projects_due_soon": due_soon_serialized.data,
+        "projects_within_budget": within_budget_serialized.data
+    }, status=status.HTTP_200_OK)

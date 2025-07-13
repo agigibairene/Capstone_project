@@ -17,7 +17,6 @@ export default function FarmerHome() {
     farmerProjects: `${API_URL}/farmer/projects/`,
   };
 
-
   useEffect(() => {
     fetchProjects();
   }, []);
@@ -37,12 +36,28 @@ export default function FarmerHome() {
         response = await fetch(API_ENDPOINTS.allProjects, { headers });
       }
 
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.ok) {
+        // Check if it's a verification/authentication error
+        if (response.status === 401 || response.status === 403) {
+          // Farmer not verified - show 0 values instead of error
+          setProjects([]);
+          setError(null);
+          return;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
       const projectsData = Array.isArray(data) ? data : (data.data || data.results || []);
       setProjects(projectsData);
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch projects');
+      if (err.message.includes('403') || err.message.includes('401') || 
+        err.message.includes('verification') || err.message.includes('not verified')) {
+        setProjects([]);
+        setError(null);
+      } else {
+        setError(err.message || 'Failed to fetch projects');
+      }
     } finally {
       setLoading(false);
     }
@@ -93,7 +108,7 @@ export default function FarmerHome() {
       count: filterProjectsByStatus('approved').length,
       status: 'approved',
       bgColor: 'text-limeTxt/80',
-      textColor: 'text-green-400',
+      textColor: 'text-blue-400',
     },
     {
       title: 'Pending',
@@ -110,15 +125,13 @@ export default function FarmerHome() {
       textColor: 'text-red-400',
     },
     {
-      title: 'Approved',
+      title: 'Active',
       count: filterProjectsByStatus('approved').length,
       status: 'approved',
       bgColor: 'text-limeTxt/80',
       textColor: 'text-blue-400',
     },
   ];
-
-
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -179,10 +192,10 @@ export default function FarmerHome() {
               
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 {
-                  sections.map((section)=>{
-                    const {title, count, status, bgColor, textColor} = section;
+                  sections.map((section, index)=>{
+                    const {title, count, bgColor, textColor} = section;
                     return(
-                      <div key={status} className="bg-white/10 rounded-lg p-3 sm:p-4 text-center">
+                      <div key={index} className="bg-white/10 rounded-lg p-3 sm:p-4 text-center">
                         <h4 className={`text-xs sm:text-sm ${bgColor} mb-1`}>{title}</h4>
                         <p className={`text-lg sm:text-xl font-bold ${textColor}`}>{count}</p>
                       </div>

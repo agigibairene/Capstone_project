@@ -48,7 +48,7 @@ export default function ProjectDetails({ project: propProject, role }: ProjectDe
 
   if (!project) {
     return (
-      <div className="flex flex-col h-screen bg-gray-400 text-white items-center justify-center">
+      <div className="flex flex-col font-Outfit h-screen bg-white text-white items-center justify-center">
         <div className="text-center px-4 max-w-md">
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h3 className="text-xl font-semibold mb-2">Project Not Found</h3>
@@ -57,7 +57,7 @@ export default function ProjectDetails({ project: propProject, role }: ProjectDe
           </p>
           <button
             onClick={() =>navigate(role === 'investor'?'/investor': '/farmer')}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
+            className="px-4 py-2 bg-bgColor hover:bg-emerald-700 text-limeTxt rounded-lg transition-colors"
           >
             Back to Dashboard
           </button>
@@ -84,7 +84,7 @@ export default function ProjectDetails({ project: propProject, role }: ProjectDe
       <div className="lg:hidden flex items-center justify-between p-4 bg-bgColor border-b border-gray-700">
         <button 
           onClick={handleBack}
-          className="p-2 bg-limeTxt cursor-pointer rounded-full transition-colors border border-gray-700"
+          className="p-2 bg-limeTxt cursor-pointer rounded-full transition-colors outline-0 border-gray-700"
           title="Go back"
         >
           <ArrowLeft className="w-6 h-6 text-bgColor" />
