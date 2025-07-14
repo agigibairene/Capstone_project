@@ -71,26 +71,6 @@ def signup_view(request):
                         )
                         logger.info(f"Created profile for user {user.email}: {profile}")
                     
-                    # Send email notification to admin when a new user sign's up
-                    try:
-                        subject = "New User Registration"
-                        msg = (
-                            f"A new user has signed up:\n\n"
-                            f"Name: {user.first_name} {user.last_name}\n"
-                            f"Email: {user.email}\n"
-                            f"Role: {profile.role}\n"
-                            f"Phone: {profile.phone_number}"
-                        )
-                        email = EmailMessage(
-                            subject, 
-                            msg, 
-                            settings.EMAIL_HOST_USER,
-                            [settings.EMAIL_HOST_USER]
-                        )
-                        email.send(fail_silently=False)
-                    except Exception as email_error:
-                        logger.warning(f"Failed to send admin notification: {str(email_error)}")
-                    
                     # Generate tokens
                     refresh = RefreshToken.for_user(user)
                     

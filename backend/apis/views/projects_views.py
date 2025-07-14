@@ -1,4 +1,6 @@
+from email.message import EmailMessage
 import os
+from venv import logger
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -17,6 +19,20 @@ from django.utils import timezone
 
 # PROJECT VIEWS 
 
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from django.core.mail import EmailMessage
+from django.conf import settings
+import logging
+
+from apis.permissions import IsVerifiedFarmer
+from apis.serializers import ProjectCreateSerializer, ProjectSerializer
+from ..models import Profile  
+
+logger = logging.getLogger(__name__)
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, IsVerifiedFarmer])
 def create_project(request):
@@ -27,18 +43,45 @@ def create_project(request):
         serializer = ProjectCreateSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             project = serializer.save(farmer=request.user)
+
+            try:
+                # Optionally get user profile and role
+                profile = getattr(request.user, 'profile', None)
+
+                subject = "📢 New Project Created by Farmer"
+                msg = (
+                    f"A new project has been created:\n\n"
+                    f"Farmer Name: {request.user.first_name} {request.user.last_name}\n"
+                    f"Email: {request.user.email}\n"
+                    f"Project Title: {project.title}\n"
+                    f"Phone: {profile.phone_number}"
+                    f"Project ID: {project.id}\n"
+                )
+
+                email = EmailMessage(
+                    subject,
+                    msg,
+                    settings.EMAIL_HOST_USER,
+                    [settings.EMAIL_HOST_USER],  
+                )
+                email.send(fail_silently=False)
+
+            except Exception as email_error:
+                logger.warning(f"Failed to send admin notification: {str(email_error)}")
+
             return Response({
                 'success': True,
                 'message': 'Project created successfully',
                 'data': ProjectSerializer(project, context={'request': request}).data
             }, status=status.HTTP_201_CREATED)
-        
+
         return Response({
             'success': False,
             'errors': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
-    
+
     except Exception as e:
+        logger.exception("Error in create_project")
         return Response({
             'success': False,
             'message': f'Error creating project: {str(e)}'
