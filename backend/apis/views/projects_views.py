@@ -1,6 +1,5 @@
-from email.message import EmailMessage
+from django.core.mail import EmailMessage
 import os
-from venv import logger
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -15,20 +14,8 @@ from django.http import FileResponse, Http404
 from django.db.models import Sum, Count
 from datetime import timedelta
 from django.utils import timezone
-
-
-# PROJECT VIEWS 
-
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status
-from django.core.mail import EmailMessage
-from django.conf import settings
 import logging
 
-from apis.permissions import IsVerifiedFarmer
-from apis.serializers import ProjectCreateSerializer, ProjectSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +40,7 @@ def create_project(request):
                     f"Farmer Name: {request.user.first_name} {request.user.last_name}\n"
                     f"Email: {request.user.email}\n"
                     f"Project Title: {project.title}\n"
-                    f"Phone: {profile.phone_number}"
+                    f"Phone: {profile.phone_number}\n"
                     f"Project ID: {project.id}\n"
                 )
 

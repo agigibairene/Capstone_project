@@ -1,4 +1,4 @@
-from email.message import EmailMessage
+from django.core.mail import EmailMessage
 import logging
 from django.conf import settings
 from django.shortcuts import get_object_or_404
@@ -53,7 +53,7 @@ def submit_investor_kyc(request):
                     f"A new Investor KYC has been submitted:\n\n"
                     f"Name: {request.user.first_name} {request.user.last_name}\n"
                     f"Email: {request.user.email}\n"
-                    f"Phone: {request.phone_number}"
+                    f"Phone: {kyc.phone_number}\n"
                     f"Role: {request.user.profile.role}\n"
                 )
                 email = EmailMessage(subject, msg, settings.EMAIL_HOST_USER, [settings.EMAIL_HOST_USER])
@@ -77,8 +77,6 @@ def submit_investor_kyc(request):
             'success': False,
             'message': f'Error submitting KYC: {str(e)}'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        
 
 
 @api_view(['POST'])
@@ -150,7 +148,7 @@ def submit_farmer_kyc(request):
                             f"A new Farmer KYC has been submitted:\n\n"
                             f"Name: {user.first_name} {user.last_name}\n"
                             f"Email: {user.email}\n"
-                            f"Phone: {request.phone_number}"
+                            f"Phone: {kyc.phone_number}"
                             f"Role: {user.profile.role}\n"
                             f"KYC ID: {kyc.id}\n"
                         )
