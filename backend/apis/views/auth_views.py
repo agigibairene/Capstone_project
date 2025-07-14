@@ -1,7 +1,7 @@
 from datetime import timedelta
 import json
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import authenticate, logout, get_user_model
@@ -29,18 +29,28 @@ logger = logging.getLogger(__name__)
 User = get_user_model()
 
 def home(request):
-    return JsonResponse({"message": "Welcome to AgriConnect API!"})
+    return JsonResponse({"message": "Welcome to Agriconnect API!"})
 
-@csrf_exempt  
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework import status
+from django.views.decorators.csrf import csrf_exempt
+from django.db import transaction
+from django.core.mail import EmailMessage
+from django.conf import settings
+import traceback
+import json
+import logging
+
+logger = logging.getLogger(__name__)
+
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def signup_view(request):
-    """User registration endpoint"""
-    try:
-        logger.info(f"Request method: {request.method}")
-        logger.info(f"Request path: {request.path}")
-        logger.info(f"Signup attempt with data: {request.data}")
-        
+    """User signup view"""
+    try:    
         data = request.data if hasattr(request, 'data') else json.loads(request.body)
         
         serializer = UserSignUpSerializer(data=data)
@@ -60,6 +70,26 @@ def signup_view(request):
                             investor_type=data.get('investor_type', '')
                         )
                         logger.info(f"Created profile for user {user.email}: {profile}")
+                    
+                    # Send email notification to admin when a new user sign's up
+                    try:
+                        subject = "New User Registration"
+                        msg = (
+                            f"A new user has signed up:\n\n"
+                            f"Name: {user.first_name} {user.last_name}\n"
+                            f"Email: {user.email}\n"
+                            f"Role: {profile.role}\n"
+                            f"Phone: {profile.phone_number}"
+                        )
+                        email = EmailMessage(
+                            subject, 
+                            msg, 
+                            settings.EMAIL_HOST_USER,
+                            [settings.EMAIL_HOST_USER]
+                        )
+                        email.send(fail_silently=False)
+                    except Exception as email_error:
+                        logger.warning(f"Failed to send admin notification: {str(email_error)}")
                     
                     # Generate tokens
                     refresh = RefreshToken.for_user(user)
@@ -142,7 +172,6 @@ def login_view(request):
                                                     
                         if not hasattr(settings, 'EMAIL_HOST_USER') or not settings.EMAIL_HOST_USER:
                             logger.warning("EMAIL_HOST_USER not configured, skipping email send")
-                            logger.info(f"DEV MODE - OTP for {user.email}: {otp.otp_code}")
                         else:
                             email_message = EmailMessage(
                                 "Login Verification - OTP",
@@ -601,3 +630,5 @@ def update_profile_view(request):
             'errors': {'general': 'User profile not found'}
         }, status=status.HTTP_404_NOT_FOUND)
 
+
+# ADMINISTRATOR

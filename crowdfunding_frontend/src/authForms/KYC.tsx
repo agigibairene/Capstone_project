@@ -68,7 +68,6 @@ export default function KYC({ children }: { children: React.ReactNode }) {
           navigate('/login');
         }
       } else {
-        console.error('KYC: No valid role found after successful submission');
         localStorage.removeItem('ACCESS_TOKEN');
         localStorage.removeItem('REFRESH_TOKEN');
         localStorage.removeItem('role');
@@ -77,16 +76,6 @@ export default function KYC({ children }: { children: React.ReactNode }) {
     }
   }, [user, navigate, loading, location.pathname, error, success]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Processing KYC submission...</p>
-        </div>
-      </div>
-    );
-  }
-
+ 
   return <>{children}</>;
 }

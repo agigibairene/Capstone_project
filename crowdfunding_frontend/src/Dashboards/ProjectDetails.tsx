@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Download,
   Calendar,
@@ -7,7 +8,6 @@ import {
   AlertCircle,
   ArrowLeft
 } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
 
 export interface ProjectDetailsProps {
   project?: {

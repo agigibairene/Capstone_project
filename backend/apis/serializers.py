@@ -316,7 +316,7 @@ class FarmerKYCSerializer(serializers.ModelSerializer):
     def validate_id_document(self, value):
         """Check size and format of ID document"""
         if value:
-            if value.size > 5 * 1024 * 1024:
+            if value.size > 20 * 1024 * 1024:
                 raise serializers.ValidationError("ID document file size must be less than 5MB.")
             allowed_extensions = ['.pdf', '.jpg', '.jpeg', '.png']
             if not any(value.name.lower().endswith(ext) for ext in allowed_extensions):
@@ -326,7 +326,7 @@ class FarmerKYCSerializer(serializers.ModelSerializer):
     def validate_profile_picture(self, value):
         """Check size and format of profile picture"""
         if value:
-            if value.size > 2 * 1024 * 1024:
+            if value.size > 20 * 1024 * 1024:
                 raise serializers.ValidationError("Profile picture file size must be less than 2MB.")
             allowed_extensions = ['.jpg', '.jpeg', '.png']
             if not any(value.name.lower().endswith(ext) for ext in allowed_extensions):
