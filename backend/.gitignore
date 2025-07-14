@@ -4,6 +4,7 @@ Dockerfile
 docker-compose.yml
 # media/
 staticfiles/
+**/migrations/*
 !**/migrations/__init__.py
 proposals/
 
