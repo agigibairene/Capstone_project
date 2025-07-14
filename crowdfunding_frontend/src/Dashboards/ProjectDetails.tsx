@@ -26,17 +26,17 @@ export interface ProjectDetailsProps {
     benefits: string;
     email: string;
   };
-  role: string
 }
 
-export default function ProjectDetails({ project: propProject, role }: ProjectDetailsProps) {
+export default function ProjectDetails({ project: propProject}: ProjectDetailsProps) {
   const [pdfError, setPdfError] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
+
   const project = propProject || location.state?.project;
-  const backToDashboard = location.state?.from || (role === 'investor' ? '/investor' : '/farmer');
+  const backToDashboard = location.state?.project.is_farmer ? '/farmer' : '/investor'
   const handleBack = () => navigate(backToDashboard);
 
 
@@ -56,10 +56,10 @@ export default function ProjectDetails({ project: propProject, role }: ProjectDe
             The project details could not be loaded.
           </p>
           <button
-            onClick={() =>navigate(role === 'investor'?'/investor': '/farmer')}
-            className="px-4 py-2 bg-bgColor hover:bg-emerald-700 text-limeTxt rounded-lg transition-colors"
+            onClick={handleBack}
+            className="px-4 py-2 bg-bgColor hover:bg-emerald-900 cursor-pointer text-limeTxt rounded-lg transition-colors"
           >
-            Back to Dashboard
+            Back To Dashboard
           </button>
         </div>
       </div>
@@ -84,7 +84,7 @@ export default function ProjectDetails({ project: propProject, role }: ProjectDe
       <div className="lg:hidden flex items-center justify-between p-4 bg-bgColor border-b border-gray-700">
         <button 
           onClick={handleBack}
-          className="p-2 bg-limeTxt cursor-pointer rounded-full transition-colors outline-0 border-gray-700"
+          className="p-2 bg-limeTxt cursor-pointer rounded-full border-0 transition-colors outline-0"
           title="Go back"
         >
           <ArrowLeft className="w-6 h-6 text-bgColor" />
@@ -102,11 +102,10 @@ export default function ProjectDetails({ project: propProject, role }: ProjectDe
         </button>
       </div>
 
-      {/* Desktop Back Button */}
       <div className="hidden lg:block absolute top-4 left-4 z-20">
         <button 
           onClick={handleBack}
-          className="p-2 bg-limeTxt cursor-pointer rounded-full transition-colors border border-gray-700 hover:bg-opacity-90"
+          className="p-2 bg-limeTxt cursor-pointer rounded-full transition-colors border-0 hover:bg-opacity-90"
           title="Go back"
         >
           <ArrowLeft className="w-8 h-8 text-bgColor" />

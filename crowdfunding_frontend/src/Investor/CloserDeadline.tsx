@@ -4,19 +4,16 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { Project } from '../Farmer/FarmerProjectAccordion';
 
 interface Props{
-    projects: Project[],
-    loading: boolean,
-    error: string | null,
+  projects: Project[],
+  loading: boolean,
+  error: string | null,
 }
+
 
 export default function CloserDeadlines({projects, loading, error} : Props){
   const [showProjects, setShowProjects] = useState<boolean>(true);
   const navigate = useNavigate();
 
-
-  const handleProjectClick = (projectId: string) => {
-    navigate(`/projects/${projectId}`);
-  };
 
   return (
     <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 sm:p-4 lg:p-6 border border-white/30">
@@ -56,7 +53,7 @@ export default function CloserDeadlines({projects, loading, error} : Props){
             {projects.map(project => (
               <div
                 key={project.id}
-                onClick={() => handleProjectClick(project.id)}
+                onClick={() => navigate(`/projects/${project.id}`, { state: { project } })}                          
                 className="cursor-pointer p-3 sm:p-4 lg:p-5 bg-white/30 hover:bg-white/20 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 border border-white/20 hover:border-white/40"
               >
                 <h3 className="text-sm sm:text-base lg:text-lg font-medium text-white break-words line-clamp-2 hover:text-blue-200 transition-colors duration-200">

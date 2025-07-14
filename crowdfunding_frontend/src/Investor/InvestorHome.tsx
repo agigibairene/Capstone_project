@@ -162,7 +162,6 @@ export default function InvestorHome(){
                                
                             </div>
                             
-                            {/* Stats Grid */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                                 {stats.map((stat, index) => {
                                     const { title, bgColor, textColor, count } = stat;
@@ -178,7 +177,6 @@ export default function InvestorHome(){
                     </div>
                 </div>
 
-                {/* Right Content - Projects */}
                 <div className="lg:col-span-8 xl:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
                     <CloserDeadlines projects={projects} loading={projectsLoading} error={projectErrs} />
                     <BudgetCard budgetProjects={budgetProjects} loading={projectsLoading} error={projectErrs}/>

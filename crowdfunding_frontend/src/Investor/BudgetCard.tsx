@@ -13,10 +13,6 @@ export default function BudgetCard({budgetProjects, loading, error} : Props){
   const [showProjects, setShowProjects] = useState<boolean>(true);
   const navigate = useNavigate();
 
- 
-  const handleTileClick = (projectId: string) => {
-    navigate(`/projects/${projectId}`);
-  };
 
   return (
     <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 sm:p-4 lg:p-6 border border-white/30">
@@ -53,9 +49,9 @@ export default function BudgetCard({budgetProjects, loading, error} : Props){
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4">
                 {budgetProjects.map((project) => (
                     <div
-                    key={project.id}
-                    onClick={() => handleTileClick(project.id)}
-                    className="cursor-pointer p-4 sm:p-5 lg:px-2 lg:py-6 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 backdrop-blur-sm transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                        key={project.id}
+                        onClick={() => navigate(`/projects/${project.id}`, { state: { project } })}                          
+                        className="cursor-pointer p-4 sm:p-5 lg:px-2 lg:py-6 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 backdrop-blur-sm transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
                     >
                     <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-white group-hover:text-blue-200 transition-colors duration-200 line-clamp-2 break-words">
                         {project.title}

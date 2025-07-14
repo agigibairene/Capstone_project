@@ -94,7 +94,7 @@ const routes = createBrowserRouter([
   },
   {
     path: '/projects/:id',
-    element: <ProjectDetails role={""} />
+    element: <ProjectDetails />
   },
 ]);
 

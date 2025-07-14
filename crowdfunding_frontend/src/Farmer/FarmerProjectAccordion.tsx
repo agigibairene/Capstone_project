@@ -106,7 +106,7 @@ export default function FarmerProjectsAccordion({ projects, projectLoading, proj
     );
   }
 
-  if (projectError) {
+  if (projectError && projects.length > 0) {
     return (
       <div className="min-h-screen flex items-center justify-center text-center">
         <div>
@@ -122,6 +122,7 @@ export default function FarmerProjectsAccordion({ projects, projectLoading, proj
       </div>
     );
   }
+
 
   return (
     <div className="max-h-screen rounded-2xl bg-white/20 backdrop-blur-sm border w-full border-white/30 h-auto">

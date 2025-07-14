@@ -45,7 +45,6 @@ export default function InvestorDashboard(){
   const [errors, setErrors] = useState<string | null>(null);
   const [forbidden, setForbidden] = useState(false);
 
-  console.log(projects)
 
   useEffect(() => {
     if (!kycData) {
@@ -67,7 +66,6 @@ export default function InvestorDashboard(){
         });
 
         const data = await res.json();
-        console.log("API Response:", data);
 
         if (res.status === 403) {
           setForbidden(true);
@@ -89,7 +87,6 @@ export default function InvestorDashboard(){
     fetchProjects();
   }, []);
 
-  // Close sidebar when clicking outside on mobile
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) {
@@ -145,7 +142,6 @@ export default function InvestorDashboard(){
           sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'
         }`}>
           
-          {/* Fixed Header for Mobile */}
           <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-white/10 backdrop-blur-sm border-b border-white/20 p-4 pl-20">
             <div className="flex items-center justify-between">
               <h1 className="text-lg font-semibold text-white">{activeItem}</h1>
