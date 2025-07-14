@@ -29,7 +29,6 @@ import logging
 
 from apis.permissions import IsVerifiedFarmer
 from apis.serializers import ProjectCreateSerializer, ProjectSerializer
-from ..models import Profile  
 
 logger = logging.getLogger(__name__)
 
