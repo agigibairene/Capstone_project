@@ -34,7 +34,11 @@ export default function InvestorHome(){
             }
         }
         catch(e){
-            setError(e.message || 'An error occurred while fetching projects.');
+            if (e instanceof Error) {
+                setError(e.message || 'An error occurred while fetching projects.');
+            } else {
+                setError('An unknown error occurred while fetching projects.');
+            }
         }
         finally{
             setLoading(false)
