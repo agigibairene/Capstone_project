@@ -276,7 +276,6 @@ export default function CreateProject() {
     );
   }
 
-  // Show KYC not verified card if KYC is not verified
   if (kycNotVerified) {
     return (
       <KycNotVerifiedCard />
@@ -289,6 +288,8 @@ export default function CreateProject() {
       <SuccessCard />
     );
   }
+
+
 
   return (
     <div className="bg-white/20 backdrop-blur-sm mx-auto w-[85%] flex justify-center items-center flex-col rounded-lg sm:p-10 p-4">

@@ -7,9 +7,17 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from .models import InvestorKYC, FarmerKYC, KYCVerificationLog, Opportunity, Project, UserProfile
 from .opportunities import schedule_opportunity_cleanup
-from .watermark import watermark_pdf
 import os
-from django.conf import settings
+from django.core.files.base import ContentFile
+from backend.storage_backends import MediaStorage
+from io import BytesIO
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib.colors import gray
+from PyPDF2 import PdfReader, PdfWriter
+import uuid
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -490,7 +498,6 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         file = validated_data.pop('file')
         farmer = self.context['request'].user
-
         validated_data.pop('farmer', None)
 
         project = Project.objects.create(
@@ -499,22 +506,57 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
             **validated_data
         )
 
-        if project.original_proposal:
-            try:
-                watermarked_path = watermark_pdf(
-                    input_path=project.original_proposal.path,
-                    watermark_text="Agriconnect",
-                    project_id=str(project.id)
-                )
-                project.watermarked_proposal.name = os.path.relpath(
-                    watermarked_path, settings.MEDIA_ROOT
-                )
-                project.save(update_fields=['watermarked_proposal'])
+        try:
+            font_path = os.path.join(settings.BASE_DIR, "apis", "fonts", "DynaPuff.ttf")
+            if not os.path.exists(font_path):
+                raise FileNotFoundError(f"Font not found at {font_path}")
 
-            except Exception as e:
-                import logging
-                logger = logging.getLogger(__name__)
-                logger.error(f"Failed to watermark proposal for project {project.id}: {str(e)}")
+            pdfmetrics.registerFont(TTFont("DynaPuff", font_path))
+
+            # 2. Create watermark PDF in memory
+            watermark_stream = BytesIO()
+            c = canvas.Canvas(watermark_stream, pagesize=letter)
+            c.setFont("DynaPuff", 80)
+            c.setFillColor(gray)
+            c.setFillAlpha(0.4)
+            width, height = letter
+            c.translate(width / 2, height / 2)
+            c.rotate(45)
+            c.drawCentredString(0, 0, "Agriconnect")
+            c.save()
+
+            watermark_stream.seek(0)
+
+            # 3. Apply watermark
+            file.seek(0)
+            reader = PdfReader(file)
+            watermark_reader = PdfReader(watermark_stream)
+            watermark_page = watermark_reader.pages[0]
+            writer = PdfWriter()
+
+            for i, page in enumerate(reader.pages):
+                try:
+                    page.merge_page(watermark_page)
+                except Exception as e:
+                    print(f"Failed to watermark page {i}: {e}")
+                writer.add_page(page)
+
+            # 4. Save watermarked file to S3
+            output_stream = BytesIO()
+            writer.write(output_stream)
+            output_stream.seek(0)
+
+            media_storage = MediaStorage()
+            watermarked_name = f"proposals/watermarked/watermarked_{uuid.uuid4()}.pdf"
+            media_storage.save(watermarked_name, ContentFile(output_stream.read()))
+
+            project.watermarked_proposal.name = watermarked_name
+            project.save(update_fields=['watermarked_proposal'])
+
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Watermarking failed for project {project.id}: {e}")
 
         return project
 

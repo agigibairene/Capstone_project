@@ -99,16 +99,6 @@ class OpportunityAdmin(admin.ModelAdmin):
             obj.created_by = request.user
         super().save_model(request, obj, form, change)
 
-# @admin.register(FarmerKYC)
-# class FarmerKYCAdmin(admin.ModelAdmin):
-#     ...
-#     fields = ('user', 'full_name', 'role', 'nationality', 'is_verified', 'verification_date')
-#     readonly_fields = ('created_at', 'updated_at')
-
-#     def save_model(self, request, obj, form, change):
-#         if obj.is_verified and not obj.verification_date:
-#             obj.verification_date = timezone.now()
-#         super().save_model(request, obj, form, change)
 
 
 @admin.register(Project)
@@ -117,6 +107,10 @@ class ProjectAdmin(admin.ModelAdmin):
     list_filter = ('status', 'created_at', 'deadline')
     search_fields = ('title', 'farmer__username', 'email', 'brief', 'description')
     readonly_fields = ('watermarked_proposal', 'created_at', 'updated_at')
+    
+    # def status_display(self, obj):
+    #     return obj.get_status_display()
+    # status_display.short_description = 'Status'
 
     def watermarked_link(self, obj):
         if obj.watermarked_proposal:
@@ -139,3 +133,9 @@ class ProjectAdmin(admin.ModelAdmin):
             'fields': ('status', 'created_at', 'updated_at')
         }),
     )
+    
+    # def save_model(self, request, obj, form, change):
+    #     if not obj.status:
+    #         obj.status = 'pending'
+    #     super().save_model(request, obj, form, change)
+

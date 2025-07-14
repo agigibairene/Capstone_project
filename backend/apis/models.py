@@ -8,7 +8,8 @@ from django.contrib.auth.models import User
 import uuid
 from django.core.validators import MinValueValidator
 from django.forms import ValidationError
-from .watermark import watermark_pdf
+
+from backend.storage_backends import MediaStorage
 import logging
 
 logger = logging.getLogger(__name__)
@@ -76,8 +77,8 @@ class InvestorKYC(models.Model):
 
     id_type = models.CharField(max_length=20, choices=ID_TYPE_CHOICES)
     id_number = models.CharField(max_length=100)
-    id_document = models.FileField(upload_to='documents/id/')
-    profile_picture = models.ImageField(upload_to='profiles/')
+    id_document = models.FileField(upload_to='documents/id/', storage=MediaStorage())
+    profile_picture = models.ImageField(upload_to='profiles/', storage=MediaStorage())
 
     address = models.TextField()
     occupation = models.CharField(max_length=200)
@@ -147,12 +148,12 @@ class FarmerKYC(models.Model):
 
     id_type = models.CharField(max_length=20, choices=ID_TYPE_CHOICES)
     id_number = models.CharField(max_length=100)
-    id_document = models.FileField(upload_to='documents/id/')
-    profile_picture = models.ImageField(upload_to='profiles/')
+    id_document = models.FileField(upload_to='documents/id/', storage=MediaStorage())
+    profile_picture = models.ImageField(upload_to='profiles/', storage=MediaStorage())
 
     is_verified = models.BooleanField(default=False)
     verification_date = models.DateTimeField(null=True, blank=True)
-    changes_allowed = models.BooleanField(default=False)  # New field to allow changes post-verification
+    changes_allowed = models.BooleanField(default=False) 
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -186,12 +187,11 @@ class KYCVerificationLog(models.Model):
     """Log of KYC verification actions"""
     
     ACTION_CHOICES = [
-        ('submitted', 'Submitted'),
+        ('pending', 'Pending Review'),
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
-        ('pending', 'Pending Review'),
         ('updated', 'Updated'),
-        ('change_requested', 'Change Requested'),  # New action type
+        ('change_requested', 'Change Requested'),  
     ]
     
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -307,7 +307,6 @@ class Opportunity(models.Model):
 
 class Project(models.Model):
     STATUS_CHOICES = [
-        ('draft', 'Draft'),
         ('pending', 'Pending Approval'),
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
@@ -347,7 +346,9 @@ class Project(models.Model):
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
-        default='draft'
+        default='pending',
+        blank=False,
+        null=False
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -363,48 +364,6 @@ class Project(models.Model):
     
     def __str__(self):
         return f"{self.title} by {self.farmer.username}"
-    
-    def save(self, *args, **kwargs):
-        is_new = not self.pk
-        previous_file = None
-
-        if not is_new:
-            try:
-                previous_file = Project.objects.get(pk=self.pk).original_proposal
-            except Project.DoesNotExist:
-                pass
-
-        super().save(*args, **kwargs)  
-
-        proposal_changed = (
-            is_new or
-            (previous_file and previous_file != self.original_proposal)
-        )
-
-        if proposal_changed and self.original_proposal:
-            try:
-                watermarked_path = watermark_pdf(
-                    self.original_proposal.path,
-                    watermark_text="AGRICONNECT",
-                    project_id=str(self.id)
-                )
-
-                self.watermarked_proposal.name = os.path.relpath(
-                    watermarked_path, settings.MEDIA_ROOT
-                )
-
-                # Save again to persist the watermarked file path
-                super().save(update_fields=['watermarked_proposal'])
-
-            except Exception as e:
-                logger.error(f"Failed to watermark proposal for project {self.id}: {str(e)}")
-
-    @property
-    def days_remaining(self):
-        if self.deadline:
-            delta = self.deadline - timezone.now().date()
-            return max(delta.days, 0)
-        return None
 
     @property
     def is_active(self):
@@ -412,11 +371,6 @@ class Project(models.Model):
             self.status in ['approved', 'funded'] and
             (self.days_remaining is None or self.days_remaining > 0)
         )
-
-    def get_watermarked_proposal_url(self):
-        if self.watermarked_proposal:
-            return self.watermarked_proposal.url
-        return None
 
 
 

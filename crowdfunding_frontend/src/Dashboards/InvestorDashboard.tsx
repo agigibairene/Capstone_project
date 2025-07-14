@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */ 
-import { Search } from "lucide-react";
 import SideBar from "../Utils/SideBar";
 import { menuItems } from "../data/data";
 import { useEffect, useState, type JSX } from "react";
@@ -158,7 +157,6 @@ export default function InvestorDashboard(){
 
           {/* Content Container */}
           <div className="flex flex-col flex-1 overflow-hidden pt-16 lg:pt-0">
-            {/* Dashboard Header for Large Screens - Scrollable */}
             {activeItem === "Dashboard" && (
               <header className="hidden lg:block rounded-lg backdrop-blur-lg border-b border-white/30 p-3 pl-28 sm:p-4 md:p-6 mx-2 mt-2">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -172,14 +170,6 @@ export default function InvestorDashboard(){
                   </div>
                   
                   <div className="flex items-center justify-between sm:justify-end space-x-3 sm:space-x-4">
-                    <div className="relative flex-1 sm:flex-none">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-bgColor" size={18} />
-                      <input
-                        type="text"
-                        placeholder="Search..."
-                        className="w-full sm:w-auto pl-10 pr-4 py-2 text-sm bg-white/50 backdrop-blur-sm rounded-lg border border-white/30 focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder:text-gray-600"
-                      />
-                    </div>
 
                     <div className="flex items-center space-x-2 flex-shrink-0">
                       <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-teal-500 to-blue-500 rounded-full flex items-center justify-center">

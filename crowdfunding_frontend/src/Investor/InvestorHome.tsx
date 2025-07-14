@@ -5,6 +5,7 @@ import BudgetCard from "./BudgetCard";
 import CloserDeadlines from "./CloserDeadline";
 import { useEffect, useState } from "react";
 import type { Project } from "../Farmer/FarmerProjectAccordion";
+import { User } from "lucide-react";
 
 export default function InvestorHome(){
     const { kycData, role, loading, error } = useSelector((state: RootState) => state.kycReducer);
@@ -79,6 +80,7 @@ export default function InvestorHome(){
 
     const user = kycData.kyc;
 
+
     const stats = [
         {
             title: 'Urgent Projects',
@@ -108,13 +110,13 @@ export default function InvestorHome(){
                             <div className="bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex-shrink-0 w-16 h-16 xs:w-20 xs:h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 overflow-hidden ring-2 sm:ring-4 ring-white/20">
                                 {user.profile_picture ? (
                                     <img
-                                        src={`${API_URL}${user.profile_picture}`}
+                                        src={user.profile_picture}
                                         className="w-full h-full object-cover"
                                         alt="Profile"
                                     />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-purple-600 text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
-                                        {user.full_name?.charAt(0)?.toUpperCase() || 'U'}
+                                        <User />
                                     </div>
                                 )}
                             </div>

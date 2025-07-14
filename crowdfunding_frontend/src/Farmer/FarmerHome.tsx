@@ -5,6 +5,7 @@ import FarmerProjectsAccordion from './FarmerProjectAccordion';
 import TotalAmount from './TotalAmount';
 import { useEffect, useState } from 'react';
 import type { Project } from './FarmerProjectAccordion';
+import { User } from 'lucide-react';
 
 export default function FarmerHome() {
   const { kycData, role, loading, error } = useSelector((state: RootState) => state.kycReducer);
@@ -143,13 +144,13 @@ export default function FarmerHome() {
               <div className="bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex-shrink-0 w-24 h-24 sm:w-32 sm:h-32 overflow-hidden ring-4 ring-white/20">
                 {user.profile_picture ? (
                   <img
-                    src={`${API_URL}${user.profile_picture}`}
+                    src={user.profile_picture}
                     className="w-full h-full object-cover"
                     alt="Profile"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-purple-600 text-2xl sm:text-4xl font-bold">
-                    {user.full_name?.charAt(0)?.toUpperCase() || 'U'}
+                    <User />
                   </div>
                 )}
               </div>

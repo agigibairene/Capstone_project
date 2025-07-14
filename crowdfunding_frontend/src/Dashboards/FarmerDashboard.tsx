@@ -1,5 +1,4 @@
 import { useEffect, useState, type JSX } from "react";
-import { Search } from "lucide-react";
 import SideBar from "../Utils/SideBar";
 import CreateProject from "../Farmer/CreateProject";
 import { farmerMenuItems } from "../data/data";
@@ -42,7 +41,7 @@ export default function FarmerDashboard() {
     setSidebarCollapsed(collapsed);
   };
 
-  if (loading) return <Loader text="Loading" />;
+  if (loading) return <Loader text="Loading..." />;
   if (error) return <p className="text-red-500 p-4">Error: {error}</p>;
   if (!kycData || !kycData.kyc) {
     return <p className="text-white p-4">No KYC data found for your account</p>;
@@ -50,6 +49,8 @@ export default function FarmerDashboard() {
 
   const userKYC = kycData.kyc;
   const initials = userKYC?.full_name?.split(" ").map((name: string) => name[0]).join("").toUpperCase() || "";
+
+  console.log(userKYC)
 
   const mainContent: MainContentMap = {
     Dashboard: <FarmerHome />,
@@ -109,16 +110,7 @@ export default function FarmerDashboard() {
                   </h1>
                 </div>
                 
-                <div className="flex items-center justify-between sm:justify-end space-x-3 sm:space-x-4">
-                  <div className="relative flex-1 sm:flex-none">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-bgColor" size={18} />
-                    <input
-                      type="text"
-                      placeholder="Search..."
-                      className="w-full sm:w-auto pl-10 pr-4 py-2 text-sm bg-white/50 backdrop-blur-sm rounded-lg border border-white/30 focus:outline-none focus:ring-2 focus:ring-teal-500 placeholder:text-gray-600"
-                    />
-                  </div>
-
+                <div className="flex items-center justify-between sm:justify-end space-x-3 sm:space-x-4">                
                   <div className="flex items-center space-x-2 flex-shrink-0">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-teal-500 to-blue-500 rounded-full flex items-center justify-center">
                       <span className="text-white font-semibold text-xs sm:text-sm">{initials}</span>

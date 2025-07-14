@@ -153,7 +153,6 @@ def farmer_projects_sum(request):
         
 
 
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, CanViewProject])
 def get_recommended_projects(request):
