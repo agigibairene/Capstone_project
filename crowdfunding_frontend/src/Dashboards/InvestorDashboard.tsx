@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */ 
 import SideBar from "../Utils/SideBar";
 import { menuItems } from "../data/data";
@@ -9,6 +10,7 @@ import type { AppDispatch, RootState } from "../redux/store";
 import Loader from "../Utils/Loader";
 import InvestorHome from "../Investor/InvestorHome";
 import { API_URL } from "../Utils/constants";
+import UserProfile from "./UserProfile";
 
 export interface Project {
   id: string;
@@ -112,7 +114,8 @@ export default function InvestorDashboard(){
   const initials = userKYC?.full_name?.split(" ").map((name: string) => name[0]).join("").toUpperCase() || "";
   const mainContent: MainContentMap = {
     Dashboard: <InvestorHome />,
-    'All Projects': <AllProjects loading={loadings} error={errors} projects={projects} forbidden={forbidden}/>
+    'All Projects': <AllProjects loading={loadings} error={errors} projects={projects} forbidden={forbidden}/>,
+    'Your Profile': <UserProfile />
   }
 
   return(

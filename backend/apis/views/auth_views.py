@@ -11,9 +11,11 @@ from django.core.mail import EmailMessage
 from django.conf import settings
 from django.urls import reverse
 from django.db import transaction
-from ..models import OTPToken,  PasswordReset, UserProfile
+from ..models import  OTPToken,  PasswordReset, UserProfile
 from ..serializers import (
-    PasswordResetRequestSerializer, PasswordResetSerializer, UserLoginSerializer, UserProfileSerializer, UserSerializer, UserSignUpSerializer,UserUpdateSerializer, )
+    PasswordResetRequestSerializer, PasswordResetSerializer, UserLoginSerializer, UserProfileSerializer, 
+    UserSerializer, UserSignUpSerializer,UserUpdateSerializer, 
+)
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.http import  HttpResponseRedirect
 import logging
@@ -31,19 +33,6 @@ User = get_user_model()
 def home(request):
     return JsonResponse({"message": "Welcome to Agriconnect API!"})
 
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from rest_framework import status
-from django.views.decorators.csrf import csrf_exempt
-from django.db import transaction
-from django.core.mail import EmailMessage
-from django.conf import settings
-import traceback
-import json
-import logging
-
-logger = logging.getLogger(__name__)
 
 @csrf_exempt
 @api_view(['POST'])
@@ -562,53 +551,138 @@ def user_detail_view(request):
 @api_view(['PUT', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def update_user_view(request):
-    """Update user information"""
-    serializer = UserUpdateSerializer(
-        request.user, 
-        data=request.data, 
-        partial=request.method == 'PATCH'
-    )
-    if serializer.is_valid():
-        user = serializer.save()
-        response_serializer = UserSerializer(user)
-        return Response({
-            'success': True,
-            'message': 'User updated successfully',
-            'data': response_serializer.data
-        }, status=status.HTTP_200_OK)
-    return Response({
-        'success': False,
-        'errors': serializer.errors
-    }, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(['PUT', 'PATCH'])
-@permission_classes([IsAuthenticated])
-def update_profile_view(request):
-    """Update user profile only"""
+    """Update user information and sync with KYC"""
     try:
-        profile = request.user.profile
-        serializer = UserProfileSerializer(
-            profile, 
+        serializer = UserUpdateSerializer(
+            request.user, 
             data=request.data, 
-            partial=request.method == 'PATCH'
+            partial=request.method == 'PATCH',
+            context={'request': request}  # Pass request context
         )
+        
         if serializer.is_valid():
-            serializer.save()
+            user = serializer.save()
+            
+            # Sync is handled within the serializer's save() method
+            response_serializer = UserSerializer(user)
             return Response({
                 'success': True,
-                'message': 'Profile updated successfully',
-                'data': serializer.data
+                'message': 'User updated successfully',
+                'data': response_serializer.data
             }, status=status.HTTP_200_OK)
+            
         return Response({
             'success': False,
             'errors': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
-    except UserProfile.DoesNotExist:
+        
+    except Exception as e:
         return Response({
             'success': False,
-            'errors': {'general': 'User profile not found'}
-        }, status=status.HTTP_404_NOT_FOUND)
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
+# @api_view(['PUT', 'PATCH'])
+# @permission_classes([IsAuthenticated])
+# def update_kyc_view(request):
+#     """Update KYC information for authenticated users"""
+#     try:
+#         user = request.user
+        
+#         # Try to find existing KYC record
+#         investor_kyc = None
+#         farmer_kyc = None
+        
+#         try:
+#             investor_kyc = InvestorKYC.objects.get(user=user)
+#         except InvestorKYC.DoesNotExist:
+#             pass
+            
+#         try:
+#             farmer_kyc = FarmerKYC.objects.get(user=user)
+#         except FarmerKYC.DoesNotExist:
+#             pass
+        
+#         # Check if user has any KYC record
+#         if not investor_kyc and not farmer_kyc:
+#             return Response({
+#                 'success': False,
+#                 'error': 'No KYC record found for this user'
+#             }, status=status.HTTP_404_NOT_FOUND)
+        
+#         # Validate the update data
+#         update_serializer = KYCUpdateSerializer(data=request.data, partial=True)
+#         if not update_serializer.is_valid():
+#             return Response({
+#                 'success': False,
+#                 'errors': update_serializer.errors
+#             }, status=status.HTTP_400_BAD_REQUEST)
+        
+#         validated_data = update_serializer.validated_data
+#         updated_records = []
+        
+#         # Update InvestorKYC if exists
+#         if investor_kyc:
+#             # Update allowed fields
+#             for field, value in validated_data.items():
+#                 if hasattr(investor_kyc, field):
+#                     setattr(investor_kyc, field, value)
+            
+#             investor_kyc.save()
+#             updated_records.append('investor')
+            
+#             # Return updated investor KYC data
+#             response_serializer = InvestorKYCSerializer(investor_kyc)
+#             response_data = response_serializer.data
+        
+#         # Update FarmerKYC if exists
+#         if farmer_kyc:
+#             # Update allowed fields
+#             for field, value in validated_data.items():
+#                 if hasattr(farmer_kyc, field):
+#                     setattr(farmer_kyc, field, value)
+            
+#             farmer_kyc.save()
+#             updated_records.append('farmer')
+            
+#             # Return updated farmer KYC data
+#             response_serializer = FarmerKYCSerializer(farmer_kyc)
+#             response_data = response_serializer.data
+        
+#         # If user has both KYC records, return the one that matches their profile role
+#         if investor_kyc and farmer_kyc:
+#             user_role = getattr(user.userprofile, 'role', '').lower()
+#             if user_role == 'investor':
+#                 response_serializer = InvestorKYCSerializer(investor_kyc)
+#                 response_data = response_serializer.data
+#             else:
+#                 response_serializer = FarmerKYCSerializer(farmer_kyc)
+#                 response_data = response_serializer.data
+        
+#         return Response({
+#             'success': True,
+#             'message': f'KYC information updated successfully for {", ".join(updated_records)} record(s)',
+#             'data': response_data,
+#             'updated_records': updated_records
+#         }, status=status.HTTP_200_OK)
+        
+#     except Exception as e:
+#         return Response({
+#             'success': False,
+#             'error': f'An error occurred while updating KYC: {str(e)}'
+#         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def change_password_view(request):
+    serializer = PasswordChangeSerializer(data=request.data, context={'request': request})
+    if serializer.is_valid():
+        user = request.user
+        user.set_password(serializer.validated_data['new_password'])
+        user.save()
+        return Response({'success': True, 'message': 'Password updated successfully'}, status=200)
+    return Response({'success': False, 'errors': serializer.errors}, status=400)
 
-# ADMINISTRATOR

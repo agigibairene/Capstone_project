@@ -46,6 +46,19 @@ export default function OTPLogin({ length = 5}: OTPLoginProps) {
     }
   }, [countdown]);
 
+  useEffect(() => {
+    if (resendMessage) {
+      toast.success(resendMessage);
+    }
+  }, [resendMessage]);
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
+
+
   function resetOTPInputs(){
     setOtp(new Array(length).fill(""));
     setError("");
@@ -268,10 +281,6 @@ export default function OTPLogin({ length = 5}: OTPLoginProps) {
             Please enter the {length}-digit OTP sent to your email and click verify to complete your login
           </p>
 
-          {error && toast.error('error')}
-
-          {resendMessage && toast.success(resendMessage)}
-
           <div className="flex justify-center space-x-2 mb-6">
             {otp.map((value, index) => {
               return (
@@ -328,7 +337,7 @@ export default function OTPLogin({ length = 5}: OTPLoginProps) {
             <button
               onClick={handleResendOTP}
               disabled={resendLoading || countdown > 0}
-              className="text-limeTxt font-semibold hover:underline disabled:text-gray-400 disabled:no-underline focus:outline-none focus:underline"
+              className="text-limeTxt font-semibold cursor-pointer hover:underline disabled:text-gray-400 disabled:no-underline focus:outline-none focus:underline"
             >
               {resendLoading ? (
                 "Sending..."

@@ -180,7 +180,7 @@ export default function Signup() {
     };
   }, []);
 
-  const selectedCountry = countryCodes.find(country => country.code === selectedCountryCode);
+const selectedCountry = countryCodes.find(country => country.code === selectedCountryCode);
 
   return (
     <>

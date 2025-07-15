@@ -48,6 +48,7 @@ class UserProfileAdmin(admin.ModelAdmin):
         }),
     )
 
+
 @admin.register(PasswordReset)
 class PasswordResetAdmin(admin.ModelAdmin):
     list_display = ('user', 'reset_id', 'created_when', 'is_expired')

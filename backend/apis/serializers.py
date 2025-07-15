@@ -566,3 +566,4 @@ class KYCPreFillSerializer(serializers.Serializer):
     email = serializers.EmailField()
     phone_number = serializers.CharField()
     role = serializers.CharField()
+    

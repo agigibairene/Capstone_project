@@ -13,8 +13,8 @@ urlpatterns = [
     path('auth/reset-password/<str:reset_id>/', auth_views.reset_password_view, name='reset-password'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='refresh'),
     path('auth/token/', TokenObtainPairView.as_view(), name='get_token'),
-    path('auth/userprofile/', auth_views.user_profile_view, name='user-profile'),
-    path('auth/userprofile/update/', auth_views.update_profile_view, name='update-profile'),
+    path('auth/profile/', auth_views.user_detail_view, name='user-profile'),
+    path('auth/profile-update/', auth_views.update_user_view, name='update-profile'),
     
     # OTP PATHS
     path("auth/verify-otp/", auth_views.verify_login_otp, name="verify-otp"),
@@ -29,6 +29,8 @@ urlpatterns = [
     path('kyc/user/', kyc_views.get_user_kyc),
     path('kyc/status',kyc_views.get_kyc_status),
     path('kyc/autofill/', kyc_views.kyc_autofill_data, name='kyc-prefill'),
+    
+    # path('kyc/update/', kyc_views.update_kyc, name='update_kyc'),
 
    
     

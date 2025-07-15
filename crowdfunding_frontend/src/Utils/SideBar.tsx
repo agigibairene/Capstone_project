@@ -82,7 +82,7 @@ export default function SideBar({
           )}
         </div>
         {!isScreenSmall && (
-          <button onClick={handleToggle} className="text-white">
+          <button onClick={handleToggle} className="text-white border-0 outline-0">
             {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
           </button>
         )}
@@ -99,7 +99,7 @@ export default function SideBar({
             <button
               key={index}
               onClick={() => isLogout ? handleLogout() : handleItemClick(item.name)}
-              className={`w-full flex items-center cursor-pointer px-2 py-3 rounded-xl transition-all duration-200
+              className={`w-full flex items-center cursor-pointer px-2 py-3 border-0 outline-0 rounded-xl transition-all duration-200
               ${isActive && !isLogout ? "bg-bgColor text-limeTxt shadow-lg" : "text-white hover:bg-white/30 hover:text-gray-900"}`}
             >
               <div className={`w-2 h-2 rounded-full ${item.color} ${isActive && !isLogout ? "opacity-100" : "opacity-60"} mr-2`} />
