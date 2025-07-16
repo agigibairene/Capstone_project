@@ -1,11 +1,16 @@
 import { useRef, useEffect, useState } from 'react';
 import SignatureCanvas from 'react-signature-canvas';
 
-export default function ESignature() {
+interface Signature{
+  setSignature: (data: string)=>void
+}
+
+export default function ESignature({ setSignature }: Signature) {
   const sigCanvas = useRef<SignatureCanvas>(null);
   const canvasWrapperRef = useRef<HTMLDivElement>(null);
-  const [canvasWidth, setCanvasWidth] = useState(500); 
+  const [canvasWidth, setCanvasWidth] = useState(500);
   const canvasHeight = 200;
+  
 
   useEffect(() => {
     const resizeCanvas = () => {
@@ -15,19 +20,19 @@ export default function ESignature() {
     };
 
     resizeCanvas();
-    window.addEventListener('resize', resizeCanvas); 
-
+    window.addEventListener('resize', resizeCanvas);
     return () => window.removeEventListener('resize', resizeCanvas);
   }, []);
 
   const clearSignature = () => {
     sigCanvas.current?.clear();
+    setSignature('');
   };
 
   const saveSignature = () => {
     if (sigCanvas.current) {
-      const signatureData = sigCanvas.current.toDataURL();
-      console.log(signatureData);
+      const data = sigCanvas.current.toDataURL();
+      setSignature(data); 
     }
   };
 
@@ -40,16 +45,13 @@ export default function ESignature() {
           canvasProps={{
             width: canvasWidth,
             height: canvasHeight,
-            className: 'block w-full h-auto'
+            className: 'block w-full h-auto',
           }}
         />
       </div>
 
       <div className="flex flex-wrap gap-4 mt-4">
-        <button
-          className="cursor-pointer text-limeTxt hover:underline"
-          onClick={clearSignature}
-        >
+        <button className="cursor-pointer text-limeTxt hover:underline" onClick={clearSignature}>
           Clear Signature
         </button>
         <button

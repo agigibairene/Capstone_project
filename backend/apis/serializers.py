@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from .models import InvestorKYC, FarmerKYC, KYCVerificationLog, Opportunity, Project, UserProfile
+from .models import InvestorKYC, FarmerKYC, KYCVerificationLog, NDAAgreement, Opportunity, Project, UserProfile
 from .opportunities import schedule_opportunity_cleanup
 import os
 from django.core.files.base import ContentFile
@@ -567,3 +567,9 @@ class KYCPreFillSerializer(serializers.Serializer):
     phone_number = serializers.CharField()
     role = serializers.CharField()
     
+
+# NDA
+class NDAAgreementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NDAAgreement
+        fields = '__all__'

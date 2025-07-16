@@ -1,7 +1,6 @@
 # permissions.py
 from rest_framework import permissions
 from django.contrib.auth import get_user_model
-from django.http import Http404
 
 import logging
 
@@ -165,6 +164,7 @@ class CanViewProject(permissions.BasePermission):
                     request.user.investor_kyc.is_verified)
 
         return False
+
 
 class IsProjectOwner(permissions.BasePermission):
     """

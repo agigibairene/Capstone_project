@@ -18,7 +18,6 @@ import KYCInvestor from "./authForms/KYCInvestor.tsx";
 import OTPLogin from "./authForms/OTP.tsx";
 import ProjectDetails from "./Dashboards/ProjectDetails.tsx";
 import ErrorPage from "./components/Error.tsx";
-import ESignaturePad from "./Investor/Esignature.tsx";
 
 
 const routes = createBrowserRouter([
@@ -97,10 +96,6 @@ const routes = createBrowserRouter([
     path: '/projects/:id',
     element: <ProjectDetails />
   },
-  {
-    path: '/x',
-    element: <ESignaturePad />
-  }
 ]);
 
 

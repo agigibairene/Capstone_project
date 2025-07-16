@@ -226,11 +226,12 @@ JAZZMIN_SETTINGS = {
         "apis.farmerkyc": "fa-solid fa-tractor",
         "apis.investorkyc": "fas fa-briefcase",
         "apis.kycverificationlog": "fas fa-check-circle",
+        'apis.ndaagreement': "fa-solid fa-handshake",
         "apis.opportunity": "fas fa-seedling",
         "apis.passwordreset": "fas fa-key",  
         "apis.project": "fa-solid fa-folder-open",
         "apis.userprofile": "fas fa-address-card",
-         "auth": "fas fa-users-cog",
+        "auth": "fas fa-users-cog",
         "auth.user": "fas fa-user",
         "auth.Group": "fas fa-users",
     },
@@ -245,7 +246,6 @@ WHITENOISE_USE_FINDERS = True
 WHITENOISE_AUTOREFRESH = True
 
 # WHITENOISE_ROOT = MEDIA_ROOT
-import os
 
 
 AWS_ACCESS_KEY_ID = os.environ.get('SPACES_KEY')

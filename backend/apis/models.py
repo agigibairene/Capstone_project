@@ -1,5 +1,6 @@
 from datetime import timedelta
 import os
+from tabnanny import verbose
 from django.utils import timezone
 import secrets
 from django.conf import settings
@@ -377,3 +378,44 @@ class Project(models.Model):
 class MyModel(models.Model):
     image = models.ImageField(upload_to='images/') 
     document = models.FileField(upload_to='documents/') 
+    
+
+# NDA DOCUMENT
+from django.utils.safestring import mark_safe
+
+
+class NDAAgreement(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='nda_agreements')
+    full_name = models.CharField(max_length=200)
+    email = models.EmailField()
+    company = models.CharField(max_length=200, blank=True)
+    date_signed = models.DateField()
+    
+    #  Signature as uploaded image (not base64)
+    signature = models.FileField(
+        upload_to='documents/signatures/',
+        storage=MediaStorage(),
+        blank=False,
+        null=False
+    )
+
+    ip_address = models.GenericIPAddressField()
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'NDA Agreement'
+        verbose_name_plural = 'NDA Agreements'
+        constraints = [
+            models.UniqueConstraint(fields=['user'], name='unique_nda_per_user')
+        ]
+
+    def __str__(self):
+        return f"{self.full_name} - {self.email}"
+
+    def signature_preview(self):
+        if self.signature:
+            return mark_safe(f'<img src="{self.signature.url}" width="300" height="100" style="border:1px solid #ccc;" />')
+        return "(No Signature Uploaded)"
+    
+    signature_preview.short_description = "Signature Preview"
+

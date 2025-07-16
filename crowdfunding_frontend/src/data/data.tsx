@@ -24,7 +24,7 @@ export const menuItems = [
   {
     name: 'Your Profile',
     icon: User,
-    color: "bg-gray-500",
+    color: "bg-fuchsia-500",
     active: false
   },
   {
@@ -58,7 +58,7 @@ export const farmerMenuItems = [
   {
     name: 'Your Profile',
     icon: User,
-    color: "bg-gray-500",
+    color: "bg-fuchsia-500",
     active: false
   },
   {
@@ -393,3 +393,5 @@ export const NDAsections : NDASection[]= [
     rules that might direct the use of another jurisdiction's laws.`,
   }
 ];
+
+                 

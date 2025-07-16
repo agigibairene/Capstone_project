@@ -4,7 +4,7 @@ from re import I
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from .models import Project, UserProfile, PasswordReset, KYCVerificationLog, FarmerKYC,InvestorKYC, Opportunity
+from .models import NDAAgreement, Project, UserProfile, PasswordReset, KYCVerificationLog, FarmerKYC,InvestorKYC, Opportunity
 from django.utils.html import format_html
 
 
@@ -140,3 +140,23 @@ class ProjectAdmin(admin.ModelAdmin):
     #         obj.status = 'pending'
     #     super().save_model(request, obj, form, change)
 
+
+# NDA
+
+@admin.register(NDAAgreement)
+class NDAAgreementAdmin(admin.ModelAdmin):
+    list_display = ('full_name', 'email', 'company', 'date_signed', 'ip_address', 'submitted_at')
+    readonly_fields = ('signature_preview', 'signature', 'submitted_at')  
+    search_fields = ('full_name', 'email', 'company')
+    list_filter = ('date_signed', 'submitted_at')
+    ordering = ('-submitted_at',)
+    fieldsets = (
+        ('Submitted Info', {
+            'fields': ('user', 'full_name', 'email', 'company', 'date_signed', 'ip_address', 'submitted_at')
+        }),
+        ('Signature', {
+            'fields': ('signature_preview',)
+        }),
+    )
+
+    

@@ -51,5 +51,8 @@ urlpatterns = [
     path('projects/search/', projects_views.search_projects, name='search_projects'),
     path('projects/sum/', projects_views.farmer_projects_sum),
     path('projects/recommended/', projects_views.get_recommended_projects, name='recommended-projects'),
+    path('submit-nda/', projects_views.submit_nda),
+     path('check-nda-status/', projects_views.check_nda_status, name='check-nda-status'),
+    path('download-nda/', projects_views.download_nda, name='download-nda-pdf'),
 ]
 
