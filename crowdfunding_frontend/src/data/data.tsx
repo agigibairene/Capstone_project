@@ -1,6 +1,6 @@
-import { BarChart3,PenLine,Bot, LogOut,FolderOpen, User } from "lucide-react";
-
+import { BarChart3,PenLine,Bot, LogOut,FolderOpen, User, File} from "lucide-react";
 import image from '../assets/dp.jpg'
+import type { JSX } from "react";
 
 export const menuItems = [
   {
@@ -8,6 +8,12 @@ export const menuItems = [
     icon: BarChart3,
     color: "bg-teal-500",
     active: true,
+  },
+  {
+    name: 'NDA',
+    icon: File,
+    color: 'bg-lime-300',
+    active: false
   },
   {
     name: "All Projects",
@@ -298,3 +304,92 @@ export const countryCodes : Country[] = [
   { code: '+597', country: 'Suriname', flag: '🇸🇷' },
   { code: '+599', country: 'Netherlands Antilles', flag: '🇧🇶' },
 ].sort((a, b) => a.country.localeCompare(b.country));
+
+
+interface NDASection {
+  title: string;
+  content: string | JSX.Element | string[];
+  subSections?: {
+    title: string;
+    content: string;
+  }[];
+}
+
+
+export const NDAsections : NDASection[]= [
+  {
+    title: '1. Purpose',
+    content: 'The purpose of this Agreement is to prevent unauthorized use, disclosure, or reproduction of confidential information and intellectual property belonging to project owners (Farmers or Agricultural Entrepreneurs) listed on the Platform.',
+  },
+  {
+    title: '2. Definitions',
+    subSections: [
+      {
+        title: '2.1 Confidential Information',
+        content: 'Includes all business proposals, documentation, business plans, financial projections, technological concepts, sustainable methods, or any materials uploaded by project owners, whether marked as confidential or not.',
+      },
+      {
+        title: '2.2 Intellectual Property (IP)',
+        content: 'Includes all trademarks, copyrights, trade secrets, processes, techniques, ideas, inventions, and other proprietary content disclosed through proposal documents or listed projects.',
+      },
+    ],
+    content: ""
+  },
+  {
+    title: '3. Obligations of Recipient',
+    content: [
+      '3.1 Recipient agrees not to copy, reproduce, disclose, reverse-engineer, exploit, or use any part of the Confidential Information or IP for personal or commercial gain without express written consent of the rightful owner.',
+      "3.2 Recipient shall not implement, replicate, or attempt to profit from any idea, concept, or structure disclosed through the Platform's proposals.",
+      "3.3 Recipient agrees not to share, distribute, or disclose any content to third parties, including colleagues, partners, or competing platforms.",
+      '3.4 Recipient agrees to use all reasonable means to protect and maintain the confidentiality and integrity of such information.',
+    ],
+  },
+  {
+    title: '4. Access Limitations',
+    content: [
+      '4.1 Only investors who have signed this NDA via digital e-signature may view watermarked PDF proposals on a read-only basis through the Platform.',
+      '4.2 Farmers are restricted from accessing or viewing other users\' proposals or project documents.',
+    ],
+  },
+  {
+    title: '5. Ownership & IPR',
+    content: [
+      '5.1 All Confidential Information and associated Intellectual Property remains the sole property of the original project owner.',
+      '5.2 This Agreement does not transfer any ownership rights to the Recipient, nor does it grant any license or rights beyond those expressly stated.',
+    ],
+  },
+  {
+    title: '6. Watermarking & Content Protection',
+    content: [
+      '6.1 All uploaded proposals are automatically embedded with "Agriconnect" watermarks using PyPDF2 and displayed in a secure PDF format.',
+      '6.2 This protection is enforced to prevent unauthorized reproduction or sharing of materials.',
+    ],
+  },
+  {
+    title: '7. Legal Enforcement',
+    content: [
+      '7.1 Any breach of this Agreement, including misuse, unauthorized implementation, or disclosure of confidential material, will result in immediate legal action.',
+      '7.2 The Platform reserves the right to suspend, terminate, or permanently ban users in breach of this Agreement and seek damages, injunctive relief, and/or prosecution.',
+    ],
+  },
+  {
+    title: '8. E-Signature & Acceptance',
+    content: (
+      <>
+        <p>By signing electronically, the Recipient acknowledges that:</p>
+        <ul>
+          <li>• They have read and understood this Agreement</li>
+          <li>• They agree to be legally bound by its terms</li>
+          <li>• They accept that a violation may result in legal liability.</li>
+        </ul>
+      </>
+    ),
+  },
+  {
+    title: '9. Governing Law',
+    content: `This Agreement shall be governed by and construed in accordance with the laws the Republic of Ghana, according to the Copyright Act, 2005 (Act 690), the Patents Act, 2003 (Act 657), the Trademarks Act, 2004 (Act 664),
+     the Industrial Designs Act, 2003 (Act 660), 
+    and the Protection Against Unfair Competition Act, 2000 (Act 589), without applying any 
+    rules that might direct the use of another jurisdiction's laws.`,
+  }
+];

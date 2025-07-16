@@ -11,6 +11,7 @@ import Loader from "../Utils/Loader";
 import InvestorHome from "../Investor/InvestorHome";
 import { API_URL } from "../Utils/constants";
 import UserProfile from "./UserProfile";
+import NDA from "../Investor/NDA";
 
 export interface Project {
   id: string;
@@ -114,6 +115,7 @@ export default function InvestorDashboard(){
   const initials = userKYC?.full_name?.split(" ").map((name: string) => name[0]).join("").toUpperCase() || "";
   const mainContent: MainContentMap = {
     Dashboard: <InvestorHome />,
+    NDA: <NDA />,
     'All Projects': <AllProjects loading={loadings} error={errors} projects={projects} forbidden={forbidden}/>,
     'Your Profile': <UserProfile />
   }
