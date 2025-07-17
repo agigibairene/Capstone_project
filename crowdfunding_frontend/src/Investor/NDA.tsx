@@ -5,7 +5,8 @@ import { API_URL } from '../Utils/constants';
 import { toast } from 'react-toastify';
 import type { RootState } from '../redux/store';
 import { NDAsections } from '../data/data';
-import ESignature from './ESignature';
+import ESignature from './E_Signature';
+
 
 export default function NDA() {
   const [formData, setFormData] = useState({
