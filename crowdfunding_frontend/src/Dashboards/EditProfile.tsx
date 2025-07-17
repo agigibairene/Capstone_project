@@ -27,8 +27,7 @@ export default function EditProfile() {
   const [tempValue, setTempValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { kycData } = useSelector((state: RootState)=>state.kycReducer);
-  console.log(kycData.kyc)
-  // USER TOKEN
+
   const token = localStorage.getItem('ACCESS_TOKEN');
 
   const fetchProfile = async () => {
@@ -45,7 +44,6 @@ export default function EditProfile() {
       if (response.ok) {
         const data = await response.json();
         setProfileData(data.data);
-        console.log(data);
       } else {
         console.error('Failed to fetch profile');
       }
@@ -73,22 +71,17 @@ export default function EditProfile() {
     });
 
     if (!response.ok) {
-      const errorData = await response.text(); // First get as text to see what's coming
+      const errorData = await response.text();
       try {
-        // Try to parse as JSON if possible
         const jsonError = JSON.parse(errorData);
         throw new Error(jsonError.error || jsonError.message || 'Update failed');
       } catch {
         throw new Error(errorData || 'Update failed');
       }
     }
-
-    const data = await response.json();
-    console.log('Profile updated successfully:', data);
     return true;
   } catch (error) {
     console.error('Error updating profile:', error);
-    // You might want to show this error to the user
     return false;
   } finally {
     setIsLoading(false);
@@ -141,7 +134,7 @@ export default function EditProfile() {
               value={tempValue}
               onChange={(e) => setTempValue(e.target.value)}
               onKeyDown={(e) => handleKeyPress(e, field)}
-              className="px-2 py-1 border border-gray-300 text-limeTxt rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-2 py-1 border border-gray-300 text-limeTxt rounded text-sm focus:outline-none focus:ring-2 focus:ring-bgColor focus:border-transparent"
               autoFocus
               disabled={isLoading}
             />
@@ -180,7 +173,7 @@ export default function EditProfile() {
     return (
       <div className="min-h-screen bg-white/10 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-bgColor mx-auto mb-4"></div>
           <p className="text-gray-600">Loading profile...</p>
         </div>
       </div>
@@ -193,7 +186,7 @@ export default function EditProfile() {
       <div className="text-center mb-8">
         <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gray-200 flex items-center justify-center">
           {
-            kycData.kyc.profile_picture ? <img src={kycData.kyc.profile_picture} alt="" /> :
+            kycData.kyc.profile_picture ? <img className='rounded-full' src={kycData.kyc.profile_picture} alt="" /> :
             <User/>
           }
         </div>
@@ -227,7 +220,7 @@ export default function EditProfile() {
 
       {isLoading && (
         <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center rounded-lg">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-bgColor"></div>
         </div>
       )}
     </div>

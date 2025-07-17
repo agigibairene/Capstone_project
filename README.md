@@ -42,13 +42,7 @@
     docker run -d -p 5173:5173 crowdfunding_frontend
 ```
 
-## Setting up Backend:
-```
-    cd backend
-    python -m venv venv
-    venv\Scripts\activate.bat (for windows)
-    pip install -r requirements.txt
-```
+
 ![Image](https://github.com/user-attachments/assets/00c36c09-2984-4e97-befc-7f0a28511cea)
 ![Image](https://github.com/user-attachments/assets/812f4d20-9b71-4747-8f0d-49b8acf4b28b)
 ![Image](https://github.com/user-attachments/assets/7659d9f3-2147-422b-bb16-88b23599896f)

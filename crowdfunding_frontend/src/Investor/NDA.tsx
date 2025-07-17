@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FileText, Download, Check, AlertCircle, ArrowLeft, Loader2 } from 'lucide-react';
 import { useSelector } from 'react-redux';
-import ESignature from './Esignature';
+import ESignature from './ESignature';
 import { API_URL } from '../Utils/constants';
 import { toast } from 'react-toastify';
 import type { RootState } from '../redux/store';
@@ -160,7 +160,7 @@ export default function NDA() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-bgColor flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
           <Loader2 className="w-8 h-8 text-bgColor animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Loading NDA status...</p>
@@ -196,11 +196,11 @@ export default function NDA() {
           <button 
             onClick={handleDownloadPDF}
             disabled={isDownloading}
-            className="w-full bg-bgColor hover:bg-teal-900 disabled:bg-blue-400 text-limeTxt cursor-pointer font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+            className="w-full bg-bgColor hover:bg-teal-900 disabled:bg-teal-700 text-limeTxt cursor-pointer font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
           >
             {isDownloading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 bg-bgColor animate-spin" />
                 Downloading PDF...
               </>
             ) : (

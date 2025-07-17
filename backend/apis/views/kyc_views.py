@@ -148,7 +148,7 @@ def submit_farmer_kyc(request):
                             f"A new Farmer KYC has been submitted:\n\n"
                             f"Name: {user.first_name} {user.last_name}\n"
                             f"Email: {user.email}\n"
-                            f"Phone: {kyc.phone_number}"
+                            f"Phone: {kyc.phone_number}\n"
                             f"Role: {user.profile.role}\n"
                             f"KYC ID: {kyc.id}\n"
                         )

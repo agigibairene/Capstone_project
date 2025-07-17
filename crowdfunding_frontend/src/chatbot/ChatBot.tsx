@@ -1,7 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { MessageCircle, ChevronDown, Bot, Plus, Edit3, Trash2 } from "lucide-react";
 import BotForm from "./BotForm";
-import { useEffect, useRef, useState, type JSX } from "react";
+import { useEffect, useRef, useState } from "react";
 import Message from "./Message";
+import { keys } from "../Utils/constants";
 
 export interface Messages {
   role: "user" | "model";
@@ -16,9 +18,12 @@ interface Chat {
   createdAt: Date;
 }
 
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${import.meta.env.VITE_API_KEY}`;
+const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${keys}`;
 
-export default function ChatBot(): JSX.Element {
+console.log(import.meta.env.VITE_API_KEY)
+
+
+export default function ChatBot(){
   const [chats, setChats] = useState<Chat[]>([]);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [isMinimized, setIsMinimized] = useState<boolean>(false);

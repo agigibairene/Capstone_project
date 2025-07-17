@@ -8,7 +8,6 @@ contract AgriContract {
         string briefDescription;
         uint256 target;
         uint256 deadline;
-        string image;
         address[] donors;
         uint256[] donations;
         uint256 collectedAmount;
@@ -22,8 +21,7 @@ contract AgriContract {
         string memory _projectTitle,
         string memory _description,
         uint256 _target,
-        uint256 _deadline,
-        string memory _image
+        uint256 _deadline
     ) public returns (uint256) {
         require(_deadline > block.timestamp, "The deadline should be a future date");
 
@@ -33,7 +31,6 @@ contract AgriContract {
         project.briefDescription = _description;
         project.target = _target;
         project.deadline = _deadline;
-        project.image = _image;
         project.collectedAmount = 0;
 
         numberOfProjects++;

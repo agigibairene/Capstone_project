@@ -82,7 +82,7 @@ export default function SideBar({
           )}
         </div>
         {!isScreenSmall && (
-          <button onClick={handleToggle} className="text-white border-0 outline-0">
+          <button onClick={handleToggle} className="text-white cursor-pointer border-0 outline-0">
             {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
           </button>
         )}
