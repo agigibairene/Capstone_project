@@ -28,7 +28,6 @@ export default function Grants() {
     opportunities_by_type: {}
   });
 
-  console.log(opportunities)
 
   const [selectedType, setSelectedType] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -92,7 +91,6 @@ export default function Grants() {
     }
   };
 
-  console.log(`Selected: ${selected}`)
   async function fetchStats(){
     try {
       const response = await fetch(`${API_URL}/opportunities/stats/`);
