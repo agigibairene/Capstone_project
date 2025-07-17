@@ -20,7 +20,8 @@ interface Chat {
 
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${keys}`;
 
-console.log(import.meta.env.VITE_API_KEY)
+console.log(`${import.meta.env.VITE_API_KEY} API KEYS TESTING`);
+console.log(`KEYS API CHATBOT ${keys}`)
 
 
 export default function ChatBot(){
