@@ -20,8 +20,6 @@ interface Chat {
 
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${keys}`;
 
-console.log(`${import.meta.env.VITE_API_KEY} API KEYS TESTING`);
-console.log(`KEYS API CHATBOT ${keys}`)
 
 
 export default function ChatBot(){
@@ -122,8 +120,8 @@ export default function ChatBot(){
     };
 
     try {
-      if (!import.meta.env.VITE_API_KEY) {
-        throw new Error("API key is not configured. Please set VITE_API_KEY.");
+      if (!keys) {
+        throw new Error("API key is not configured. Please API_KEY.");
       }
 
       const response = await fetch(API_URL, requestOptions);
