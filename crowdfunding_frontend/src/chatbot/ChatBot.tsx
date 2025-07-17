@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { MessageCircle, ChevronDown, Bot, Plus, Edit3, Trash2 } from "lucide-react";
+import { MessageCircle, ChevronDown, Bot, Plus, Edit3, Trash2, Menu, X } from "lucide-react";
 import BotForm from "./BotForm";
 import { useEffect, useRef, useState } from "react";
 import Message from "./Message";
@@ -20,14 +20,13 @@ interface Chat {
 
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${keys}`;
 
-
-
 export default function ChatBot(){
   const [chats, setChats] = useState<Chat[]>([]);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
   const [editingChatId, setEditingChatId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState<string>("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const chatBodyRef = useRef<HTMLDivElement | null>(null);
 
   const currentChat = chats.find((chat) => chat.id === currentChatId);
@@ -49,6 +48,13 @@ export default function ChatBot(){
     return () => clearTimeout(timer);
   }, [chatHistory, currentChatId]);
 
+  // Close sidebar when chat is selected on mobile
+  useEffect(() => {
+    if (currentChatId && window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
+  }, [currentChatId]);
+
   const generateChatTitle = (messages: Messages[]): string => {
     const firstUserMessage = messages.find((msg) => msg.role === "user");
     if (firstUserMessage) {
@@ -67,6 +73,10 @@ export default function ChatBot(){
     };
     setChats((prev) => [newChat, ...prev]);
     setCurrentChatId(newChat.id);
+    // Close sidebar on mobile after creating new chat
+    if (window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
   };
 
   const deleteChat = (chatId: string) => {
@@ -157,9 +167,36 @@ export default function ChatBot(){
   };
 
   return (
-    <div className="flex h-[75vh] w-[90%] mx-auto bg-white/20 backdrop-blur-sm border-r rounded-lg border-white/30">
+    <div className="flex h-screen w-full mx-auto bg-white/20 backdrop-blur-sm border-r rounded-none md:rounded-lg md:h-[75vh] md:w-[90%] border-white/30 relative">
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <div className="w-80 bg-white/20 backdrop-blur-sm border-r rounded-tl-lg rounded-bl-lg border-white/30 flex flex-col">
+      <div className={`
+        fixed md:relative top-0 left-0 h-full md:h-auto
+        w-80 sm:w-64 md:w-72 lg:w-80
+        bg-white/20 backdrop-blur-sm border-r 
+        rounded-none md:rounded-tl-lg md:rounded-bl-lg 
+        border-white/30 flex flex-col
+        transform transition-transform duration-300 ease-in-out
+        z-50 md:z-auto
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
+        {/* Mobile Close Button */}
+        <div className="flex justify-end p-4 md:hidden">
+          <button
+            onClick={() => setIsSidebarOpen(false)}
+            className="p-2 hover:bg-gray-100 rounded-lg"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
         <div className="p-4 border-b border-gray-200">
           <button
             onClick={createNewChat}
@@ -235,28 +272,36 @@ export default function ChatBot(){
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         {currentChat ? (
           <>
             <div className="flex items-center justify-between p-4 backdrop-blur-sm border-b border-white/30">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-bgColor flex items-center justify-center">
-                  <Bot size={20} className="text-white" />
+                {/* Mobile Menu Button */}
+                <button
+                  onClick={() => setIsSidebarOpen(true)}
+                  className="md:hidden p-2 hover:bg-gray-100 rounded-lg"
+                >
+                  <Menu size={20} />
+                </button>
+                
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-bgColor flex items-center justify-center">
+                  <Bot size={16} className="text-white md:w-5 md:h-5" />
                 </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900">{currentChat.title}</h2>
-                  <p className="text-sm text-limeTxt">AI Assistant</p>
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-base md:text-lg font-semibold text-gray-900 truncate">{currentChat.title}</h2>
+                  <p className="text-xs md:text-sm text-limeTxt">AI Assistant</p>
                 </div>
               </div>
               <button
                 onClick={() => setIsMinimized(!isMinimized)}
-                className="w-10 h-10 rounded-full cursor-pointer hover:bg-gray-100 flex items-center justify-center transition-colors duration-200"
+                className="w-8 h-8 md:w-10 md:h-10 rounded-full cursor-pointer hover:bg-gray-100 flex items-center justify-center transition-colors duration-200"
               >
                 <ChevronDown
-                  size={20}
+                  size={18}
                   className={`transform transition-transform duration-200 ${
                     isMinimized ? "rotate-180" : ""
-                  } text-gray-600`}
+                  } text-gray-600 md:w-5 md:h-5`}
                 />
               </button>
             </div>
@@ -265,14 +310,14 @@ export default function ChatBot(){
               <div className="flex-1 flex flex-col relative overflow-hidden">
                 <div
                   ref={chatBodyRef}
-                  className="flex-1 overflow-y-auto overflow-x-hidden p-6 space-y-4"
+                  className="flex-1 overflow-y-auto overflow-x-hidden p-3 md:p-6 space-y-4"
                 >
                   {chatHistory.length === 0 && (
                     <div className="flex gap-3 items-start">
-                      <div className="w-9 h-9 rounded-full bg-bgColor flex items-center justify-center flex-shrink-0 self-end mb-0.5">
-                        <Bot size={18} className="text-white" />
+                      <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-bgColor flex items-center justify-center flex-shrink-0 self-end mb-0.5">
+                        <Bot size={16} className="text-white md:w-[18px] md:h-[18px]" />
                       </div>
-                      <div className="px-4 py-3 max-w-[75%] bg-purple-50 text-gray-800 rounded-2xl rounded-bl-sm text-sm break-words whitespace-pre-line">
+                      <div className="px-3 py-2 md:px-4 md:py-3 max-w-[85%] md:max-w-[75%] bg-purple-50 text-gray-800 rounded-2xl rounded-bl-sm text-sm break-words whitespace-pre-line">
                         Hello there! How can I help you today?
                       </div>
                     </div>
@@ -285,7 +330,7 @@ export default function ChatBot(){
                   </div>
                 </div>
 
-                <div className="p-4 bg-white/20 backdrop-blur-sm rounded-tr-lg rounded-br-lg border-white/30 border-t">
+                <div className="p-3 md:p-4 bg-white/20 backdrop-blur-sm rounded-none md:rounded-tr-lg md:rounded-br-lg border-white/30 border-t">
                   <BotForm
                     setChatHistory={setChatHistory}
                     generateBotResponse={generateBotResponse}
@@ -296,21 +341,29 @@ export default function ChatBot(){
             )}
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center rounded-tr-lg rounded-br-lg bg-gray-50">
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-full bg-teal-100 flex items-center justify-center mx-auto mb-4">
-                <MessageCircle size={32} className="text-bgColor" />
+          <div className="flex-1 flex items-center justify-center rounded-none md:rounded-tr-lg md:rounded-br-lg bg-gray-50 p-4">
+            <div className="text-center max-w-sm">
+              <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-teal-100 flex items-center justify-center mx-auto mb-4">
+                <MessageCircle size={24} className="text-bgColor md:w-8 md:h-8" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No chat selected</h3>
-              <p className="text-gray-500 mb-4">
+              <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-2">No chat selected</h3>
+              <p className="text-sm text-gray-500 mb-4">
                 Choose a chat from the sidebar or create a new one
               </p>
-              <button
-                onClick={createNewChat}
-                className="px-4 py-2 bg-bgColor text-white rounded-lg hover:bg-teal-900 transition-colors duration-200"
-              >
-                Start New Chat
-              </button>
+              <div className="space-y-2">
+                <button
+                  onClick={createNewChat}
+                  className="w-full px-4 cursor-pointer py-2 bg-bgColor text-white rounded-lg hover:bg-teal-900 transition-colors duration-200"
+                >
+                  Start New Chat
+                </button>
+                <button
+                  onClick={() => setIsSidebarOpen(true)}
+                  className="w-full md:hidden px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200"
+                >
+                  View Chats
+                </button>
+              </div>
             </div>
           </div>
         )}
