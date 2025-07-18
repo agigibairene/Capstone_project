@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import { AnimatePresence, motion } from 'framer-motion';

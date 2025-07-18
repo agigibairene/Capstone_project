@@ -1,68 +1,110 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.9;
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity >=0.7.0 <0.9.0;
 
-contract AgriContract {
-    struct AgriConnect {
-        address owner;
-        string projectTitle;
-        string briefDescription;
-        uint256 target;
-        uint256 deadline;
-        address[] donors;
-        uint256[] donations;
-        uint256 collectedAmount;
+contract Agriconnect {
+    string public title;
+    string public description;
+    uint256 public targetAmount;
+    uint256 public deadline;
+    address public farmer;
+    bool public  pauseFundRaising;
+
+    enum FundingState { Active, Successful, Failed }
+    FundingState public state;
+
+    struct Backer {
+        uint256 totalContribution;
     }
 
-    mapping(uint256 => AgriConnect) public projects;
-    uint256 public numberOfProjects = 0;
+    mapping(address => Backer) public backers;
 
-    function createProject(
-        address _owner,
-        string memory _projectTitle,
+    modifier onlyOwner() {
+        require(msg.sender == farmer, "Not the owner of this campaign");
+        _;
+    }
+
+    modifier fundingOpen() {
+        require(state == FundingState.Active, "Project is not active");
+        _;
+    }
+
+    modifier notPaused(){
+        require(!pauseFundRaising, "Fund raising has been paused");
+        _;
+    }
+
+    constructor(
+        string memory _title,
         string memory _description,
-        uint256 _target,
-        uint256 _deadline
-    ) public returns (uint256) {
-        require(_deadline > block.timestamp, "The deadline should be a future date");
-
-        AgriConnect storage project = projects[numberOfProjects];
-        project.owner = _owner;
-        project.projectTitle = _projectTitle;
-        project.briefDescription = _description;
-        project.target = _target;
-        project.deadline = _deadline;
-        project.collectedAmount = 0;
-
-        numberOfProjects++;
-
-        return numberOfProjects - 1;
+        uint256 _targetAmount,
+        uint256 _durationInDays
+    ) {
+        title = _title;
+        description = _description;
+        targetAmount = _targetAmount;
+        deadline = block.timestamp + (_durationInDays * 1 days);
+        farmer = msg.sender;
+        state = FundingState.Active;
     }
 
-    function contributeToProject(uint256 _id) public payable {
-        uint256 amount = msg.value;
-        AgriConnect storage project = projects[_id];
-
-        project.donors.push(msg.sender);
-        project.donations.push(amount);
-
-        (bool sent, ) = payable(project.owner).call{value: amount}("");
-        require(sent, "Failed to send Ether");
-
-        project.collectedAmount += amount;
-    }
-
-    function getDonors(uint256 _id) public view returns (address[] memory, uint256[] memory) {
-        return (projects[_id].donors, projects[_id].donations);
-    }
-
-    function getProjects() public view returns (AgriConnect[] memory) {
-        AgriConnect[] memory allProjects = new AgriConnect[](numberOfProjects);
-
-        for (uint i = 0; i < numberOfProjects; i++) {
-            AgriConnect storage item = projects[i];
-            allProjects[i] = item;
+    function checkAndUpdateFundingState() internal {
+        if (state == FundingState.Active) {
+            if (block.timestamp > deadline) {
+                state = address(this).balance >= targetAmount
+                    ? FundingState.Successful
+                    : FundingState.Failed;
+            } else if (address(this).balance >= targetAmount) {
+                state = FundingState.Successful;
+            }
         }
+    }
 
-        return allProjects;
+    function fund() public payable fundingOpen {
+        require(msg.value > 0, "Must fund amount greater than 0");
+        require(block.timestamp < deadline, "Campaign has expired");
+
+        Backer storage backer = backers[msg.sender];
+        backer.totalContribution += msg.value;
+
+        checkAndUpdateFundingState();
+    }
+
+    function withdraw() public onlyOwner {
+        checkAndUpdateFundingState();
+        require(state == FundingState.Successful, "Funding not successful");
+        require(address(this).balance >= targetAmount, "Target not reached");
+        uint256 balance = address(this).balance;
+        require(balance > 0, "No balance to withdraw");
+
+        payable(farmer).transfer(balance);
+    }
+
+    function getBalance() public view returns (uint256) {
+        return address(this).balance;
+    }
+
+    function refund() public {
+        checkAndUpdateFundingState();
+        require(state == FundingState.Failed, "Funding is not failed");
+        Backer storage backer = backers[msg.sender];
+        uint256 contribution = backer.totalContribution;
+        require(contribution > 0, "No contribution to refund");
+        backer.totalContribution = 0;
+        payable(msg.sender).transfer(contribution);
+    }
+
+    function togglePauseCampaign() public onlyOwner{
+        pauseFundRaising = !pauseFundRaising;   
+    }
+
+    function getFundRaiserStatus() public view returns(FundingState){
+        if (state == FundingState.Active && block.timestamp > deadline){
+            return address(this).balance >= targetAmount ? FundingState.Successful : FundingState.Failed;
+        }
+        return state;
+    }
+
+    function extendDeadline(uint256 _daysToAdd) public onlyOwner{
+        deadline += _daysToAdd * 1 days;
     }
 }

@@ -675,14 +675,5 @@ def update_user_view(request):
         
         
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def change_password_view(request):
-    serializer = PasswordChangeSerializer(data=request.data, context={'request': request})
-    if serializer.is_valid():
-        user = request.user
-        user.set_password(serializer.validated_data['new_password'])
-        user.save()
-        return Response({'success': True, 'message': 'Password updated successfully'}, status=200)
-    return Response({'success': False, 'errors': serializer.errors}, status=400)
+
 

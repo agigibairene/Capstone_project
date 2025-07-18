@@ -479,7 +479,7 @@ export default function Grants() {
 
             <div className="px-4 py-6 sm:px-6 sm:py-8">
               <div className="flex flex-col items-center gap-4 mb-6 sm:mb-8">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center text-white text-xl sm:text-2xl font-bold">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-bgColor to-teal-600 rounded-lg flex items-center justify-center text-white text-xl sm:text-2xl font-bold">
                   {selected.organization.charAt(0).toUpperCase()}
                 </div>
                 <div className="text-center">
