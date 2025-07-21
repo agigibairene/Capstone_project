@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
@@ -38,7 +39,7 @@ vi.mock('./KYC', () => ({
 }));
 
 vi.mock('react-redux', async (importOriginal) => {
-  const actual = await importOriginal();
+  const actual = await importOriginal() as Record<string, unknown>;
   return {
     ...actual,
     useDispatch: () => mockDispatch,
@@ -46,7 +47,7 @@ vi.mock('react-redux', async (importOriginal) => {
 });
 
 vi.mock('react-router-dom', async (importOriginal) => {
-  const actual = await importOriginal();
+  const actual = (await importOriginal()) as Record<string, unknown>;
   return {
     ...actual,
     useNavigate: () => vi.fn(),
@@ -59,10 +60,11 @@ vi.mock('react-router-dom', async (importOriginal) => {
   };
 });
 
+
 const mockStore = configureStore({
   reducer: {
-    kycReducer,
-    signupReducer,
+    kycReducer: kycReducer,
+    signupReducer: signupReducer,
   },
   preloadedState: {
     kycReducer: {
@@ -70,7 +72,7 @@ const mockStore = configureStore({
       error: null,
       success: false,
       kycData: null,
-      role: null as 'Farmer' | 'Investor' | null,
+      role: null,
     },
     signupReducer: {
       user: {
@@ -81,8 +83,6 @@ const mockStore = configureStore({
       loading: false,
       error: null,
       success: false,
-      access: '',
-      refresh: '',
     },
   },
 });
@@ -139,18 +139,23 @@ describe('KYCInvestor', () => {
 
     fireEvent.click(screen.getByLabelText('Next step'));
     await waitFor(() => {
-      expect(screen.getByText(/Step 2 of 3/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/ID Type/i)).toBeInTheDocument();
+        expect(screen.getByText(/Step 2 of 3/i)).toBeInTheDocument(); 
+        expect(screen.getByLabelText(/ID Type/i)).toBeInTheDocument(); 
     });
 
+
+
     fireEvent.click(screen.getByLabelText('Previous step'));
+
     await waitFor(() => {
       expect(screen.getByText(/Step 1 of 3/i)).toBeInTheDocument();
     });
   });
 
+  const token ='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +'eyJ1c2VySWQiOiIxMjM0NTYiLCJpYXQiOjE1MTYyMzkwMjJ9.' +'SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+
   it('prefills user data on mount', async () => {
-    localStorage.setItem('ACCESS_TOKEN', 'test-token');
+    localStorage.setItem('ACCESS_TOKEN', token);
     (fetch as any).mockResolvedValueOnce({
       ok: true,
       json: () => ({
@@ -172,6 +177,7 @@ describe('KYCInvestor', () => {
   it('submits form data successfully', async () => {
     renderWithProviders(<KYCInvestor />);
 
+    // Step 1
     fireEvent.change(screen.getByPlaceholderText('Full Name'), {
       target: { value: 'John Doe' },
     });
@@ -190,6 +196,7 @@ describe('KYCInvestor', () => {
 
     fireEvent.click(screen.getByLabelText('Next step'));
 
+    // Step 2
     await waitFor(() => {
       expect(screen.getByText(/Step 2 of 3/i)).toBeInTheDocument();
     });
@@ -211,6 +218,7 @@ describe('KYCInvestor', () => {
 
     fireEvent.click(screen.getByLabelText('Next step'));
 
+    // Step 3
     await waitFor(() => {
       expect(screen.getByText(/Step 3 of 3/i)).toBeInTheDocument();
     });
