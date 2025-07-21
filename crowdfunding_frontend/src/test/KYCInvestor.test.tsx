@@ -61,8 +61,8 @@ vi.mock('react-router-dom', async (importOriginal) => {
 
 const mockStore = configureStore({
   reducer: {
-    kycReducer: kycReducer,
-    signupReducer: signupReducer,
+    kycReducer,
+    signupReducer,
   },
   preloadedState: {
     kycReducer: {
@@ -70,7 +70,7 @@ const mockStore = configureStore({
       error: null,
       success: false,
       kycData: null,
-      role: null,
+      role: null as 'Farmer' | 'Investor' | null,
     },
     signupReducer: {
       user: {
@@ -81,6 +81,8 @@ const mockStore = configureStore({
       loading: false,
       error: null,
       success: false,
+      access: '',
+      refresh: '',
     },
   },
 });
@@ -137,14 +139,11 @@ describe('KYCInvestor', () => {
 
     fireEvent.click(screen.getByLabelText('Next step'));
     await waitFor(() => {
-        expect(screen.getByText(/Step 2 of 3/i)).toBeInTheDocument(); 
-        expect(screen.getByLabelText(/ID Type/i)).toBeInTheDocument(); 
+      expect(screen.getByText(/Step 2 of 3/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/ID Type/i)).toBeInTheDocument();
     });
 
-
-
     fireEvent.click(screen.getByLabelText('Previous step'));
-
     await waitFor(() => {
       expect(screen.getByText(/Step 1 of 3/i)).toBeInTheDocument();
     });
@@ -173,7 +172,6 @@ describe('KYCInvestor', () => {
   it('submits form data successfully', async () => {
     renderWithProviders(<KYCInvestor />);
 
-    // Step 1
     fireEvent.change(screen.getByPlaceholderText('Full Name'), {
       target: { value: 'John Doe' },
     });
@@ -192,7 +190,6 @@ describe('KYCInvestor', () => {
 
     fireEvent.click(screen.getByLabelText('Next step'));
 
-    // Step 2
     await waitFor(() => {
       expect(screen.getByText(/Step 2 of 3/i)).toBeInTheDocument();
     });
@@ -214,7 +211,6 @@ describe('KYCInvestor', () => {
 
     fireEvent.click(screen.getByLabelText('Next step'));
 
-    // Step 3
     await waitFor(() => {
       expect(screen.getByText(/Step 3 of 3/i)).toBeInTheDocument();
     });
