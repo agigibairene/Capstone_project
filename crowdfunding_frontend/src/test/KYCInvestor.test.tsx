@@ -60,11 +60,11 @@ vi.mock('react-router-dom', async (importOriginal) => {
   };
 });
 
-
+// ✅ Fixed: Correct shape of user object
 const mockStore = configureStore({
   reducer: {
-    kycReducer: kycReducer,
-    signupReducer: signupReducer,
+    kycReducer,
+    signupReducer,
   },
   preloadedState: {
     kycReducer: {
@@ -76,13 +76,22 @@ const mockStore = configureStore({
     },
     signupReducer: {
       user: {
-        full_name: '',
-        email: '',
-        phone_number: '',
+        id: 1,
+        username: 'johndoe',
+        email: 'john@example.com',
+        first_name: 'John',
+        last_name: 'Doe',
+        date_joined: '2024-01-01',
+        role: 'Investor', // Top-level, not nested
+        phone_number: '123456789',
+        organization: 'MyOrg',
+        investor_type: null,
       },
       loading: false,
       error: null,
       success: false,
+      access: '',
+      refresh: '',
     },
   },
 });
@@ -139,20 +148,20 @@ describe('KYCInvestor', () => {
 
     fireEvent.click(screen.getByLabelText('Next step'));
     await waitFor(() => {
-        expect(screen.getByText(/Step 2 of 3/i)).toBeInTheDocument(); 
-        expect(screen.getByLabelText(/ID Type/i)).toBeInTheDocument(); 
+      expect(screen.getByText(/Step 2 of 3/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/ID Type/i)).toBeInTheDocument();
     });
 
-
-
     fireEvent.click(screen.getByLabelText('Previous step'));
-
     await waitFor(() => {
       expect(screen.getByText(/Step 1 of 3/i)).toBeInTheDocument();
     });
   });
 
-  const token ='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +'eyJ1c2VySWQiOiIxMjM0NTYiLCJpYXQiOjE1MTYyMzkwMjJ9.' +'SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+  const token =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +
+    'eyJ1c2VySWQiOiIxMjM0NTYiLCJpYXQiOjE1MTYyMzkwMjJ9.' +
+    'SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
 
   it('prefills user data on mount', async () => {
     localStorage.setItem('ACCESS_TOKEN', token);
