@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/prefer-as-const */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { signupUser, signupReducer, resetSignupState, logout, clearError, setUserRole, initializeAuth } from '../redux/signup_auth';
@@ -40,7 +41,7 @@ describe('signupSlice', () => {
       first_name: 'Jane',
       last_name: 'Doe',
       email: 'jane@example.com',
-      role: 'Investor',
+      role: 'Investor' as 'Investor',
       phone_number: '123456789',
       organization: 'AgriOrg',
       investor_type: 'Organization',
@@ -64,7 +65,7 @@ describe('signupSlice', () => {
       email: 'jane@example.com',
       password: 'pass123',
       confirm_password: 'pass123',
-      role: 'Investor',
+      role: 'Investor' as 'Investor',
       phone_number: '123456789',
       organization: 'AgriOrg',
       investorType: 'Organization',
@@ -91,7 +92,7 @@ describe('signupSlice', () => {
       email: 'exists@example.com',
       password: '123456',
       confirm_password: '123456',
-      role: 'Farmer',
+      role: 'Farmer' as 'Farmer',
       phone_number: '0000000000',
     }) as any);
 
@@ -125,7 +126,7 @@ describe('signupSlice', () => {
         first_name: 'Jane',
         last_name: 'Doe',
         email: 'jane@example.com',
-        role: 'Farmer',
+        role: 'Farmer' as 'Farmer',
         phone_number: '123',
         organization: null,
         investor_type: null,
@@ -150,13 +151,13 @@ describe('signupSlice', () => {
       first_name: 'Jane',
       last_name: 'Doe',
       email: 'jane@example.com',
-      role: 'Farmer',
+      role: 'Farmer' as 'Farmer',
       phone_number: '123',
       organization: null,
       investor_type: null,
     };
 
-    const nextState = signupReducer({ ...initialState, user }, setUserRole('Investor'));
+    const nextState = signupReducer({ ...initialState, user }, setUserRole('Investor' as 'Investor'));
     expect(nextState.user?.role).toBe('Investor');
     expect(localStorage.getItem('role')).toBe('Investor');
   });
