@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/prefer-as-const */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { loginUser, logout, setAuthTokens, initializeAuth, loginReducer } from '../redux/login_auth';
@@ -30,7 +31,7 @@ const sampleUser = {
   date_joined: '2023-01-01',
   profile: {
     phone_number: '1234567890',
-    role: 'Farmer',
+    role: 'Farmer' as 'Farmer',
     organization: 'FarmCo',
     investor_type: null,
   }

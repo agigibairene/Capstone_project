@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/prefer-as-const */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
@@ -60,7 +61,6 @@ vi.mock('react-router-dom', async (importOriginal) => {
   };
 });
 
-// ✅ Fixed: Correct shape of user object
 const mockStore = configureStore({
   reducer: {
     kycReducer,
@@ -82,7 +82,7 @@ const mockStore = configureStore({
         first_name: 'John',
         last_name: 'Doe',
         date_joined: '2024-01-01',
-        role: 'Investor', // Top-level, not nested
+        role: 'Investor' as 'Investor',
         phone_number: '123456789',
         organization: 'MyOrg',
         investor_type: null,
