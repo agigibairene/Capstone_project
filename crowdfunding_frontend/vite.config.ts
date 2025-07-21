@@ -7,6 +7,11 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     dedupe: ['react', 'react-dom'],
   },
+  test: {
+    environment: 'jsdom', 
+    globals: true, 
+    setupFiles: '/src/test/setup.ts', 
+  },
   server: mode === 'development' ? {
     host: true,
     port: 8080,

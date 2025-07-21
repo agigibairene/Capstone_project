@@ -317,7 +317,7 @@ export default function KYCInvestor() {
                         className={inputClass}
                         placeholder='Email Address'
                       />
-                      {errors.fullName && <p className="text-xs font-bold text-red-600 mt-1 drop-shadow">{errors.email}</p>}
+                      {errors.email && <p className="text-xs font-bold text-red-600 mt-1 drop-shadow">{errors.email}</p>}
                     </div>
 
                     <div>
@@ -349,8 +349,9 @@ export default function KYCInvestor() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-white font-semibold text-xs mb-1 drop-shadow">Date of Birth (Must be 18+)</label>
+                        <label htmlFor="dateOfBirth" className="block text-white font-semibold text-xs mb-1 drop-shadow">Date of Birth (Must be 18+)</label>
                         <input
+                          id='dateOfBirth'
                           name="dateOfBirth"
                           type="date"
                           value={formData.dateOfBirth}
@@ -380,7 +381,9 @@ export default function KYCInvestor() {
                 {currentStep === 2 && (
                   <>
                     <div>
+                     <label htmlFor="idType" className="block text-white font-semibold text-xs mb-1 drop-shadow">ID Type</label>
                      <select
+                        id="idType"
                         name="idType"
                         value={formData.idType}
                         onChange={handleChange}
@@ -410,8 +413,9 @@ export default function KYCInvestor() {
                     </div>
 
                     <div>
-                      <label className="block text-white font-semibold text-xs mb-1 drop-shadow">Upload ID Document</label>
+                      <label htmlFor="idUpload" className="block text-white font-semibold text-xs mb-1 drop-shadow">Upload ID Document</label>
                       <input
+                        id="idUpload"
                         name="idUpload"
                         type="file"
                         accept="image/*,.pdf"
@@ -422,8 +426,9 @@ export default function KYCInvestor() {
                     </div>
 
                     <div>
-                      <label className="block text-white font-semibold text-xs mb-1 drop-shadow">Upload Profile Picture</label>
+                      <label htmlFor="profilePicture" className="block text-white font-semibold text-xs mb-1 drop-shadow">Upload Profile Picture</label>
                       <input
+                        id="profilePicture"
                         name="profilePicture"
                         type="file"
                         accept="image/*"
@@ -462,7 +467,11 @@ export default function KYCInvestor() {
                     </div>
 
                     <div>
+                      <label htmlFor="incomeSource" className="sr-only">
+                        Income Source
+                      </label>
                       <select
+                        id="incomeSource"
                         name="incomeSource"
                         value={formData.incomeSource}
                         onChange={handleChange}
@@ -510,6 +519,7 @@ export default function KYCInvestor() {
                       <button
                         type="button"
                         onClick={handlePrevious}
+                        aria-label="Previous step"
                         className="bg-bgColor cursor-pointer hover:bg-white/30 backdrop-blur-sm text-limeTxt font-medium py-2 px-4 rounded-lg transition-all duration-200 border border-white/30 hover:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 text-sm shadow-lg"
                       >
                         <ArrowLeft className='text-limeTxt'/>
@@ -522,6 +532,7 @@ export default function KYCInvestor() {
                       <button
                         type="button"
                         onClick={handleNext}
+                        aria-label="Next step"
                         className="bg-bgColor cursor-pointer hover:bg-white/30 font-medium py-2 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-bgColor text-sm shadow-lg"
                       >
                         <ArrowRight className='text-limeTxt'/>
@@ -530,6 +541,7 @@ export default function KYCInvestor() {
                       <button
                         type="submit"
                         disabled={loading}
+                        aria-label="Submit form"
                         className={`bg-bgColor cursor-pointer hover:bg-white/30 text-limeTxt font-medium py-2 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-bgColor text-sm shadow-lg ${
                           loading ? 'opacity-50 cursor-not-allowed' : ''
                         }`}

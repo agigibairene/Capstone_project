@@ -31,7 +31,7 @@ interface AuthResponse {
   refresh: string;
 }
 
-interface AuthState {
+export interface AuthState {
   user: User | null;
   access: string | null;
   refresh: string | null;

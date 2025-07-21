@@ -52,6 +52,7 @@ export default function Signup() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [hasSubmitted, setHasSubmitted] = useState(false); // Track if form has been submitted
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
@@ -64,7 +65,8 @@ export default function Signup() {
       [name]: value,
     }));
     
-    if (errors[name]) {
+    // Only clear errors after the form has been submitted once
+    if (errors[name] && hasSubmitted) {
       setErrors((prev) => ({
         ...prev,
         [name]: "",
@@ -121,6 +123,7 @@ export default function Signup() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setHasSubmitted(true); 
     const foundErrors = validateInput();
     setErrors(foundErrors);
 
@@ -233,7 +236,9 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
               <div className="w-full">
+                <label htmlFor="first_name" className="sr-only">First Name</label>
                 <input
+                  id="first_name"
                   name="first_name"
                   type="text"
                   placeholder="First Name"
@@ -244,7 +249,9 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
                 {errors.first_name && <p className="text-xs text-red-500 mt-1">{errors.first_name}</p>}
               </div>
               <div className="w-full">
+                <label htmlFor="last_name" className="sr-only">Last Name</label>
                 <input
+                  id="last_name"
                   name="last_name"
                   type="text"
                   placeholder="Last Name"
@@ -257,7 +264,9 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
             </div>
 
             <div>
+              <label htmlFor="email" className="sr-only">Email</label>
               <input
+                id="email"
                 name="email"
                 type="email"
                 placeholder="Email"
@@ -269,11 +278,14 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
             </div>
 
             <div>
+              <label htmlFor="role" className="sr-only">Role</label>
               <select
+                id="role"
                 name="role"
                 value={userInput.role}
                 onChange={handleUserInput}
                 className={`input w-full ${errors.role ? 'border-red-500' : ''}`}
+                aria-label="Select your role"
               >
                 <option value="">Select Role</option>
                 <option value="Farmer">Farmer</option>
@@ -313,7 +325,9 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
                   )}
                 </div>
                 
+                <label htmlFor="phone_number" className="sr-only">Phone Number</label>
                 <input
+                  id="phone_number"
                   name="phone_number"
                   type="tel"
                   placeholder="Phone Number"
@@ -328,11 +342,14 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
             {userInput.role === "Investor" && (
               <>
                 <div>
+                  <label htmlFor="investorType" className="sr-only">Investor Type</label>
                   <select
+                    id="investorType"
                     name="investorType"
                     value={userInput.investorType}
                     onChange={handleUserInput}
                     className={`input w-full ${errors.investorType ? 'border-red-500' : ''}`}
+                    aria-label="Select investor type"
                   >
                     <option value="">Select investor type</option>
                     <option value="Organization">Organization</option>
@@ -341,7 +358,9 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
                   {errors.investorType && <p className="text-xs text-red-500 mt-1">{errors.investorType}</p>}
                 </div>
                 <div>
+                  <label htmlFor="organization" className="sr-only">Organization</label>
                   <input
+                    id="organization"
                     name="organization"
                     type="text"
                     placeholder="Organization"
@@ -357,7 +376,9 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
             <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
               <div className="w-full">
                 <div className="relative">
+                  <label htmlFor="password" className="sr-only">Password</label>
                   <input
+                    id="password"
                     name="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Password"
@@ -381,7 +402,9 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
               </div>
               <div className="w-full">
                 <div className="relative">
+                  <label htmlFor="confirm_password" className="sr-only">Confirm Password</label>
                   <input
+                    id="confirm_password"
                     name="confirm_password"
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="Confirm Password"
