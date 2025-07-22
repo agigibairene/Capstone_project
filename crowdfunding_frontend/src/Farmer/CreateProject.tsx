@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import InputField from "../Utils/InputField";
@@ -5,7 +6,7 @@ import Loader from "../Utils/Loader";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { API_URL } from "../Utils/constants";
-
+import { Loader2 } from "lucide-react";
 
 export default function CreateProject() {
   const [isLoading, setIsLoading] = useState(false);
@@ -13,26 +14,24 @@ export default function CreateProject() {
   const [projectSubmitted, setProjectSubmitted] = useState(false);
   const [kycNotVerified, setKycNotVerified] = useState(false);
   const [form, setForm] = useState({
-    name: '',
     title: '',
-    email: '',
+    projectType: '',
+    phoneNumber: '',
     brief: '',
     description: '',
     benefits: '',
     target_amount: '',
     deadline: '',
-    image: '',
+    businessPlan: null as File | null,
     file: null as File | null,
   });
+
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
 
-  useEffect(() => {
-    checkKycStatus();
-  }, []);
 
-  async function checkKycStatus() {
+ async function checkKycStatus() {
     const token = localStorage.getItem("ACCESS_TOKEN");
     
     if (!token) {
@@ -62,13 +61,19 @@ export default function CreateProject() {
         throw new Error("Failed to check KYC status");
       }
 
-      const data = await response.json();
+      const responseData = await response.json();
       
-  
-      if (!data.kyc_verified) {
+      if (!responseData.success) {
+        throw new Error(responseData.message || "Failed to get KYC status");
+      }
+      
+      const kycData = responseData.data;
+      
+      if (!kycData.has_kyc || !kycData.is_verified) {
         setKycNotVerified(true);
       }
-    } catch (error: any) {
+      
+    } catch (error) {
       console.error("KYC status check error:", error);
       toast.error("Unable to verify KYC status. Please try again.");
     } finally {
@@ -76,9 +81,13 @@ export default function CreateProject() {
     }
   }
 
-  function handleFormFieldChange(fieldName: keyof typeof form, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>){
-    if (fieldName === "file" && e.target instanceof HTMLInputElement && e.target.files) {
-      setForm({ ...form, file: e.target.files[0] });
+  useEffect(() => {
+    checkKycStatus();
+  }, []);
+
+  function handleFormFieldChange(fieldName: keyof typeof form, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>){
+    if ((fieldName === "file" || fieldName === "businessPlan") && e.target instanceof HTMLInputElement && e.target.files) {
+      setForm({ ...form, [fieldName]: e.target.files[0] });
     } else {
       setForm({ ...form, [fieldName]: e.target.value });
     }
@@ -89,14 +98,12 @@ export default function CreateProject() {
     const errors: Record<string, string> = {};
 
     // Required field validation
-    if (!form.name.trim()) errors.name = "Name is required";
     if (!form.title.trim()) errors.title = "Title is required";
-    if (!form.email.trim()) errors.email = "Valid email is required";
+    if (!form.projectType.trim()) errors.projectType = "Project type is required";
     if (!form.brief.trim()) errors.brief = "Brief description is required";
     if (!form.description.trim()) errors.description = "Detailed description is required";
-    if (!form.target_amount.trim()) errors.target = "Funding target is required";
+    if (!form.target_amount.trim()) errors.target_amount = "Funding target is required";
     if (!form.deadline.trim()) errors.deadline = "Deadline is required";
-    if (!form.image.trim()) errors.image = "Image URL is required";
     
     // File validation
     if (!form.file) {
@@ -104,13 +111,39 @@ export default function CreateProject() {
     } else if (form.file.type !== "application/pdf") {
       errors.file = "Only PDF files are accepted";
     } else if (form.file.size > 25 * 1024 * 1024) { 
-      errors.file = "File size must be less than 5MB";
+      errors.file = "File size must be less than 25MB";
     }
 
-    // Email format validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (form.email.trim() && !emailRegex.test(form.email)) {
-      errors.email = "Please enter a valid email address";
+    // Business Plan file validation
+    if (!form.businessPlan) {
+      errors.businessPlan = "Business Plan PDF is required";
+    } else if (form.businessPlan.type !== "application/pdf") {
+      errors.businessPlan = "Only PDF files are accepted";
+    } else if (form.businessPlan.size > 25 * 1024 * 1024) {
+      errors.businessPlan = "File size must be less than 25MB";
+    }
+
+    // Phone number validation (optional but if provided, should be valid)
+    if (form.phoneNumber.trim()) {
+      const phoneRegex = /^[\+]?[\d\s\-\(\)]{10,}$/;
+      if (!phoneRegex.test(form.phoneNumber.replace(/\s/g, ''))) {
+        errors.phoneNumber = "Please enter a valid phone number";
+      }
+    }
+
+    // Target amount validation
+    const targetAmount = parseFloat(form.target_amount);
+    if (isNaN(targetAmount) || targetAmount <= 0) {
+      errors.target_amount = "Target amount must be a positive number";
+    }
+
+    // Deadline validation
+    const selectedDate = new Date(form.deadline);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (selectedDate <= today) {
+      errors.deadline = "Deadline must be a future date";
     }
 
     setFormErrors(errors);
@@ -133,20 +166,21 @@ export default function CreateProject() {
     }
 
     const formData = new FormData();
-    formData.append("name", form.name);
     formData.append("title", form.title);
-    formData.append("email", form.email);
+    formData.append("project_type", form.projectType);
     formData.append("brief", form.brief);
     formData.append("description", form.description);
     formData.append("benefits", form.benefits);
     formData.append("target_amount", form.target_amount);
     formData.append("deadline", form.deadline);
-    formData.append("image", form.image);
-    if (form.file) formData.append("file", form.file);
+    if (form.phoneNumber.trim()) {
+      formData.append("phone_number", form.phoneNumber);
+    }
+    
+    if (form.file) formData.append("proposal", form.file);
+    if (form.businessPlan) formData.append('business_plan', form.businessPlan);
 
-    try {
-      console.log("Submitting with token:", token ? "Token present" : "No token");
-      
+    try {      
       const response = await fetch(`${API_URL}/projects/create/`, {
         method: "POST",
         headers: {
@@ -203,15 +237,15 @@ export default function CreateProject() {
 
   function resetForm(){
     setForm({
-      name: '',
       title: '',
-      email: '',
+      projectType: '',
+      phoneNumber: '',
       brief: '',
       description: '',
       benefits: '',
       target_amount: '',
       deadline: '',
-      image: '',
+      businessPlan: null,
       file: null,
     });
     setFormErrors({});
@@ -220,50 +254,48 @@ export default function CreateProject() {
   };
 
   const SuccessCard = () => (
-    <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center max-w-md mx-auto">
-      <div className="mb-4">
-        <svg className="mx-auto h-12 w-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center max-w-md mx-auto">
+        <div className="mb-4">
+          <svg className="mx-auto h-12 w-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 className="text-lg font-semibold text-green-800 mb-2">Project Successfully Submitted!</h3>
+        <p className="text-green-700 text-sm mb-4">
+          Your project has been submitted for review. You will be notified once it's approved.
+        </p>
+        <button
+          onClick={resetForm}
+          className="bg-bgColor hover:bg-teal-700 text-limeTxt cursor-pointer font-medium py-2 px-4 rounded-md transition duration-200"
+        >
+          Submit Another Project
+        </button>
       </div>
-      <h3 className="text-lg font-semibold text-green-800 mb-2">Project Successfully Submitted!</h3>
-      <p className="text-green-700 text-sm mb-4">
-        Your project has been submitted for review. You will be notified once it's approved.
-      </p>
-      <button 
-        onClick={resetForm}
-        className="bg-bgColor hover:bg-teal-700 text-limeTxt cursor-pointer font-medium py-2 px-4 rounded-md transition duration-200"
-      >
-        Submit Another Project
-      </button>
     </div>
   );
 
   // KYC Not Verified Card Component
   const KycNotVerifiedCard = () => (
-    <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center max-w-md mx-auto">
-      <div className="mb-4">
-        <svg className="mx-auto h-12 w-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-        </svg>
-      </div>
-      <h3 className="text-lg font-semibold text-red-800 mb-2">Verification Required</h3>
-      <p className="text-red-700 text-sm mb-4">
-        You need to complete KYC verification before you can submit a project.
-      </p>
-      <div className="space-y-2">
-        <button 
-          onClick={() => navigate("/kyc-verification")}
-          className="bg-red-600 hover:bg-red-700 cursor-pointer text-white font-medium py-2 px-4 rounded-md transition duration-200 w-full"
-        >
-          Complete KYC Verification
-        </button>
-        <button 
-          onClick={() => navigate(-1)}
-          className="bg-gray-300 hover:bg-gray-400 cursor-pointer text-gray-700 font-medium py-2 px-4 rounded-md transition duration-200 w-full"
-        >
-          Go Back
-        </button>
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center justify-center max-w-md mx-auto">
+        <div className="mb-4">
+          <svg className="mx-auto h-12 w-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+          </svg>
+        </div>
+        <h3 className="text-lg font-semibold text-red-800 mb-2">Verification Required</h3>
+        <p className="text-red-700 text-sm mb-4">
+          You need to complete KYC verification before you can submit a project.
+        </p>
+        <div className="space-y-2">
+          <button
+            onClick={() => navigate("/kyc-verification")}
+            className="bg-red-600 hover:bg-red-700 cursor-pointer text-white font-medium py-2 px-4 rounded-md transition duration-200 w-full"
+          >
+            Complete KYC Verification
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -289,11 +321,8 @@ export default function CreateProject() {
     );
   }
 
-
   return (
-    <div className="bg-white/20 backdrop-blur-sm mx-auto w-[85%] flex justify-center items-center flex-col rounded-lg sm:p-10 p-4">
-      {isLoading && <Loader text="Creating project..." />}
-      
+    <div className="bg-white/20 backdrop-blur-sm mx-auto w-[85%] flex justify-center items-center flex-col rounded-lg sm:p-10 p-4">      
       <div className="flex justify-center items-center p-[16px] sm:min-w-[380px] bg-bgColor rounded-[10px]">
         <h1 className="font-Outfit font-bold sm:text-[25px] text-[18px] leading-[38px] text-limeTxt">
           Start a Project
@@ -303,15 +332,6 @@ export default function CreateProject() {
       <form onSubmit={handleSubmit} className="w-full mt-[65px] flex flex-col gap-[30px]">
         <div className="flex flex-wrap gap-[40px]">
           <InputField 
-            label="Your Name *" 
-            placeholder="Enter your full name" 
-            inputType="text" 
-            value={form.name} 
-            handleChange={(e) => handleFormFieldChange('name', e)} 
-            isTextArea={false} 
-            error={formErrors.name} 
-          />
-          <InputField 
             label="Project Title *" 
             placeholder="Write a title" 
             inputType="text" 
@@ -320,17 +340,37 @@ export default function CreateProject() {
             isTextArea={false} 
             error={formErrors.title} 
           />
+          <div className="flex-1 min-w-[300px]">
+            <label htmlFor="projectType" className="block text-[14px] font-Outfit font-medium text-limeTxt mb-[10px]">
+              Is this an existing project or a new idea? *
+            </label>
+            <select 
+              id="projectType" 
+              name="projectType" 
+              value={form.projectType}
+              onChange={(e) => handleFormFieldChange('projectType', e)}
+              className="w-full py-[15px] sm:px-[25px] px-[15px] outline-none border-[1px] focus:border-limeTxt border-white/30 bg-transparent font-Outfit text-white text-[14px] placeholder:text-[#4b5264] rounded-[10px]"
+              required
+            >   
+              <option value="" hidden className="text-white">Select Project Type</option>   
+              <option value="new" className="text-gray-700">New Project Idea</option>   
+              <option value="existing" className="text-gray-700">Existing Project (needs funding)</option>   
+            </select>
+            {formErrors.projectType && (
+              <p className="mt-2 text-red-500 text-sm">{formErrors.projectType}</p>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-[40px]">
           <InputField 
-            label="Email address *" 
-            placeholder="Enter your email address" 
-            inputType="email" 
-            value={form.email} 
-            handleChange={(e) => handleFormFieldChange('email', e)} 
+            label="Phone Number (Optional)" 
+            placeholder="Enter your phone number" 
+            inputType="tel" 
+            value={form.phoneNumber} 
+            handleChange={(e) => handleFormFieldChange('phoneNumber', e)} 
             isTextArea={false} 
-            error={formErrors.email} 
+            error={formErrors.phoneNumber} 
           />
           <InputField 
             label="Brief description *" 
@@ -369,13 +409,13 @@ export default function CreateProject() {
 
         <div className="flex flex-wrap gap-[40px]">
           <InputField 
-            label="Target Amount *" 
-            placeholder="USD/ETH 0.50" 
+            label="Target Amount (USD) *" 
+            placeholder="Enter amount in USD" 
             inputType="number" 
             value={form.target_amount} 
             isTextArea={false} 
             handleChange={(e) => handleFormFieldChange('target_amount', e)} 
-            error={formErrors.target} 
+            error={formErrors.target_amount} 
           />
           <InputField 
             label="End Date *" 
@@ -390,17 +430,19 @@ export default function CreateProject() {
 
         <div className="flex flex-wrap gap-[40px]">
           <InputField 
-            label="Image URL *" 
-            placeholder="Place image URL of your project" 
-            inputType="url" 
+            label="Business Plan *" 
+            placeholder="Upload your business plan PDF" 
+            inputType="file" 
             isTextArea={false} 
-            value={form.image} 
-            handleChange={(e) => handleFormFieldChange('image', e)} 
-            error={formErrors.image} 
+            accept=".pdf"
+            value=''
+            handleChange={(e) => handleFormFieldChange('businessPlan', e)} 
+            error={formErrors.businessPlan} 
+            fileName={form.businessPlan?.name} 
           />
           <InputField 
-            label="Proposal upload *"
-            placeholder="Upload your proposal PDF"
+            label="Project Proposal *"
+            placeholder="Upload your project proposal PDF"
             inputType="file"
             accept=".pdf"
             isTextArea={false}
@@ -419,7 +461,15 @@ export default function CreateProject() {
               isLoading ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
-            {isLoading ? <Loader text="Submitting" /> : 'Submit your project'}
+            {isLoading ? (
+              <div className="flex items-center justify-center">
+                <Loader2 className="w-8 h-8 text-limeTxt animate-spin mx-auto mr-2" />
+                <span>Submitting...</span>
+              </div>
+
+            ): 
+             'Submit your project'
+            }
           </button>    
         </div>
       </form>

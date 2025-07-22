@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useSelector } from 'react-redux';
 import type { RootState } from '../redux/store';
 import { API_URL } from '../Utils/constants';
@@ -40,7 +41,6 @@ export default function FarmerHome() {
       if (!response.ok) {
         // Check if it's a verification/authentication error
         if (response.status === 401 || response.status === 403) {
-          // Farmer not verified - show 0 values instead of error
           setProjects([]);
           setError(null);
           return;

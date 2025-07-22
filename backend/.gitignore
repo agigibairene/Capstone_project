@@ -9,3 +9,5 @@ staticfiles/
 proposals/
 **/__pycache__/
 *.pyc
+documents/
+profiles/

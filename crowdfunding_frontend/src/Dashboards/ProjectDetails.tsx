@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Download,
-  Calendar,
   MapPin,
   ExternalLink,
   AlertCircle,
-  ArrowLeft
+  ArrowLeft,
+  Phone,
+  FileText,
+  Briefcase
 } from 'lucide-react';
 
 export interface ProjectDetailsProps {
@@ -23,27 +25,53 @@ export interface ProjectDetailsProps {
     status: string;
     created_at: string;
     watermarked_proposal: string;
+    watermarked_business_plan: string;
     benefits: string;
     email: string;
+    phone_number: string;
   };
 }
 
 export default function ProjectDetails({ project: propProject}: ProjectDetailsProps) {
   const [pdfError, setPdfError] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeDocument, setActiveDocument] = useState('proposal'); 
   const navigate = useNavigate();
   const location = useLocation();
-
 
   const project = propProject || location.state?.project;
   const backToDashboard = location.state?.project.is_farmer ? '/farmer' : '/investor'
   const handleBack = () => navigate(backToDashboard);
 
+  const documents = [
+  {
+    key: 'proposal',
+    label: 'Proposal',
+    icon: FileText,
+  },
+  {
+    key: 'business_plan',
+    label: 'Business Plan',
+    icon: Briefcase,
+  },
+  ];
+
+  const getCurrentDocumentUrl = () => {
+    return activeDocument === 'proposal' 
+      ? project?.watermarked_proposal 
+      : project?.watermarked_business_plan;
+  };
 
   function handleDownload(){
-    if (project?.watermarked_proposal) {
-      window.open(project.watermarked_proposal, '_blank');
+    const documentUrl = getCurrentDocumentUrl();
+    if (documentUrl) {
+      window.open(documentUrl, '_blank');
     }
+  };
+
+  const handleDocumentToggle = (docType) => {
+    setActiveDocument(docType);
+    setPdfError(false); 
   };
 
   if (!project) {
@@ -112,16 +140,36 @@ export default function ProjectDetails({ project: propProject}: ProjectDetailsPr
         </button>
       </div>
 
+      {/* Document Toggle - positioned above PDF viewer */}
+      <div className="bg-bgColor border-b  border-gray-700 px-4 py-3">
+        <div className="flex space-x-1 bg-gray-700 mx-auto rounded-lg p-1 max-w-md">
+          {documents.map(({ key, label, icon: Icon}) => (
+            <button
+              key={key}
+              onClick={() => handleDocumentToggle(key)}
+              className={`flex items-center cursor-pointer space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors flex-1 justify-center ${
+                activeDocument === key
+                  ? `bg-emerald-600 text-limeTxt`
+                  : ' hover:text-white hover:bg-gray-600'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              <span>{label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
       <div className="flex flex-1 overflow-hidden">
         {/* PDF Viewer */}
-        <div className="flex-1 bg-gray-600 overflow-hidden relative">
+        <div className="flex-1 bg-gray-600 overflow-hidden no-scrollbar relative">
           <div className="h-full p-2 sm:p-4 overflow-auto no-scrollbar">
             {!pdfError ? (
-              <div className="h-full w-full flex justify-center items-center">
+              <div className="h-full w-full flex justify-center items-center no-scrollbar">
                 <iframe
-                  src={project.watermarked_proposal}
+                  key={activeDocument} 
+                  src={getCurrentDocumentUrl()}
                   className="rounded-lg border border-gray-700 bg-white w-full h-full"
-                  title="Project Proposal PDF"
+                  title={`Project ${activeDocument === 'proposal' ? 'Proposal' : 'Business Plan'} PDF`}
                   onError={() => setPdfError(true)}
                 />
               </div>
@@ -131,11 +179,11 @@ export default function ProjectDetails({ project: propProject}: ProjectDetailsPr
                   <AlertCircle className="w-12 h-12 sm:w-16 sm:h-16 text-red-500 mx-auto mb-4" />
                   <h3 className="text-lg sm:text-xl font-semibold mb-2">Unable to load PDF</h3>
                   <p className="text-gray-400 mb-4 text-sm sm:text-base">
-                    The PDF document could not be displayed in the browser.
+                    The {activeDocument === 'proposal' ? 'proposal' : 'business plan'} document could not be displayed in the browser.
                   </p>
                   <button
                     onClick={handleDownload}
-                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors text-sm sm:text-base"
+                    className="px-4 py-2 cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors text-sm sm:text-base"
                   >
                     Download PDF Instead
                   </button>
@@ -187,18 +235,12 @@ export default function ProjectDetails({ project: propProject}: ProjectDetailsPr
           <div className="mb-6">
             <h3 className="text-sm font-medium mb-3 text-gray-300">Document Info</h3>
             <div className="space-y-3 text-sm">
+              
               <div className="flex items-start space-x-2">
-                <Calendar className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                <Phone className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1">
-                  <span className="text-gray-400">Created:</span>
-                  <span className="text-white">{new Date(project.created_at).toLocaleDateString()}</span>
-                </div>
-              </div>
-              <div className="flex items-start space-x-2">
-                <Calendar className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                <div className="flex flex-col sm:flex-row sm:items-center gap-1">
-                  <span className="text-gray-400">Deadline:</span>
-                  <span className="text-white">{new Date(project.deadline).toLocaleDateString()}</span>
+                  <span className="text-gray-400">Phone Number:</span>
+                  <span className="text-white">{project.phone_number}</span>
                 </div>
               </div>
               <div className="flex items-start space-x-2">
@@ -254,10 +296,10 @@ export default function ProjectDetails({ project: propProject}: ProjectDetailsPr
               className="w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors flex items-center justify-center space-x-2 text-sm font-medium"
             >
               <Download className="w-4 h-4" />
-              <span>Download PDF</span>
+              <span>Download {activeDocument === 'proposal' ? 'Proposal' : 'Business Plan'}</span>
             </button>
             <button 
-              onClick={() => window.open(project.watermarked_proposal, '_blank')}
+              onClick={() => window.open(getCurrentDocumentUrl(), '_blank')}
               className="w-full px-4 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors flex items-center justify-center space-x-2 text-sm font-medium"
             >
               <ExternalLink className="w-4 h-4" />

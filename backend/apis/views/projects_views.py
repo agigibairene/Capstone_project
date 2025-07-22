@@ -10,11 +10,17 @@ from ..permissions import CanViewProject, IsVerifiedFarmer
 from ..models import  InvestorKYC, NDAAgreement, Project, UserProfile
 from ..serializers import  NDAAgreementSerializer, ProjectCreateSerializer, ProjectSerializer
 from django.views.decorators.clickjacking import xframe_options_exempt
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponse
 from django.db.models import Sum, Count
 from datetime import timedelta
 from django.utils import timezone
 import logging
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet,  ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
+from reportlab.lib.units import inch
+from io import BytesIO
+import urllib.request
 
 
 logger = logging.getLogger(__name__)
@@ -31,13 +37,12 @@ def create_project(request):
             project = serializer.save(farmer=request.user)
 
             try:
-                # Optionally get user profile and role
                 profile = getattr(request.user, 'profile', None)
 
                 subject = "📢 New Project Created by Farmer"
                 msg = (
                     f"A new project has been created:\n\n"
-                    f"Farmer Name: {request.user.first_name} {request.user.last_name}\n"
+                    f"Farmer Name: {request.user.first_name}\n"
                     f"Email: {request.user.email}\n"
                     f"Project Title: {project.title}\n"
                     f"Phone: {profile.phone_number}\n"
@@ -181,7 +186,6 @@ def farmer_projects_sum(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, CanViewProject])
 def get_recommended_projects(request):
@@ -223,15 +227,6 @@ def get_recommended_projects(request):
 
 # NDA VIEW
 
-from django.http import HttpResponse
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.utils import ImageReader
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
-from reportlab.lib.units import inch
-from io import BytesIO
-import os
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated]) 
@@ -288,17 +283,7 @@ def check_nda_status(request):
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-from django.http import HttpResponse
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status
-from io import BytesIO
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
-from reportlab.lib.units import inch
-import urllib.request
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

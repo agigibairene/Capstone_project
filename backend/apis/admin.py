@@ -104,11 +104,8 @@ class ProjectAdmin(admin.ModelAdmin):
     list_display = ('title', 'farmer', 'status', 'target_amount', 'deadline', 'created_at')
     list_filter = ('status', 'created_at', 'deadline')
     search_fields = ('title', 'farmer__username', 'email', 'brief', 'description')
-    readonly_fields = ('watermarked_proposal', 'created_at', 'updated_at')
+    readonly_fields = ('watermarked_proposal', 'created_at', 'updated_at', 'watermarked_business_plan')
     
-    # def status_display(self, obj):
-    #     return obj.get_status_display()
-    # status_display.short_description = 'Status'
 
     def watermarked_link(self, obj):
         if obj.watermarked_proposal:
@@ -119,23 +116,19 @@ class ProjectAdmin(admin.ModelAdmin):
     
     fieldsets = (
         (None, {
-            'fields': ('farmer', 'name', 'title', 'email', 'brief', 'description', 'benefits')
+            'fields': ('farmer', 'title', 'project_type', 'brief', 'description', 'benefits')
         }),
         ('Funding Info', {
             'fields': ('target_amount', 'deadline')
         }),
         ('Media & Files', {
-            'fields': ('image_url', 'original_proposal', 'watermarked_proposal')
+            'fields': ('original_proposal', 'original_business_plan', 'watermarked_proposal', 'watermarked_business_plan')
         }),
         ('Status & Timestamps', {
             'fields': ('status', 'created_at', 'updated_at')
         }),
     )
-    
-    # def save_model(self, request, obj, form, change):
-    #     if not obj.status:
-    #         obj.status = 'pending'
-    #     super().save_model(request, obj, form, change)
+
 
 
 # NDA

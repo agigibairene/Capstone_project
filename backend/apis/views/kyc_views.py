@@ -210,59 +210,144 @@ def submit_farmer_kyc(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_kyc_status(request):
-    """Get user's KYC status"""
+    """Get consistent KYC status with verification checks"""
     try:
         user = request.user
-        
-        # Check if user has profile
-        if not hasattr(user, 'profile'):
+
+        # Check if user has a profile
+        if not hasattr(user, 'profile') or user.profile is None:
             return Response({
                 'success': False,
                 'message': 'User profile not found'
             }, status=status.HTTP_404_NOT_FOUND)
-        
-        user_role = user.profile.role
-        
-        if user_role == 'Investor':
-            kyc = InvestorKYC.objects.filter(user=user).first()
-        elif user_role == 'Farmer':
-            kyc = FarmerKYC.objects.filter(user=user).first()
-        else:
+
+        # Get user role safely
+        try:
+            user_role = user.profile.role.lower()
+        except AttributeError:
             return Response({
                 'success': False,
-                'message': 'Invalid user role'
+                'message': 'User role not defined in profile'
             }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Select appropriate KYC model
+        kyc_model = InvestorKYC if user_role == 'investor' else FarmerKYC
         
+        try:
+            kyc = kyc_model.objects.filter(user=user).first()
+        except Exception as e:
+            return Response({
+                'success': False,
+                'message': f'Database error: {str(e)}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         if kyc:
+            # Determine verification status from KYC model fields only
+            if kyc.is_verified:
+                verification_status = 'approved'
+            elif kyc.changes_allowed:
+                verification_status = 'change_requested'
+            else:
+                verification_status = 'pending'
+
             status_data = {
                 'has_kyc': True,
-                'kyc_type': user_role.lower(),
+                'kyc_type': user_role,
                 'is_verified': kyc.is_verified,
+                'status': verification_status,  
                 'verification_date': kyc.verification_date,
-                'submitted_date': kyc.created_at
+                'submitted_date': kyc.created_at,
+                'changes_requested': kyc.changes_allowed,
             }
         else:
             status_data = {
                 'has_kyc': False,
                 'kyc_type': None,
                 'is_verified': False,
+                'status': 'not_submitted',  
                 'verification_date': None,
-                'submitted_date': None
+                'submitted_date': None,
+                'changes_requested': False,
             }
-        
-        serializer = KYCStatusSerializer(status_data)
+
+        # Validate data with serializer
+        serializer = KYCStatusSerializer(data=status_data)
+        if not serializer.is_valid():
+            return Response({
+                'success': False,
+                'message': 'Serialization error',
+                'errors': serializer.errors
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         return Response({
             'success': True,
             'data': serializer.data
-        }, status=status.HTTP_200_OK)
-        
+        })
+
     except Exception as e:
+        # Log the error for debugging
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f'KYC status check error: {str(e)}', exc_info=True)
+        
         return Response({
             'success': False,
             'message': f'Error getting KYC status: {str(e)}'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def admin_verify_kyc(request, user_id):
+    """Atomic KYC verification with status consistency"""
+    try:
+        user = get_object_or_404(User, id=user_id)
 
+        serializer = KYCAdminUpdateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({
+                'success': False,
+                'errors': serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
 
+        action = serializer.validated_data['action']
+
+        if not hasattr(user, 'profile') or not user.profile.role:
+            return Response({
+                'success': False,
+                'message': 'User profile not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        user_role = user.profile.role.lower()
+        kyc_model = InvestorKYC if user_role == 'investor' else FarmerKYC
+        kyc = get_object_or_404(kyc_model, user=user)
+
+        # Apply update using KYC model method
+        log_entry = kyc.update_verification_status(
+            action=action,
+            admin_user=request.user
+        )
+
+        return Response({
+            'success': True,
+            'message': f'KYC {action} successfully',
+            'data': {
+                'user_id': user.id,
+                'action': action,
+                'is_verified': kyc.is_verified,
+                'verification_date': kyc.verification_date,
+                'changes_requested': kyc.changes_allowed,
+                'log_id': log_entry.id
+            }
+        })
+
+    except Exception as e:
+        return Response({
+            'success': False,
+            'message': f'Error verifying KYC: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_my_kyc(request):
@@ -369,79 +454,63 @@ def admin_list_pending_kyc(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(['POST'])
-@permission_classes([IsAdminUser])
-def admin_verify_kyc(request, user_id):
-    """Admin: Verify/reject user's KYC with optional change allowance"""
-    try:
-        user = get_object_or_404(User, id=user_id)
-        
-        if not hasattr(user, 'profile'):
-            return Response({
-                'success': False,
-                'message': 'User profile not found'
-            }, status=status.HTTP_404_NOT_FOUND)
-        
-        serializer = KYCAdminUpdateSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response({
-                'success': False,
-                'errors': serializer.errors
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        action = serializer.validated_data['action']
-        allow_changes = serializer.validated_data.get('allow_changes', False)
-        
-        user_role = user.profile.role
-        
-        if user_role == 'Investor':
-            kyc = get_object_or_404(InvestorKYC, user=user)
-        elif user_role == 'Farmer':
-            kyc = get_object_or_404(FarmerKYC, user=user)
-        else:
-            return Response({
-                'success': False,
-                'message': 'Invalid user role'
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        if action == 'approved':
-            kyc.is_verified = True
-            kyc.verification_date = timezone.now()
-            kyc.changes_allowed = allow_changes
-        elif action == 'rejected':
-            kyc.is_verified = False
-            kyc.verification_date = None
-            kyc.changes_allowed = False
-        else:
-            kyc.is_verified = False
-            kyc.verification_date = None
-            kyc.changes_allowed = False
-        
-        kyc.save()
-        
-        KYCVerificationLog.objects.create(
-            user=user,
-            action=action,
-            admin_user=request.user
-        )
-        
-        return Response({
-            'success': True,
-            'message': f'KYC {action} successfully',
-            'data': {
-                'user_id': user.id,
-                'action': action,
-                'is_verified': kyc.is_verified,
-                'verification_date': kyc.verification_date,
-                'changes_allowed': kyc.changes_allowed
-            }
-        }, status=status.HTTP_200_OK)
-        
-    except Exception as e:
-        return Response({
-            'success': False,
-            'message': f'Error verifying KYC: {str(e)}'
-        }, status=status.HTTP_404_NOT_FOUND if 'not found' in str(e).lower() else status.HTTP_500_INTERNAL_SERVER_ERROR)
+# @api_view(['POST'])
+# @permission_classes([IsAdminUser])
+# def admin_verify_kyc(request, user_id):
+#     user = get_object_or_404(User, id=user_id)
+
+#     if not hasattr(user, 'userprofile'):
+#         return Response({'success': False, 'message': 'User profile not found'}, status=404)
+
+#     role = user.userprofile.role
+#     kyc_model = InvestorKYC if role == 'Investor' else FarmerKYC if role == 'Farmer' else None
+
+#     if not kyc_model:
+#         return Response({'success': False, 'message': 'Invalid user role'}, status=400)
+
+#     serializer = KYCAdminUpdateSerializer(data=request.data)
+#     if not serializer.is_valid():
+#         return Response({'success': False, 'errors': serializer.errors}, status=400)
+
+#     action = serializer.validated_data['action']
+#     allow_changes = serializer.validated_data['allow_changes']
+
+#     kyc = get_object_or_404(kyc_model, user=user)
+
+#     if action == 'approved':
+#         kyc.is_verified = True
+#         kyc.verification_date = timezone.now()
+#         kyc.changes_allowed = allow_changes
+#     elif action == 'rejected':
+#         kyc.is_verified = False
+#         kyc.verification_date = None
+#         kyc.changes_allowed = False
+#     else:
+#         kyc.is_verified = False
+#         kyc.verification_date = None
+#         kyc.changes_allowed = allow_changes
+
+#     kyc.save()
+
+#     # Save verification log
+#     KYCVerificationLog.objects.create(
+#         user=user,
+#         action=action,
+#         admin_user=request.user
+#     )
+
+#     return Response({
+#         'success': True,
+#         'message': f'KYC {action} successfully',
+#         'data': {
+#             'user_id': user.id,
+#             'action': action,
+#             'is_verified': kyc.is_verified,
+#             'verification_date': kyc.verification_date,
+#             'changes_allowed': kyc.changes_allowed
+#         }
+#     }, status=200)
+
 
 
 @api_view(['POST'])

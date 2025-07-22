@@ -1,6 +1,4 @@
 from datetime import timedelta
-import os
-from tabnanny import verbose
 from django.utils import timezone
 import secrets
 from django.conf import settings
@@ -9,7 +7,7 @@ from django.contrib.auth.models import User
 import uuid
 from django.core.validators import MinValueValidator
 from django.forms import ValidationError
-
+from django.utils.safestring import mark_safe
 from backend.storage_backends import MediaStorage
 import logging
 
@@ -50,8 +48,8 @@ class UserProfile(models.Model):
     class Meta:
         verbose_name = "User Profile"
         verbose_name_plural = "User Profiles"
-        
-        
+    
+
 class InvestorKYC(models.Model):
     """KYC information for investors - Immutable once created"""
 
@@ -78,8 +76,8 @@ class InvestorKYC(models.Model):
 
     id_type = models.CharField(max_length=20, choices=ID_TYPE_CHOICES)
     id_number = models.CharField(max_length=100)
-    id_document = models.FileField(upload_to='documents/id/', storage=MediaStorage())
-    profile_picture = models.ImageField(upload_to='profiles/', storage=MediaStorage())
+    id_document = models.FileField(upload_to='documents/id/')
+    profile_picture = models.ImageField(upload_to='profiles/')
 
     address = models.TextField()
     occupation = models.CharField(max_length=200)
@@ -89,7 +87,7 @@ class InvestorKYC(models.Model):
 
     is_verified = models.BooleanField(default=False)
     verification_date = models.DateTimeField(null=True, blank=True)
-    changes_allowed = models.BooleanField(default=False)  
+    changes_allowed = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -97,18 +95,48 @@ class InvestorKYC(models.Model):
     def save(self, *args, **kwargs):
         """Override save to prevent updates after creation except allowed fields"""
         if self.pk is not None:
-            original = InvestorKYC.objects.get(pk=self.pk)
-            admin_updatable_fields = ['is_verified', 'verification_date', 'changes_allowed']
+            try:
+                original = InvestorKYC.objects.get(pk=self.pk)
+                admin_updatable_fields = ['is_verified', 'verification_date', 'changes_allowed']
 
-            for field in self._meta.fields:
-                field_name = field.name
-                if field_name not in admin_updatable_fields and field_name not in ['updated_at']:
-                    old_value = getattr(original, field_name)
-                    new_value = getattr(self, field_name)
-                    if old_value != new_value:
-                        raise ValidationError(f"KYC data is immutable. Cannot update field: {field_name}")
+                for field in self._meta.fields:
+                    field_name = field.name
+                    if field_name not in admin_updatable_fields and field_name not in ['updated_at']:
+                        old_value = getattr(original, field_name)
+                        new_value = getattr(self, field_name)
+                        if old_value != new_value:
+                            raise ValidationError(f"KYC data is immutable. Cannot update field: {field_name}")
+            except InvestorKYC.DoesNotExist:
+                pass  # New instance, allow creation
 
         super().save(*args, **kwargs)
+
+    def update_verification_status(self, action, admin_user, notes=''):
+        """Update KYC verification status and log it"""
+        if action == 'approved':
+            self.is_verified = True
+            self.verification_date = timezone.now()
+            self.changes_allowed = False
+        elif action == 'rejected':
+            self.is_verified = False
+            self.verification_date = None
+            self.changes_allowed = False
+        elif action == 'change_requested':
+            self.is_verified = False
+            self.verification_date = None
+            self.changes_allowed = True
+        elif action == 'pending':
+            self.is_verified = False
+            self.verification_date = None
+            self.changes_allowed = False
+
+        self.save()
+
+        return KYCVerificationLog.objects.create(
+            user=self.user,
+            action=action,
+            admin_user=admin_user
+        )
 
     def __str__(self):
         return f"KYC for {self.full_name} - {'Verified' if self.is_verified else 'Pending'}"
@@ -149,12 +177,12 @@ class FarmerKYC(models.Model):
 
     id_type = models.CharField(max_length=20, choices=ID_TYPE_CHOICES)
     id_number = models.CharField(max_length=100)
-    id_document = models.FileField(upload_to='documents/id/', storage=MediaStorage())
-    profile_picture = models.ImageField(upload_to='profiles/', storage=MediaStorage())
+    id_document = models.FileField(upload_to='documents/id/')
+    profile_picture = models.ImageField(upload_to='profiles/')
 
     is_verified = models.BooleanField(default=False)
     verification_date = models.DateTimeField(null=True, blank=True)
-    changes_allowed = models.BooleanField(default=False) 
+    changes_allowed = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -162,20 +190,49 @@ class FarmerKYC(models.Model):
     def save(self, *args, **kwargs):
         """Override save to prevent updates after creation except allowed fields"""
         if self.pk is not None:
-            original = FarmerKYC.objects.get(pk=self.pk)
-            admin_updatable_fields = ['is_verified', 'verification_date', 'changes_allowed']
+            try:
+                original = FarmerKYC.objects.get(pk=self.pk)
+                admin_updatable_fields = ['is_verified', 'verification_date', 'changes_allowed']
 
-            for field in self._meta.fields:
-                field_name = field.name
-                if field_name not in admin_updatable_fields and field_name not in ['updated_at']:
-                    old_value = getattr(original, field_name)
-                    new_value = getattr(self, field_name)
-                    if old_value != new_value:
-                        raise ValidationError(f"KYC data is immutable. Cannot update field: {field_name}")
+                for field in self._meta.fields:
+                    field_name = field.name
+                    if field_name not in admin_updatable_fields and field_name not in ['updated_at']:
+                        old_value = getattr(original, field_name)
+                        new_value = getattr(self, field_name)
+                        if old_value != new_value:
+                            raise ValidationError(f"KYC data is immutable. Cannot update field: {field_name}")
+            except FarmerKYC.DoesNotExist:
+                pass  # New instance, allow creation
 
         super().save(*args, **kwargs)
 
-    
+    def update_verification_status(self, action, admin_user, notes=''):
+        """Update KYC verification status and log it"""
+        if action == 'approved':
+            self.is_verified = True
+            self.verification_date = timezone.now()
+            self.changes_allowed = False
+        elif action == 'rejected':
+            self.is_verified = False
+            self.verification_date = None
+            self.changes_allowed = False
+        elif action == 'change_requested':
+            self.is_verified = False
+            self.verification_date = None
+            self.changes_allowed = True
+        elif action == 'pending':
+            self.is_verified = False
+            self.verification_date = None
+            self.changes_allowed = False
+
+        self.save()
+
+        return KYCVerificationLog.objects.create(
+            user=self.user,
+            action=action,
+            admin_user=admin_user
+        )
+
     def __str__(self):
         return f"KYC for {self.full_name} - {'Verified' if self.is_verified else 'Pending'}"
 
@@ -185,14 +242,12 @@ class FarmerKYC(models.Model):
 
 
 class KYCVerificationLog(models.Model):
-    """Log of KYC verification actions"""
-    
     ACTION_CHOICES = [
-        ('pending', 'Pending Review'),
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
-        ('updated', 'Updated'),
-        ('change_requested', 'Change Requested'),  
+        ('pending', 'Pending'),
+        ('submitted', 'Submitted'),  # Added this choice
+        ('change_requested', 'Change Requested'),  # Added this choice
     ]
     
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -201,20 +256,18 @@ class KYCVerificationLog(models.Model):
         User, 
         on_delete=models.SET_NULL, 
         null=True, 
-        blank=True, 
-        related_name='kyc_actions'
+        blank=True,  # Added blank=True
+        related_name='kyc_verification_actions'
     )
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)  # Changed from timestamp to created_at
 
     def __str__(self):
         return f"{self.user.username} - {self.action} at {self.created_at}"
 
     class Meta:
-        verbose_name = "KYC Verification Log"
-        verbose_name_plural = "KYC Verification Logs"
         ordering = ['-created_at']
-
-
+        
+        
 class PasswordReset(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     reset_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
@@ -315,15 +368,19 @@ class Project(models.Model):
         ('completed', 'Completed'),
     ]
     
+    PROJECT_TYPE = [
+        ('new', 'New Project Idea'),
+        ('existing', 'Existing Project (needs funding)')
+    ]
+    
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     farmer = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='projects'
     )
-    name = models.CharField(max_length=100)
     title = models.CharField(max_length=200)
-    email = models.EmailField()
+    project_type = models.CharField(max_length=10, choices=PROJECT_TYPE)
     brief = models.TextField(max_length=500)
     description = models.TextField()
     benefits = models.TextField(blank=True)
@@ -333,7 +390,6 @@ class Project(models.Model):
         validators=[MinValueValidator(0.01)]
     )
     deadline = models.DateField()
-    image_url = models.URLField(blank=True, null=True)
     original_proposal = models.FileField(
         upload_to='proposals/original/',
         help_text="Upload your project proposal PDF"
@@ -342,6 +398,15 @@ class Project(models.Model):
         upload_to='proposals/watermarked/',
         blank=True,
         null=True,
+        editable=False
+    )
+    original_business_plan = models.FileField(
+        upload_to='proposals/original/',
+        help_text='Upload your business plan PDF'
+    )
+    watermarked_business_plan = models.FileField(
+        upload_to='proposals/watermarked/',
+        blank=True,
         editable=False
     )
     status = models.CharField(
@@ -374,14 +439,12 @@ class Project(models.Model):
         )
 
 
-
 class MyModel(models.Model):
     image = models.ImageField(upload_to='images/') 
     document = models.FileField(upload_to='documents/') 
     
 
 # NDA DOCUMENT
-from django.utils.safestring import mark_safe
 
 
 class NDAAgreement(models.Model):

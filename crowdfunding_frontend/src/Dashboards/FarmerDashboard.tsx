@@ -99,7 +99,7 @@ export default function FarmerDashboard() {
           {/* Content Container */}
           <div className="flex flex-col flex-1 overflow-hidden pt-16 lg:pt-0">
             {/* Dashboard Header for Large Screens - Fixed */}
-           {activeItem !== "Your Profile" && <header className="hidden lg:block  top-0 left-0 right-0 z-30 rounded-lg backdrop-blur-lg border-b border-white/30 p-3 pl-28 sm:p-4 md:p-6 mx-2 mt-2"
+           {activeItem !== "Your Profile" && activeItem !== "Create Project" && (<header className="hidden lg:block  top-0 left-0 right-0 z-30 rounded-lg backdrop-blur-lg border-b border-white/30 p-3 pl-28 sm:p-4 md:p-6 mx-2 mt-2"
               style={{ left: sidebarCollapsed ? '4rem' : '16rem' }}>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex-1">
@@ -119,7 +119,7 @@ export default function FarmerDashboard() {
                   </div>
                 </div>
               </div>
-            </header>}
+            </header>)}
 
             {/* Main Content Area */}
             <main className="flex-1 ml-20 lg:ml-2 no-scrollbar overflow-y-auto p-2 lg:p-4 lg:pt-4">

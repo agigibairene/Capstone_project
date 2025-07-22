@@ -27,7 +27,7 @@ urlpatterns = [
     path('admin/kyc/verify/<int:user_id>/', kyc_views.admin_verify_kyc, name='admin_verify_kyc'),
     path('kyc/request-change/', kyc_views.request_kyc_change, name='request_kyc_change'),
     path('kyc/user/', kyc_views.get_user_kyc),
-    path('kyc/status',kyc_views.get_kyc_status),
+    path('kyc/status/',kyc_views.get_kyc_status),
     path('kyc/autofill/', kyc_views.kyc_autofill_data, name='kyc-prefill'),
     
     # path('kyc/update/', kyc_views.update_kyc, name='update_kyc'),

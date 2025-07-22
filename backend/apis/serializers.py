@@ -1,4 +1,5 @@
 from datetime import date
+import logging
 from django.conf import settings
 from rest_framework import serializers
 from django.contrib.auth.models import User
@@ -384,6 +385,7 @@ class KYCStatusSerializer(serializers.Serializer):
     is_verified = serializers.BooleanField()
     verification_date = serializers.DateTimeField(allow_null=True)
     submitted_date = serializers.DateTimeField(allow_null=True)
+    status = serializers.CharField()  
 
 
 class KYCAdminUpdateSerializer(serializers.Serializer):
@@ -453,23 +455,25 @@ class OpportunityCreateSerializer(serializers.ModelSerializer):
 
 # PROJECT SERIALIZER
 
-class ProjectSerializer(serializers.ModelSerializer):
+class ProjectSerializer(serializers.ModelSerializer): 
     farmer_name = serializers.CharField(source='farmer.get_full_name', read_only=True)
+    email = serializers.CharField(source='farmer.email', read_only=True)
+    phone_number = serializers.CharField(source='farmer.profile.phone_number', read_only=True)
     days_remaining = serializers.SerializerMethodField()
     is_farmer = serializers.SerializerMethodField()
     
     class Meta:
         model = Project
         fields = [
-            'id', 'farmer', 'farmer_name', 'name', 'title', 'email', 
+            'id', 'farmer_name', 'title', 'project_type', 'email', 'phone_number',
             'brief', 'description', 'benefits', 'target_amount', 
-            'deadline', 'days_remaining', 'image_url', 
-            'watermarked_proposal', 'status', 'created_at', 'is_farmer'
+            'deadline', 'days_remaining',
+            'watermarked_proposal', 'status', 'created_at', 'is_farmer', 'watermarked_business_plan'
         ]
         read_only_fields = [
             'id', 'farmer', 'farmer_name', 'status', 'created_at', 
             'updated_at', 'watermarked_proposal', 'days_remaining',
-            'is_farmer'
+            'is_farmer', 'watermarked_business_plan'
         ]
     
     def get_days_remaining(self, obj):
@@ -486,23 +490,39 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class ProjectCreateSerializer(serializers.ModelSerializer):
-    file = serializers.FileField(write_only=True)
+    proposal = serializers.FileField(write_only=True)
+    business_plan = serializers.FileField(write_only=True)
+    phone_number = serializers.CharField(write_only=True, required=False, allow_blank=True)
 
     class Meta:
         model = Project
         fields = [
-            'name', 'title', 'email', 'brief', 'description',
-            'benefits', 'target_amount', 'deadline', 'image_url', 'file'
+            'title', 'project_type', 'brief', 'description',
+            'benefits', 'target_amount', 'deadline',
+            'proposal', 'business_plan', 'phone_number'
         ]
 
     def create(self, validated_data):
-        file = validated_data.pop('file')
-        farmer = self.context['request'].user
+        proposal = validated_data.pop('proposal')
+        business_plan = validated_data.pop('business_plan')
+        phone_number = validated_data.pop('phone_number', '').strip()
+        
+        # Remove farmer from validated_data if it exists (to prevent duplicate farmer argument)
         validated_data.pop('farmer', None)
+        
+        farmer = self.context['request'].user
 
+        if phone_number:
+            profile = getattr(farmer, 'profile', None)
+            if profile:
+                profile.phone_number = phone_number
+                profile.save(update_fields=['phone_number'])
+
+        # Create project - now farmer won't be duplicated
         project = Project.objects.create(
             farmer=farmer,
-            original_proposal=file,
+            original_proposal=proposal,
+            original_business_plan=business_plan,
             **validated_data
         )
 
@@ -510,51 +530,52 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
             font_path = os.path.join(settings.BASE_DIR, "apis", "fonts", "DynaPuff.ttf")
             if not os.path.exists(font_path):
                 raise FileNotFoundError(f"Font not found at {font_path}")
-
             pdfmetrics.registerFont(TTFont("DynaPuff", font_path))
 
-            # 2. Create watermark PDF in memory
-            watermark_stream = BytesIO()
-            c = canvas.Canvas(watermark_stream, pagesize=letter)
-            c.setFont("DynaPuff", 80)
-            c.setFillColor(gray)
-            c.setFillAlpha(0.4)
-            width, height = letter
-            c.translate(width / 2, height / 2)
-            c.rotate(45)
-            c.drawCentredString(0, 0, "Agriconnect")
-            c.save()
+            def watermark_pdf(input_file, label):
+                wm_stream = BytesIO()
+                c = canvas.Canvas(wm_stream, pagesize=letter)
+                c.setFont("DynaPuff", 80)
+                c.setFillColor(gray)
+                c.setFillAlpha(0.4)
+                width, height = letter
+                c.translate(width / 2, height / 2)
+                c.rotate(45)
+                c.drawCentredString(0, 0, "Agriconnect")
+                c.save()
+                wm_stream.seek(0)
 
-            watermark_stream.seek(0)
+                input_file.seek(0)
+                reader = PdfReader(input_file)
+                watermark_reader = PdfReader(wm_stream)
+                watermark_page = watermark_reader.pages[0]
+                writer = PdfWriter()
 
-            # 3. Apply watermark
-            file.seek(0)
-            reader = PdfReader(file)
-            watermark_reader = PdfReader(watermark_stream)
-            watermark_page = watermark_reader.pages[0]
-            writer = PdfWriter()
+                for i, page in enumerate(reader.pages):
+                    try:
+                        page.merge_page(watermark_page)
+                    except Exception as e:
+                        print(f"Failed to watermark {label} page {i}: {e}")
+                    writer.add_page(page)
 
-            for i, page in enumerate(reader.pages):
-                try:
-                    page.merge_page(watermark_page)
-                except Exception as e:
-                    print(f"Failed to watermark page {i}: {e}")
-                writer.add_page(page)
+                output_stream = BytesIO()
+                writer.write(output_stream)
+                output_stream.seek(0)
 
-            # 4. Save watermarked file to S3
-            output_stream = BytesIO()
-            writer.write(output_stream)
-            output_stream.seek(0)
+                media_storage = MediaStorage()
+                watermarked_name = f"proposals/watermarked/watermarked_{uuid.uuid4()}.pdf"
+                media_storage.save(watermarked_name, ContentFile(output_stream.read()))
 
-            media_storage = MediaStorage()
-            watermarked_name = f"proposals/watermarked/watermarked_{uuid.uuid4()}.pdf"
-            media_storage.save(watermarked_name, ContentFile(output_stream.read()))
+                return watermarked_name
 
-            project.watermarked_proposal.name = watermarked_name
-            project.save(update_fields=['watermarked_proposal'])
+            project.watermarked_proposal.name = watermark_pdf(proposal, "proposal")
+            project.watermarked_business_plan.name = watermark_pdf(business_plan, "business plan")
+            project.save(update_fields=[
+                'watermarked_proposal',
+                'watermarked_business_plan'
+            ])
 
         except Exception as e:
-            import logging
             logger = logging.getLogger(__name__)
             logger.error(f"Watermarking failed for project {project.id}: {e}")
 
