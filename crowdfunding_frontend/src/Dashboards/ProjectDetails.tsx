@@ -32,10 +32,13 @@ export interface ProjectDetailsProps {
   };
 }
 
+type DocumentType = 'proposal' | 'business_plan';
+
+
 export default function ProjectDetails({ project: propProject}: ProjectDetailsProps) {
   const [pdfError, setPdfError] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeDocument, setActiveDocument] = useState('proposal'); 
+  const [activeDocument, setActiveDocument] = useState<DocumentType>('proposal'); 
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -43,7 +46,7 @@ export default function ProjectDetails({ project: propProject}: ProjectDetailsPr
   const backToDashboard = location.state?.project.is_farmer ? '/farmer' : '/investor'
   const handleBack = () => navigate(backToDashboard);
 
-  const documents = [
+ const documents: { key: DocumentType; label: string; icon: React.ElementType }[] = [
   {
     key: 'proposal',
     label: 'Proposal',
@@ -55,6 +58,7 @@ export default function ProjectDetails({ project: propProject}: ProjectDetailsPr
     icon: Briefcase,
   },
   ];
+
 
   const getCurrentDocumentUrl = () => {
     return activeDocument === 'proposal' 
@@ -69,7 +73,7 @@ export default function ProjectDetails({ project: propProject}: ProjectDetailsPr
     }
   };
 
-  const handleDocumentToggle = (docType: 'proposal' | 'business_plan') => {
+  const handleDocumentToggle = (docType: DocumentType) => {
     setActiveDocument(docType);
     setPdfError(false); 
   };
