@@ -69,7 +69,7 @@ export default function ProjectDetails({ project: propProject}: ProjectDetailsPr
     }
   };
 
-  const handleDocumentToggle = (docType) => {
+  const handleDocumentToggle = (docType: 'proposal' | 'business_plan') => {
     setActiveDocument(docType);
     setPdfError(false); 
   };
