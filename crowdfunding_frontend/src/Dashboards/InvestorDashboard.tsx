@@ -50,13 +50,13 @@ export default function InvestorDashboard() {
   const [loadings, setLoadings] = useState(true);
   const [errors, setErrors] = useState<string | null>(null);
   const [forbidden, setForbidden] = useState(false);
-const [accessMeta, setAccessMeta] = useState<{
-  can_access_projects: boolean;
-  has_nda?: boolean;
-  requires_nda?: boolean;
-  message?: string;
-  role?: string;
-} | null>(null);
+  const [accessMeta, setAccessMeta] = useState<{
+    can_access_projects: boolean;
+    has_nda?: boolean;
+    requires_nda?: boolean;
+    message?: string;
+    role?: string;
+  } | null>(null);
 
 
   useEffect(() => {
@@ -67,48 +67,49 @@ const [accessMeta, setAccessMeta] = useState<{
 
   useEffect(() => {
     const fetchProjects = async () => {
-  setLoadings(true);
-  setErrors(null);
-  setForbidden(false);
+    setLoadings(true);
+    setErrors(null);
+    setForbidden(false);
 
-  try {
-    const token = localStorage.getItem("ACCESS_TOKEN") || "";
+    try {
+      const token = localStorage.getItem("ACCESS_TOKEN") || "";
 
-    const accessRes = await fetch(`${API_URL}/projects/access-check/`, {
-      headers: {
-        Authorization: `Bearer ${token}`
+      const accessRes = await fetch(`${API_URL}/projects/access-check/`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      const accessData = await accessRes.json();
+      setAccessMeta(accessData); // <-- new line
+
+      if (!accessRes.ok || !accessData.can_access_projects) {
+        setForbidden(true);
+        throw new Error(accessData.message || "Access to projects is restricted");
       }
-    });
 
-    const accessData = await accessRes.json();
-    setAccessMeta(accessData); // <-- new line
+      const res = await fetch(`${API_URL}/projects/`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
 
-    if (!accessRes.ok || !accessData.can_access_projects) {
-      setForbidden(true);
-      throw new Error(accessData.message || "Access to projects is restricted");
-    }
+      const data = await res.json();
 
-    const res = await fetch(`${API_URL}/projects/`, {
-      headers: {
-        Authorization: `Bearer ${token}`
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to fetch projects");
       }
-    });
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.message || "Failed to fetch projects");
-    }
-
-    setProjects(data);
-  } catch (err: any) {
-    if (!forbidden) {
+      setProjects(data);
+    } 
+    catch (err: any) {
+      if (!forbidden) {
       setErrors(err.message || "An error occurred");
     }
-  } finally {
+    } finally {
     setLoadings(false);
-  }
-};
+    }
+    };
     fetchProjects();
   }, []);
 
@@ -150,7 +151,7 @@ const [accessMeta, setAccessMeta] = useState<{
       error={errors}
       projects={projects}
       forbidden={forbidden}
-      accessMeta={accessMeta} // <--- NEW
+      accessMeta={accessMeta || undefined} 
     />
     ),
     "Your Profile": <UserProfile />,

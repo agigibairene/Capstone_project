@@ -43,7 +43,7 @@ type Props = {
     requires_nda?: boolean;
     message?: string;
     role?: string;
-  };
+  } | null;
 };
 
 const PROJECTS_PER_PAGE = 12;
