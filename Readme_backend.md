@@ -3,8 +3,9 @@
 ## Prerequisites
 1. [Python](https://www.python.org/downloads/)
 
-## Visit Frontend here  
-👉 [Visit UI](https://agriconnect-p2ssy.ondigitalocean.app/)
+Deployed Links  
+1. [Visit UI](https://agriconnect-p2ssy.ondigitalocean.app/)
+2. [Backend](https://agriconnect-p2ssy.ondigitalocean.app/)
 
 ## GitHuB Repository URL
 [GITHUB LINK](https://github.com/agigibairene/Capstone_project)
