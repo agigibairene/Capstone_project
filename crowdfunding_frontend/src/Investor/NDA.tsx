@@ -403,7 +403,7 @@ export default function NDA() {
                 <button 
                   onClick={handleSubmit}
                   disabled={!isFormValid || isSubmitting}
-                  className="flex-1 bg-bgColor hover:bg-green-900 cursor-pointer hover:text-white disabled:bg-gray-300 disabled:cursor-not-allowed text-limeTxt font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 bg-bgColor hover:bg-green-900 cursor-pointer hover:text-white disabled:bg-gray-300 disabled:text-bgColor disabled:cursor-not-allowed text-limeTxt font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <>

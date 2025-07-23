@@ -287,9 +287,10 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
                 className={`input w-full ${errors.role ? 'border-red-500' : ''}`}
                 aria-label="Select your role"
               >
-                <option value="">Select Role</option>
-                <option value="Farmer">Farmer</option>
-                <option value="Investor">Investor</option>
+                <option value="" hidden>Select Role</option>
+                {
+                  ["Farmer", "Investor"].map((item)=><option key={item} value={item}>{item}</option>)
+                }
               </select>
               {errors.role && <p className="text-xs text-red-500 mt-1">{errors.role}</p>}
             </div>
@@ -351,25 +352,25 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
                     className={`input w-full ${errors.investorType ? 'border-red-500' : ''}`}
                     aria-label="Select investor type"
                   >
-                    <option value="">Select investor type</option>
-                    <option value="Organization">Organization</option>
-                    <option value="Individual">Individual</option>
+                    <option value="" hidden>Select investor type</option>
+                    {["Organization", "Individual"].map(item=>(<option key={item} value={item}>{item}</option>))}
+                    
                   </select>
                   {errors.investorType && <p className="text-xs text-red-500 mt-1">{errors.investorType}</p>}
                 </div>
-                <div>
+                {userInput.investorType === "Organization" && <div>
                   <label htmlFor="organization" className="sr-only">Organization</label>
                   <input
                     id="organization"
                     name="organization"
                     type="text"
-                    placeholder="Organization"
+                    placeholder="Organization Name"
                     value={userInput.organization}
                     onChange={handleUserInput}
                     className={`input w-full ${errors.organization ? 'border-red-500' : ''}`}
                   />
                   {errors.organization && <p className="text-xs text-red-500 mt-1">{errors.organization}</p>}
-                </div>
+                </div>}
               </>
             )}
 

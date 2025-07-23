@@ -1,23 +1,19 @@
-# permissions.py
-from rest_framework import permissions
+from rest_framework.permissions import BasePermission, SAFE_METHODS
 from django.contrib.auth import get_user_model
-
 import logging
+from .models import NDAAgreement, UserProfile
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
-User = get_user_model()
 
-class IsVerifiedFarmer(permissions.BasePermission):
+class IsVerifiedFarmer(BasePermission):
     """
     Check if user is a verified farmer who can create projects
     """
     message = "Only verified farmers can perform create a project."
     
     def has_permission(self, request, view):
-        logger.info(f"IsVerifiedFarmer check for user: {request.user}")
-        logger.info(f"User authenticated: {request.user.is_authenticated}")
         
         if not request.user.is_authenticated:
             self.message = "Authentication required."
@@ -56,7 +52,7 @@ class IsVerifiedFarmer(permissions.BasePermission):
         return True
     
     
-class IsVerifiedInvestor(permissions.BasePermission):
+class IsVerifiedInvestor(BasePermission):
     """
     Check if user is a verified investor who can view projects
     """
@@ -89,7 +85,7 @@ class IsVerifiedInvestor(permissions.BasePermission):
         return True
 
 
-class CanViewProject(permissions.BasePermission):
+class CanViewProject(BasePermission):
     """
     Check if user can view project details based on their role and KYC status.
     Farmers can only view their own projects.
@@ -120,7 +116,7 @@ class CanViewProject(permissions.BasePermission):
             return True
 
         elif user_role in ['Farmer', 'Student', 'Entrepreneur']:
-            if request.method in permissions.SAFE_METHODS:
+            if request.method in SAFE_METHODS:
                 if view.action in ['retrieve', 'download_proposal']:
                     if not hasattr(request.user, 'farmer_kyc'):
                         self.message = "KYC verification required to view detailed project information."
@@ -166,7 +162,7 @@ class CanViewProject(permissions.BasePermission):
         return False
 
 
-class IsProjectOwner(permissions.BasePermission):
+class IsProjectOwner(BasePermission):
     """
     Check if user is the owner of the project
     """
@@ -174,3 +170,48 @@ class IsProjectOwner(permissions.BasePermission):
     
     def has_object_permission(self, request, view, obj):
         return obj.farmer == request.user
+    
+
+class HasSubmittedNDA(BasePermission):
+    """
+    Custom permission to only allow investors who have submitted NDA to access projects
+    """
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        
+        try:
+            # Check if user has a profile and is an investor
+            profile = request.user.profile
+            if profile.role != 'Investor':
+                return True  # Non-investors (farmers, admins) can access without NDA
+            
+            # For investors, check if they have submitted NDA
+            nda_exists = NDAAgreement.objects.filter(user=request.user).exists()
+            return nda_exists
+            
+        except UserProfile.DoesNotExist:
+            return False
+
+
+class CanViewProjectWithNDA(BasePermission):
+    """
+    Permission for project access: Only investors need NDA, farmers have free access
+    """
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        
+        try:
+            profile = request.user.profile
+            
+            # Only investors need NDA - everyone else has free access
+            if profile.role == 'Investor':
+                return NDAAgreement.objects.filter(user=request.user).exists()
+            
+            # Farmers, admins, and other roles can access without NDA
+            return True
+            
+        except UserProfile.DoesNotExist:
+            return False
+

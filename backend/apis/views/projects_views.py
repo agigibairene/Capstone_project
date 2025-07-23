@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from django.conf import settings
-from ..permissions import CanViewProject, IsVerifiedFarmer
+from ..permissions import CanViewProject, CanViewProjectWithNDA, IsVerifiedFarmer
 from ..models import  InvestorKYC, NDAAgreement, Project, UserProfile
 from ..serializers import  NDAAgreementSerializer, ProjectCreateSerializer, ProjectSerializer
 from django.views.decorators.clickjacking import xframe_options_exempt
@@ -80,7 +80,7 @@ def create_project(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated, CanViewProject])
+@permission_classes([IsAuthenticated, CanViewProject, CanViewProjectWithNDA])
 def list_projects(request):
     """List all approved projects (viewable by all authenticated users)"""
     projects = Project.objects.filter(status='approved').order_by('-created_at')
@@ -89,7 +89,7 @@ def list_projects(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated, CanViewProject])
+@permission_classes([IsAuthenticated, CanViewProject, CanViewProjectWithNDA])
 def project_detail(request, project_id):
     """
     Get details of a specific project
@@ -423,4 +423,36 @@ def get_client_ip(request):
     if x_forwarded_for:
         return x_forwarded_for.split(',')[0]
     return request.META.get('REMOTE_ADDR')
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def check_project_access(request):
+    """
+    Check if user can access projects (only investors need NDA)
+    """
+    try:
+        profile = request.user.profile
+        
+        if profile.role == 'Investor':
+            has_nda = NDAAgreement.objects.filter(user=request.user).exists()
+            return Response({
+                'can_access_projects': has_nda,
+                'role': 'Investor',
+                'requires_nda': True,
+                'has_nda': has_nda,
+                'message': 'NDA required to access projects' if not has_nda else 'Access granted'
+            })
+        else:
+            return Response({
+                'can_access_projects': True,
+                'role': profile.role,
+                'requires_nda': False,
+                'message': 'Access granted - NDA not required for your role',
+            })
+            
+    except UserProfile.DoesNotExist:
+        return Response({
+            'can_access_projects': False,
+            'message': 'User profile not found'
+        }, status=status.HTTP_400_BAD_REQUEST)
 

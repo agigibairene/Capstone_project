@@ -37,11 +37,18 @@ type Props = {
   projects: Project[];
   error: string | null;
   onProjectClick?: (project: Project) => void;
+   accessMeta?: {
+    can_access_projects: boolean;
+    has_nda?: boolean;
+    requires_nda?: boolean;
+    message?: string;
+    role?: string;
+  };
 };
 
 const PROJECTS_PER_PAGE = 12;
 
-export default function AllProjects({ loading, forbidden, projects, error, onProjectClick }: Props) {
+export default function AllProjects({ loading, forbidden, projects, error, onProjectClick, accessMeta }: Props) {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
   const [sortBy, setSortBy] = useState<SortType>('newest');
@@ -278,21 +285,41 @@ export default function AllProjects({ loading, forbidden, projects, error, onPro
       {loading && <Loader text="Loading projects..." />}
 
       {forbidden && (
-        <div className="max-w-xl mx-auto bg-yellow-50 border border-yellow-200 text-yellow-800 p-6 rounded-lg shadow-sm">
+       <div className="flex items-center justify-center">
+        <div className="max-w-xl bg-yellow-50 border border-yellow-200 text-yellow-800 p-6 rounded-lg shadow-sm">
           <div className="flex items-center space-x-2 mb-2">
             <div className="w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center">
               <span className="text-yellow-800 text-xs font-bold">!</span>
             </div>
             <h3 className="text-lg font-semibold">Access Denied</h3>
           </div>
-          <p className="text-sm">You need to complete your KYC verification to view and invest in projects.</p>
+
+          {accessMeta?.requires_nda && accessMeta?.has_nda === false && (
+            <p className="text-sm">
+              You must <strong>sign the NDA</strong> to access investment projects. Please go to the{" "}
+              <strong>NDA</strong> tab and complete it.
+            </p>
+          )}
+
+          {accessMeta?.requires_nda && accessMeta?.has_nda && !accessMeta?.can_access_projects && (
+            <p className="text-sm">
+              You’ve signed the NDA. Please wait for admin <strong>verification</strong> before accessing projects.
+            </p>
+          )}
+
+          {!accessMeta?.requires_nda && (
+            <p className="text-sm">
+              {accessMeta?.message || "Access is currently restricted. Please try again later."}
+            </p>
+          )}
         </div>
+      </div>
       )}
 
       {error && !forbidden && (
         <div className="max-w-xl mx-auto bg-red-50 border border-red-200 text-red-800 p-6 rounded-lg shadow-sm">
-          <h3 className="text-lg font-semibold mb-2">Error Loading Projects</h3>
-          <p className="text-sm">{error}</p>
+          <h3 className="text-lg font-semibold mb-2">Wait for Admin verification</h3>
+          <p className="text-sm">Wait For Admin to verify your Data before you get access to all the projects</p>
         </div>
       )}
 
