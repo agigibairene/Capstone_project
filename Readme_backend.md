@@ -256,4 +256,4 @@ python manage.py test apps.users
 ```
 
 ## Contributor
-[https://portfolio-hdhr.vercel.app/](Irene Akawin Agigiba) - Full Stack developer
+[Irene Akawin Agigiba](https://portfolio-hdhr.vercel.app/)  - Full Stack developer
