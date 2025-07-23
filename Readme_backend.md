@@ -4,7 +4,7 @@ The backend is a Django RESTful API serving as the core of the Agriconnect platf
 ## Prerequisites
 1. [Python](https://www.python.org/downloads/)
 
-Deployed Links  
+👉 Deployed Links  
 1. [Visit UI](https://agriconnect-p2ssy.ondigitalocean.app/)
 2. [Backend](https://agriconnect-p2ssy.ondigitalocean.app/)
 
@@ -103,7 +103,6 @@ backend/
 - **`urls.py`** - Main URL routing to different apps
 - **`storage_backends.py`** - Custom storage configurations (AWS S3, etc.)
 - **`asgi.py`** - ASGI server configuration for async operations
-
 
 
 ## Installation
