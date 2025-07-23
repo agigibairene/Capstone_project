@@ -1,5 +1,4 @@
 from django.urls import path
-
 from apis.views import auth_views, kyc_views, opportunities_views, projects_views
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
@@ -29,11 +28,8 @@ urlpatterns = [
     path('kyc/user/', kyc_views.get_user_kyc),
     path('kyc/status/',kyc_views.get_kyc_status),
     path('kyc/autofill/', kyc_views.kyc_autofill_data, name='kyc-prefill'),
-    
-    # path('kyc/update/', kyc_views.update_kyc, name='update_kyc'),
 
    
-    
     # OPPORTUNITIES
     path('opportunities/', opportunities_views.opportunity_list, name='opportunity-list'),
     path('opportunities/<int:pk>/', opportunities_views.opportunity_detail, name='opportunity-detail'),
@@ -52,7 +48,7 @@ urlpatterns = [
     path('projects/sum/', projects_views.farmer_projects_sum),
     path('projects/recommended/', projects_views.get_recommended_projects, name='recommended-projects'),
     path('submit-nda/', projects_views.submit_nda),
-     path('check-nda-status/', projects_views.check_nda_status, name='check-nda-status'),
+    path('check-nda-status/', projects_views.check_nda_status, name='check-nda-status'),
     path('download-nda/', projects_views.download_nda, name='download-nda-pdf'),
 ]
 

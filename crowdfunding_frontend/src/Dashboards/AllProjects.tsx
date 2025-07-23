@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
@@ -38,7 +39,7 @@ type Props = {
   onProjectClick?: (project: Project) => void;
 };
 
-const PROJECTS_PER_PAGE = 18;
+const PROJECTS_PER_PAGE = 12;
 
 export default function AllProjects({ loading, forbidden, projects, error, onProjectClick }: Props) {
   const navigate = useNavigate();
