@@ -257,4 +257,3 @@ AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
 AWS_LOCATION = 'media' 
 DEFAULT_FILE_STORAGE = 'backend.storage_backends.MediaStorage'
 MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.sgp1.digitaloceanspaces.com/media/'
-

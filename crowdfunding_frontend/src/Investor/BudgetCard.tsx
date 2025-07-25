@@ -35,7 +35,7 @@ export default function BudgetCard({budgetProjects, loading, error} : Props){
         {showProjects && (
         <div className="space-y-3 sm:space-y-4">
             {loading && (
-            <div className="flex flex-col sm:flex-row items-center justify-center py-6 sm:py-8">
+            <div className="flex w-fullflex-col sm:flex-row items-center justify-center py-6 sm:py-8">
                 <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-600"></div>
                 <p className="mt-2 sm:mt-0 sm:ml-3 text-white/80 text-sm sm:text-base text-center">Loading projects...</p>
             </div>
@@ -46,7 +46,7 @@ export default function BudgetCard({budgetProjects, loading, error} : Props){
                 <p className="text-red-200 text-sm sm:text-base break-words">{error}</p>
             </div>
             )}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4">
+                <div className="flex flex-col space-y-3 sm:space-y-4">
                 {budgetProjects.map((project) => (
                     <div
                         key={project.id}
