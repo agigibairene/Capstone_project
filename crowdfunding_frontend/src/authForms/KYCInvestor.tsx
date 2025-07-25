@@ -233,7 +233,7 @@ export default function KYCInvestor() {
         phoneNumber: `${formData.countryCode}${formData.phoneNumber}`
       });
 
-      await dispatch(investorKYC(formDataToSend)).unwrap();
+      await dispatch(investorKYC(formDataToSend));
     } catch (err) {
       console.error('KYC submission failed:', err);
     }

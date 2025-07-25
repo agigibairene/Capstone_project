@@ -482,3 +482,23 @@ class NDAAgreement(models.Model):
     
     signature_preview.short_description = "Signature Preview"
 
+
+class InvestorInterest(models.Model):
+    CONTACT_METHODS = [
+        ("phone", "Phone"),
+        ("email", "Email"),
+    ]
+
+    investor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="interests")
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="interests")
+    contact_method = models.CharField(max_length=10, choices=CONTACT_METHODS)
+    confirmed = models.BooleanField(default=False)
+    confirmed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("investor", "project")
+        verbose_name = "Investor Interest"
+        verbose_name_plural = "Investor Interests"
+
+    def __str__(self):
+        return f"{self.investor.get_full_name()} interested in {self.project.title}"

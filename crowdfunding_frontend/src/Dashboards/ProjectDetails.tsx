@@ -1,15 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import {
-  Download,
-  MapPin,
-  ExternalLink,
-  AlertCircle,
-  ArrowLeft,
-  Phone,
-  FileText,
-  Briefcase
-} from 'lucide-react';
+import {Download,ExternalLink,AlertCircle,ArrowLeft,Phone,FileText,Briefcase,User, MenuIcon} from 'lucide-react';
+import InterestedInProject from '../Utils/InterestedInProject';
 
 export interface ProjectDetailsProps {
   project?: {
@@ -41,6 +33,8 @@ export default function ProjectDetails({ project: propProject}: ProjectDetailsPr
   const [activeDocument, setActiveDocument] = useState<DocumentType>('proposal'); 
   const navigate = useNavigate();
   const location = useLocation();
+  const [showModal, setShowModal] = useState<boolean>(false)
+
 
   const project = propProject || location.state?.project;
   const backToDashboard = location.state?.project.is_farmer ? '/farmer' : '/investor'
@@ -98,18 +92,6 @@ export default function ProjectDetails({ project: propProject}: ProjectDetailsPr
     );
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'approved':
-        return 'bg-green-100 text-green-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'rejected':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
 
   return (
     <div className="flex flex-col h-screen bg-gray-400 text-white overflow-hidden">
@@ -124,13 +106,9 @@ export default function ProjectDetails({ project: propProject}: ProjectDetailsPr
         <h1 className="text-lg font-semibold truncate mx-4">{project.name}</h1>
         <button 
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors"
+          className="p-2  hover:bg-gray-700 rounded-lg transition-colors"
         >
-          <div className="w-6 h-6 flex flex-col justify-center items-center">
-            <div className="w-4 h-0.5 bg-white mb-1"></div>
-            <div className="w-4 h-0.5 bg-white mb-1"></div>
-            <div className="w-4 h-0.5 bg-white"></div>
-          </div>
+          <MenuIcon/>
         </button>
       </div>
 
@@ -218,26 +196,19 @@ export default function ProjectDetails({ project: propProject}: ProjectDetailsPr
             </button>
           </div>
 
-          {/* Project Details */}
-          <div className="mb-6">
-            <h3 className="text-sm font-medium mb-3 text-gray-300">Project Details</h3>
-            <div className="bg-white rounded-lg p-3 text-sm">
-              <div className="text-bgColor font-medium mb-1 break-words">{project.farmer_name}</div>
-              <div className="text-gray-400 mb-2 break-words">{project.title}</div>
-              <div className="flex flex-col gap-2">
-                <span className="text-emerald-400 font-medium text-lg">
-                  ${parseFloat(project.target_amount).toLocaleString()}
-                </span>
-                <span className={`px-2 py-1 rounded text-xs self-start ${getStatusColor(project.status)}`}>
-                  {project.status}
-                </span>
+          {project.description && (
+            <div className="mb-6">
+              <h3 className="text-sm font-medium mb-3 text-gray-300">Description</h3>
+              <div className="bg-white rounded-lg p-3 text-sm">
+                <p className="text-bgColor leading-relaxed break-words">{project.description}</p>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Document Info */}
+
+          {/* Farmer Info */}
           <div className="mb-6">
-            <h3 className="text-sm font-medium mb-3 text-gray-300">Document Info</h3>
+            <h3 className="text-sm font-medium mb-3 text-gray-300">Farmer Details</h3>
             <div className="space-y-3 text-sm">
               
               <div className="flex items-start space-x-2">
@@ -248,7 +219,7 @@ export default function ProjectDetails({ project: propProject}: ProjectDetailsPr
                 </div>
               </div>
               <div className="flex items-start space-x-2">
-                <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                <User className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1">
                   <span className="text-gray-400">Farmer:</span>
                   <span className="text-white break-words">{project.farmer_name}</span>
@@ -273,16 +244,8 @@ export default function ProjectDetails({ project: propProject}: ProjectDetailsPr
             </div>
           </div>
 
-          {/* Description */}
-          {project.description && (
-            <div className="mb-6">
-              <h3 className="text-sm font-medium mb-3 text-gray-300">Description</h3>
-              <div className="bg-white rounded-lg p-3 text-sm">
-                <p className="text-bgColor leading-relaxed break-words">{project.description}</p>
-              </div>
-            </div>
-          )}
-
+    
+          
           {/* Benefits */}
           {project.benefits && (
             <div className="mb-6">
@@ -292,6 +255,13 @@ export default function ProjectDetails({ project: propProject}: ProjectDetailsPr
               </div>
             </div>
           )}
+
+        <button 
+          onClick={() => setShowModal(true)} 
+          className='py-2 bg-limeTxt px-2 mx-auto font-semibold w-full cursor-pointer mb-2 rounded-sm text-bgColor'
+        >
+          I am interested in this project
+        </button>
 
           {/* Action Buttons */}
           <div className="space-y-3">
@@ -311,6 +281,14 @@ export default function ProjectDetails({ project: propProject}: ProjectDetailsPr
             </button>
           </div>
         </div>
+        <InterestedInProject
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          farmerName={project.farmer_name}
+          email={project.email}
+          phoneNumber={project.phone_number}
+          projectId={project.id}        
+          />
       </div>
 
       {/* Mobile Sidebar Overlay */}

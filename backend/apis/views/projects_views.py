@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.conf import settings
 from ..permissions import CanViewProject, CanViewProjectWithNDA, IsVerifiedFarmer
-from ..models import  InvestorKYC, NDAAgreement, Project, UserProfile
+from ..models import  InvestorInterest, InvestorKYC, NDAAgreement, Project, UserProfile
 from ..serializers import  NDAAgreementSerializer, ProjectCreateSerializer, ProjectSerializer
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.http import FileResponse, Http404, HttpResponse
@@ -456,3 +456,49 @@ def check_project_access(request):
             'message': 'User profile not found'
         }, status=status.HTTP_400_BAD_REQUEST)
 
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def confirm_interest_in_project(request, project_id):
+    method = request.data.get("method")
+    user = request.user
+    project = get_object_or_404(Project, id=project_id)
+
+    # Check if the user has already confirmed interest
+    existing_interest = InvestorInterest.objects.filter(
+        investor=user,
+        project=project,
+        confirmed=True
+    ).first()
+
+    if existing_interest:
+        return Response(
+            {"message": "You have already confirmed interest in this project."},
+            status=400
+        )
+
+    # Otherwise, create or update interest
+    interest, created = InvestorInterest.objects.update_or_create(
+        investor=user,
+        project=project,
+        defaults={"contact_method": method, "confirmed": True}
+    )
+
+    # Email to the farmer
+    message = (
+        f"Hi {project.farmer.get_full_name()},\n\n"
+        f"An investor ({user.get_full_name()} - {user.email}) has confirmed their interest in your project: \"{project.title}\".\n"
+        f"They will reach out to you via: {method.upper()}.\n\n"
+        f"Best regards,\n"
+        f"Agriconnect"
+    )
+
+    email = EmailMessage(
+        "Interest in your Project",
+        message,
+        settings.EMAIL_HOST_USER,
+        [project.farmer.email]
+    )
+    email.send()
+
+    return Response({"message": "Interest confirmed and farmer notified."})

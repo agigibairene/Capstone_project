@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from .models import NDAAgreement, Project, UserProfile, PasswordReset, KYCVerificationLog, FarmerKYC,InvestorKYC, Opportunity
+from .models import NDAAgreement, Project, UserProfile, PasswordReset, KYCVerificationLog, FarmerKYC,InvestorKYC, Opportunity, InvestorInterest
 from django.utils.html import format_html
 
 
@@ -68,6 +68,7 @@ admin.site.register(InvestorKYC)
 admin.site.register(FarmerKYC)
 
 
+
 @admin.register(Opportunity)
 class OpportunityAdmin(admin.ModelAdmin):
     list_display = ['title', 'organization', 'type', 'deadline', 'views', 'applicants', 'is_active', 'posted']
@@ -129,6 +130,11 @@ class ProjectAdmin(admin.ModelAdmin):
         }),
     )
 
+@admin.register(InvestorInterest)
+class InvestorInterestAdmin(admin.ModelAdmin):
+    list_display = ("investor", "project", "confirmed", "confirmed_at", "contact_method")
+    list_filter = ("confirmed", "contact_method")
+    search_fields = ("investor__email", "project__title")
 
 
 # NDA

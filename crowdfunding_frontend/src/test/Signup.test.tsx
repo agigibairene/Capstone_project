@@ -38,9 +38,9 @@ describe('signupSlice', () => {
   it('handles signupUser.fulfilled', async () => {
     const user = {
       id: 1,
-      first_name: 'Jane',
-      last_name: 'Doe',
-      email: 'jane@example.com',
+      first_name: 'Irene',
+      last_name: 'Akawin',
+      email: 'agigiba@gmail.com',
       role: 'Investor' as 'Investor',
       phone_number: '123456789',
       organization: 'AgriOrg',
@@ -60,9 +60,9 @@ describe('signupSlice', () => {
     });
 
     await store.dispatch(signupUser({
-      first_name: 'Jane',
-      last_name: 'Doe',
-      email: 'jane@example.com',
+      first_name: 'Irene',
+      last_name: 'Akawin',
+      email: 'agigiba@gmail.com',
       password: 'pass123',
       confirm_password: 'pass123',
       role: 'Investor' as 'Investor',
@@ -72,7 +72,7 @@ describe('signupSlice', () => {
     }) as any);
 
     const state = store.getState();
-    expect(state.user?.email).toBe('jane@example.com');
+    expect(state.user?.email).toBe('agigiba@gmail.com');
     expect(state.success).toBe(true);
   });
 
@@ -88,7 +88,7 @@ describe('signupSlice', () => {
 
     await store.dispatch(signupUser({
       first_name: 'John',
-      last_name: 'Doe',
+      last_name: 'Akawin',
       email: 'exists@example.com',
       password: '123456',
       confirm_password: '123456',
@@ -123,9 +123,9 @@ describe('signupSlice', () => {
       ...initialState,
       user: {
         id: 1,
-        first_name: 'Jane',
-        last_name: 'Doe',
-        email: 'jane@example.com',
+        first_name: 'Irene',
+        last_name: 'Akawin',
+        email: 'agigiba@gmail.com',
         role: 'Farmer' as 'Farmer',
         phone_number: '123',
         organization: null,
@@ -148,9 +148,9 @@ describe('signupSlice', () => {
   it('handles setUserRole', () => {
     const user = {
       id: 1,
-      first_name: 'Jane',
-      last_name: 'Doe',
-      email: 'jane@example.com',
+      first_name: 'Irene',
+      last_name: 'Akawin',
+      email: 'agigiba@gmail.com',
       role: 'Farmer' as 'Farmer',
       phone_number: '123',
       organization: null,

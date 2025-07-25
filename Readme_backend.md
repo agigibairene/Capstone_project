@@ -111,13 +111,14 @@ backend/
 ```
     unzip Capstone_project.zip
     cd Capstone_project
+    cd backend
 ```
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/your-django-backend.git
-cd your-django-backend
+git clone https://github.com/agigibairene/Capstone_project.git
+cd backend
 ```
 
 ### 2. Create and activate virtual environment
@@ -251,8 +252,7 @@ The API path `http://localhost:8000/`
 # Run all tests
 python manage.py test
 
-# Run specific app tests
-python manage.py test apps.users
+
 
 ```
 
