@@ -39,65 +39,65 @@ def home(request):
 @permission_classes([AllowAny])
 def signup_view(request):
     """User signup view"""
-    try:    
+    try:
         data = request.data if hasattr(request, 'data') else json.loads(request.body)
-        
+
         serializer = UserSignUpSerializer(data=data)
         if serializer.is_valid():
             try:
                 with transaction.atomic():
                     user = serializer.save()
-                    
+
                     try:
                         profile = user.profile
                     except UserProfile.DoesNotExist:
+                        investor_type = data.get('investor_type', '').strip()
+                        organization = data.get('organization', '').strip() if investor_type == 'Organization' else ''
+                        
                         profile = UserProfile.objects.create(
                             user=user,
                             phone_number=data.get('phone_number', ''),
                             role=data.get('role', 'Farmer'),
-                            organization=data.get('organization', ''),
-                            investor_type=data.get('investor_type', '')
+                            organization=organization,
+                            investor_type=investor_type
                         )
                         logger.info(f"Created profile for user {user.email}: {profile}")
-                    
+
                     # Generate tokens
                     refresh = RefreshToken.for_user(user)
-                    
-                    # Serialize user data
                     user_data = UserSerializer(user).data
-                    
+
                     logger.info(f"User {user.email} registered successfully")
-                    
+
                     return Response({
-                        'success': True, 
+                        'success': True,
                         'message': 'Account created successfully',
                         'user': user_data,
                         'access': str(refresh.access_token),
                         'refresh': str(refresh)
                     }, status=status.HTTP_201_CREATED)
-                    
+
             except Exception as e:
                 logger.error(f"Error creating user: {str(e)}")
                 logger.error(f"Traceback: {traceback.format_exc()}")
                 return Response({
-                    'success': False, 
+                    'success': False,
                     'errors': {'general': 'Failed to create account. Please try again.'}
                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+
         logger.warning(f"Signup validation failed: {serializer.errors}")
         return Response({
-            'success': False, 
+            'success': False,
             'errors': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
-        
+
     except Exception as e:
         logger.error(f"Signup view error: {str(e)}")
         logger.error(f"Traceback: {traceback.format_exc()}")
         return Response({
-            'success': False, 
+            'success': False,
             'errors': {'general': 'An error occurred during registration. Please try again.'}
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 @api_view(['POST'])
 @permission_classes([AllowAny])

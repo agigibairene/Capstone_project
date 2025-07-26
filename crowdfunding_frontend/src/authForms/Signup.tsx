@@ -196,7 +196,7 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
           <div className="flex gap-8 items-center">
             <div className="flex gap-2 items-center text-xl font-semibold text-teal-700">
               <img src={logo} className="w-[26px]" alt="Agriconnect Logo" />
-              SeedLinq
+              Agriconnect
             </div>
             <div className="px-2 py-3 sm:py-4">
               <button
@@ -219,7 +219,7 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
             ))}
           </ul>
           <div className="text-xs text-gray-500 pt-10">
-            © {new Date().getFullYear()} SeedLinq–{" "}
+            © {new Date().getFullYear()} Agriconnect –{" "}
             <a href="#" className="underline">
               Privacy & Terms
             </a>
@@ -229,7 +229,7 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
         {/* RIGHT SIDE */}
         <div className="p-4 sm:p-6 md:p-12 rounded-lg bg-white">
           <div className="flex gap-4 items-center">
-            <h2 className="text-xl font-semibold text-teal-700">Create an Account on SeedLinq</h2>
+            <h2 className="text-xl font-semibold text-teal-700">Create an Account on Agriconnect</h2>
           </div>
           <p className="text-sm text-gray-500 mb-6">Sign up to see more amazing features</p>
 
@@ -287,10 +287,9 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
                 className={`input w-full ${errors.role ? 'border-red-500' : ''}`}
                 aria-label="Select your role"
               >
-                <option value="" hidden>Select Role</option>
-                {
-                  ["Farmer", "Investor"].map((item)=><option key={item} value={item}>{item}</option>)
-                }
+                <option value="">Select Role</option>
+                <option value="Farmer">Farmer</option>
+                <option value="Investor">Investor</option>
               </select>
               {errors.role && <p className="text-xs text-red-500 mt-1">{errors.role}</p>}
             </div>
@@ -352,25 +351,25 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
                     className={`input w-full ${errors.investorType ? 'border-red-500' : ''}`}
                     aria-label="Select investor type"
                   >
-                    <option value="" hidden>Select investor type</option>
-                    {["Organization", "Individual"].map(item=>(<option key={item} value={item}>{item}</option>))}
-                    
+                    <option value="">Select investor type</option>
+                    <option value="Organization">Organization</option>
+                    <option value="Individual">Individual</option>
                   </select>
                   {errors.investorType && <p className="text-xs text-red-500 mt-1">{errors.investorType}</p>}
                 </div>
-                {userInput.investorType === "Organization" && <div>
+                <div>
                   <label htmlFor="organization" className="sr-only">Organization</label>
                   <input
                     id="organization"
                     name="organization"
                     type="text"
-                    placeholder="Organization Name"
+                    placeholder="Organization"
                     value={userInput.organization}
                     onChange={handleUserInput}
                     className={`input w-full ${errors.organization ? 'border-red-500' : ''}`}
                   />
                   {errors.organization && <p className="text-xs text-red-500 mt-1">{errors.organization}</p>}
-                </div>}
+                </div>
               </>
             )}
 
