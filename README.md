@@ -11,7 +11,7 @@
 [GITHUB LINK](https://github.com/agigibairene/Capstone_project)
 
 ## Demo video
-📍 [CLICK TO WATCH DEMO VIDEO](https://youtu.be/gNJZRrmamk4)
+📍 [CLICK TO WATCH DEMO VIDEO](https://drive.google.com/file/d/1R9orJ9pQj0RfunIJnrlT65NmklQze5aF/view?usp=drive_link)
 
 ## Technologies and Packages used
 ```
