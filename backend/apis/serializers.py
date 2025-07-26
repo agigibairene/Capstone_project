@@ -541,7 +541,7 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
                 width, height = letter
                 c.translate(width / 2, height / 2)
                 c.rotate(45)
-                c.drawCentredString(0, 0, "Agriconnect")
+                c.drawCentredString(0, 0, "SeedLinq")
                 c.save()
                 wm_stream.seek(0)
 

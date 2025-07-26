@@ -252,7 +252,7 @@ export default function NDA() {
                 <div className="prose text-sm md:text-base text-gray-700 space-y-4">
                   <h3 className="font-bold text-lg text-bgColor">NON-DISCLOSURE AGREEMENT</h3>
                   <p>
-                    This Non-Disclosure Agreement is entered into on {formData.date} by and between <b className='text-bgColor'>Agriconnect</b>, an agricultural non-governmental 
+                    This Non-Disclosure Agreement is entered into on {formData.date} by and between <b className='text-bgColor'>SeedLinq</b>, an agricultural non-governmental 
                     platform, and the undersigned individual <b className='text-bgColor'>{kycData?.kyc?.full_name}</b>.
                   </p>
                   <p>

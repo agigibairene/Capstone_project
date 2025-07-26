@@ -43,7 +43,7 @@ export default function Footer({refs} : RefProps) {
                 </div>
 
                 <div className="">
-                    <p className="font-bold text-xl text-limeTxt">Agriconnect</p>
+                    <p className="font-bold text-xl text-limeTxt">SeedLinq</p>
                     <ul>
                         {
                             navList.map(item =>{
@@ -62,7 +62,7 @@ export default function Footer({refs} : RefProps) {
                 </div>
 
                 <div className="space-y-4">
-                    <p className="font-bold text-xl text-limeTxt">About Agriconnect</p>
+                    <p className="font-bold text-xl text-limeTxt">About SeedLinq</p>
                     <p className="text-gray-300 max-w-lg">
                         Empowering agriculture, this platform connects farmers with investors, 
                         facilitating secure funding for sustainable growth. It offers robust project screening,

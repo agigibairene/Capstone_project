@@ -58,7 +58,7 @@ export default function Header({refs} : RefProps){
                 whileInView={{ opacity: 1, scale: 1}}
                 className="flex items-center">
                     <img src={logo} alt="" />
-                    <span className="ml-2 font-logo text-xl text-limeTxt cursor-pointer">AgriConnect</span>
+                    <span className="ml-2 font-logo text-xl text-limeTxt cursor-pointer">SeedLinq</span>
                 </motion.div>
                 <nav className="hidden sm:block">
                     <ul className="flex gap-8">

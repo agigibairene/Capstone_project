@@ -351,7 +351,7 @@ def download_nda(request):
             5.2 This Agreement does not transfer any ownership rights to the Recipient, nor does it grant any license or rights beyond those expressly stated.<br/><br/>
 
             <b>6. Watermarking & Content Protection</b><br/>
-            6.1 All uploaded proposals are automatically embedded with "Agriconnect" watermarks using PyPDF2 and displayed in a secure PDF format.<br/>
+            6.1 All uploaded proposals are automatically embedded with "SeedLinq" watermarks using PyPDF2 and displayed in a secure PDF format.<br/>
             6.2 This protection is enforced to prevent unauthorized reproduction or sharing of materials.<br/><br/>
 
             <b>7. Legal Enforcement</b><br/>
@@ -370,7 +370,7 @@ def download_nda(request):
 
         content = f"""
         This Non-Disclosure Agreement is entered into on {nda.date_signed} by and between 
-        <b>Agriconnect</b>, an agricultural non-governmental platform, and the undersigned 
+        <b>SeedLinq</b>, an agricultural non-governmental platform, and the undersigned 
         individual <b>{nda.full_name}</b>.
         
         {nda_content}
@@ -490,7 +490,7 @@ def confirm_interest_in_project(request, project_id):
         f"An investor ({user.get_full_name()} - {user.email}) has confirmed their interest in your project: \"{project.title}\".\n"
         f"They will reach out to you via: {method.upper()}.\n\n"
         f"Best regards,\n"
-        f"Agriconnect"
+        f"SeedLinq"
     )
 
     email = EmailMessage(

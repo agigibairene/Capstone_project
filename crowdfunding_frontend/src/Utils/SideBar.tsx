@@ -78,7 +78,7 @@ export default function SideBar({
         <div className="flex items-center space-x-2">
           <img src={logo} className="w-[26px]" alt="logo" />
           {!isCollapsed && (
-            <p className="font-logo text-xl text-limeTxt">Agriconnect</p>
+            <p className="font-logo text-xl text-limeTxt">SeedLinq</p>
           )}
         </div>
         {!isScreenSmall && (

@@ -361,7 +361,7 @@ export const NDAsections : NDASection[]= [
   {
     title: '6. Watermarking & Content Protection',
     content: [
-      '6.1 All uploaded proposals are automatically embedded with "Agriconnect" watermarks using PyPDF2 and displayed in a secure PDF format.',
+      '6.1 All uploaded proposals are automatically embedded with "SeedLinq" watermarks using PyPDF2 and displayed in a secure PDF format.',
       '6.2 This protection is enforced to prevent unauthorized reproduction or sharing of materials.',
     ],
   },

@@ -101,7 +101,7 @@ export default function Login() {
             <div className="text-center mb-8">
               <div className="flex justify-center items-center gap-2 mb-4">
                 <img src={logo} alt="logo" className="h-8" />
-                <span className="text-2xl font-bold text-bgColor">Agriconnect</span>
+                <span className="text-2xl font-bold text-bgColor">SeedLinq</span>
               </div>
               <h2 className="text-2xl font-semibold text-bgColor mb-2">Welcome back!</h2>
               <p className="text-white/80 text-sm">Sign in to your account</p>

@@ -213,14 +213,14 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 26214400
 DATA_UPLOAD_MAX_MEMORY_SIZE = 26214400  
 
 JAZZMIN_SETTINGS = {
-    "site_title": "Agriconnect Admin",
-    "site_header": "Agriconnect",
-    "site_brand": "Agriconnect",
+    "site_title": "SeedLinq Admin",
+    "site_header": "SeedLinq",
+    "site_brand": "SeedLinq",
     "site_logo": "logo.png",
     "login_logo": "green_logo.png",
     "login_logo_dark": "logo.png",
-    "welcome_sign": "Welcome to the Agriconnect",
-    "copyright": "Agriconnect",
+    "welcome_sign": "Welcome to the SeedLinq",
+    "copyright": "SeedLinq",
     "custom_css": "custom_admin.css", 
     "icons": {
         "apis.farmerkyc": "fa-solid fa-tractor",

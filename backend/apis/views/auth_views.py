@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 User = get_user_model()
 
 def home(request):
-    return JsonResponse({"message": "Welcome to Agriconnect API!"})
+    return JsonResponse({"message": "Welcome to SeedLinq API!"})
 
 
 @csrf_exempt
@@ -136,7 +136,7 @@ def login_view(request):
                         f"Your One-Time Password (OTP) is: {otp.otp_code}\n\n"
                         f"This code will expire in 5 minutes. Please enter it to proceed with your login.\n\n"
                         f"Thank you,\n"
-                        f"Agriconnect"
+                        f"SeedLinq"
                         )
                                                     
                         if not hasattr(settings, 'EMAIL_HOST_USER') or not settings.EMAIL_HOST_USER:
@@ -352,7 +352,7 @@ def resend_login_otp(request):
                 f"Your One-Time Password (OTP) is: {otp.otp_code}\n\n"
                 f"This code will expire in 5 minutes. Please enter it to proceed with your login.\n\n"
                 f"Thank you,\n"
-                f"Agriconnect"
+                f"SeedLinq"
                 )
                 
                 if not hasattr(settings, 'EMAIL_HOST_USER') or not settings.EMAIL_HOST_USER:

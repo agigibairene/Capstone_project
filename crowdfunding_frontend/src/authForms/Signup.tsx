@@ -196,7 +196,7 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
           <div className="flex gap-8 items-center">
             <div className="flex gap-2 items-center text-xl font-semibold text-teal-700">
               <img src={logo} className="w-[26px]" alt="Agriconnect Logo" />
-              Agriconnect
+              SeedLinq
             </div>
             <div className="px-2 py-3 sm:py-4">
               <button
@@ -219,7 +219,7 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
             ))}
           </ul>
           <div className="text-xs text-gray-500 pt-10">
-            © {new Date().getFullYear()} Agriconnect –{" "}
+            © {new Date().getFullYear()} SeedLinq–{" "}
             <a href="#" className="underline">
               Privacy & Terms
             </a>
@@ -229,7 +229,7 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
         {/* RIGHT SIDE */}
         <div className="p-4 sm:p-6 md:p-12 rounded-lg bg-white">
           <div className="flex gap-4 items-center">
-            <h2 className="text-xl font-semibold text-teal-700">Create an Account on Agriconnect</h2>
+            <h2 className="text-xl font-semibold text-teal-700">Create an Account on SeedLinq</h2>
           </div>
           <p className="text-sm text-gray-500 mb-6">Sign up to see more amazing features</p>
 

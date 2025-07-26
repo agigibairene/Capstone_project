@@ -23,7 +23,7 @@ export default function HomePage() {
                             transition={{ duration: 1, delay: 0.3}}
                             className="text-white text-xl"
                         >
-                            <span className="text-limeTxt font-semibold text-xl">AgriConnect</span> - Where Investments meets Agriculture
+                            <span className="text-limeTxt font-semibold text-xl">SeedLinq</span> - Where Investments meets Agriculture
                         </motion.h1>
                         <motion.p 
                            initial={{opacity: 0, x:-200}}
@@ -72,7 +72,7 @@ export default function HomePage() {
                            whileInView={{ opacity: 1, x: 0}}
                            transition={{ duration: 1, delay: 0.3}}
                             className="text-white text-3xl">
-                            <span className="text-limeTxt font-semibold text-5xl">AgriConnect</span> - Where Investments meets Agriculture
+                            <span className="text-limeTxt font-semibold text-5xl">SeedLinq</span> - Where Investments meets Agriculture
                         </motion.h1>
                         <motion.p 
                             initial={{opacity: 0, x:-200}}
