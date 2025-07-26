@@ -409,8 +409,8 @@ export default function CreateProject() {
 
         <div className="flex flex-wrap gap-[40px]">
           <InputField 
-            label="Target Amount (USD) *" 
-            placeholder="Enter amount in USD" 
+            label="Target Amount (GHC) *" 
+            placeholder="Enter amount in GHC" 
             inputType="number" 
             value={form.target_amount} 
             isTextArea={false} 

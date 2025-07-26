@@ -1,4 +1,4 @@
-import { Calendar, DollarSign, User, Clock, FileText } from "lucide-react";
+import { Calendar, User, Clock, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface ProjectCardProps {
@@ -103,9 +103,8 @@ export default function ProjectCard({
 
             {/* Target amount */}
             <div className="flex items-center space-x-1">
-              <DollarSign className="w-4 h-4 text-emerald-600" />
               <span className="text-sm font-semibold text-emerald-600">
-                ${parseFloat(target_amount).toLocaleString()}
+                GHC {parseFloat(target_amount).toLocaleString()}
               </span>
             </div>
           </div>
