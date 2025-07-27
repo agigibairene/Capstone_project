@@ -72,7 +72,7 @@ export default function HomePage() {
                            whileInView={{ opacity: 1, x: 0}}
                            transition={{ duration: 1, delay: 0.3}}
                             className="text-white text-3xl">
-                            <span className="text-limeTxt font-semibold text-5xl">SeedLinq</span> - Where Investments meets Agriculture
+                            <span className="text-limeTxt font-semibold font-logo text-5xl">SEEDLINQ</span> - Where Investments meets Agriculture
                         </motion.h1>
                         <motion.p 
                             initial={{opacity: 0, x:-200}}

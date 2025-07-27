@@ -8,6 +8,7 @@ import type { AppDispatch, RootState } from "../redux/store";
 import { Eye, EyeOff, ChevronDown } from "lucide-react";
 import Loader from "../Utils/Loader";
 import { countryCodes } from "../data/data";
+import Ethics from "./Ethics";
 
 interface Details {
   title: string;
@@ -31,8 +32,6 @@ const miniDetails: Details[] = [
   },
 ];
 
-
-
 export default function Signup() {
   const [userInput, setUserInput] = useState<{ [key: string]: string }>({
     first_name: "",
@@ -50,6 +49,8 @@ export default function Signup() {
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showEthics, setShowEthics] = useState(false);
+  const [pendingFormData, setPendingFormData] = useState<any>(null);
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [hasSubmitted, setHasSubmitted] = useState(false); // Track if form has been submitted
@@ -128,28 +129,48 @@ export default function Signup() {
     setErrors(foundErrors);
 
     if (Object.keys(foundErrors).length === 0) {
-      try {
-        const signupData = {
-          first_name: userInput.first_name.trim(),
-          last_name: userInput.last_name.trim(),
-          email: userInput.email.trim(),
-          password: userInput.password,
-          confirm_password: userInput.confirm_password,
-          role: userInput.role as "Farmer" | "Investor",
-          phone_number: `${selectedCountryCode}${userInput.phone_number.trim()}`, 
-          ...(userInput.role === "Investor" && {
-            organization: userInput.organization.trim(),
-            investorType: userInput.investorType as "Individual" | "Organization",
-          }),
-        };
+      // Prepare signup data
+      const signupData = {
+        first_name: userInput.first_name.trim(),
+        last_name: userInput.last_name.trim(),
+        email: userInput.email.trim(),
+        password: userInput.password,
+        confirm_password: userInput.confirm_password,
+        role: userInput.role as "Farmer" | "Investor",
+        phone_number: `${selectedCountryCode}${userInput.phone_number.trim()}`, 
+        ...(userInput.role === "Investor" && {
+          organization: userInput.organization.trim(),
+          investorType: userInput.investorType as "Individual" | "Organization",
+        }),
+      };
 
-        await dispatch(signupUser(signupData)).unwrap();
-        
+      // Store the form data and show policies modal
+      setPendingFormData(signupData);
+      setShowEthics(true);
+    }
+  }
+
+  async function proceedWithSignup() {
+    if (pendingFormData) {
+      try {
+        await dispatch(signupUser(pendingFormData)).unwrap();
       } catch (err: any) {
         console.error("Signup failed:", err);
         setErrors({ general: err || "Signup failed. Please try again." });
+      } finally {
+        setPendingFormData(null);
+        setShowEthics(false);
       }
     }
+  }
+
+  function handlePoliciesAccept() {
+    proceedWithSignup();
+  }
+
+  function handlePoliciesClose() {
+    setShowEthics(false);
+    setPendingFormData(null);
   }
 
  useEffect(() => {
@@ -196,7 +217,7 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
           <div className="flex gap-8 items-center">
             <div className="flex gap-2 items-center text-xl font-semibold text-teal-700">
               <img src={logo} className="w-[26px]" alt="Agriconnect Logo" />
-              Agriconnect
+              SEEDLINQ
             </div>
             <div className="px-2 py-3 sm:py-4">
               <button
@@ -219,7 +240,7 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
             ))}
           </ul>
           <div className="text-xs text-gray-500 pt-10">
-            © {new Date().getFullYear()} Agriconnect –{" "}
+            © {new Date().getFullYear()} SEEDLINQ –{" "}
             <a href="#" className="underline">
               Privacy & Terms
             </a>
@@ -229,7 +250,7 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
         {/* RIGHT SIDE */}
         <div className="p-4 sm:p-6 md:p-12 rounded-lg bg-white">
           <div className="flex gap-4 items-center">
-            <h2 className="text-xl font-semibold text-teal-700">Create an Account on Agriconnect</h2>
+            <h2 className="text-xl font-semibold text-teal-700">Create an Account on SEEDLINQ</h2>
           </div>
           <p className="text-sm text-gray-500 mb-6">Sign up to see more amazing features</p>
 
@@ -446,6 +467,13 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
         </div>
       </div>
     </div>
+
+    {/* Policies Modal */}
+    <Ethics
+      isOpen={showEthics}
+      onClose={handlePoliciesClose}
+      onAccept={handlePoliciesAccept}
+    />
     
     </>
   );
