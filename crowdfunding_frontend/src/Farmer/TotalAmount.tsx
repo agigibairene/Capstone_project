@@ -31,7 +31,7 @@ export default function TotalAmount() {
           const defaultData: TotalAmountData = {
             total_amount_needed: 0,
             project_count: 0,
-            currency: 'USD'
+            currency: 'GHS'
           };
           setData(defaultData);
           setError(null);
@@ -49,7 +49,7 @@ export default function TotalAmount() {
       const processedData: TotalAmountData = {
         total_amount_needed: result.total_amount_needed || 0,
         project_count: result.project_count || 0,
-        currency: result.currency || 'USD'
+        currency: result.currency || 'GHS'
       };
       
       setData(processedData);
@@ -64,7 +64,7 @@ export default function TotalAmount() {
         const defaultData: TotalAmountData = {
           total_amount_needed: 0,
           project_count: 0,
-          currency: 'USD'
+          currency: 'GHS'
         };
         setData(defaultData);
         setError(null);
@@ -81,13 +81,13 @@ export default function TotalAmount() {
   }, []);
 
   const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: data?.currency || 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount || 0);
-  };
+  return new Intl.NumberFormat('en-GH', {
+    style: 'currency',
+    currency: 'GHS',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount || 0);
+};
 
   if (loading) {
     return (

@@ -35,7 +35,6 @@ export default function KYCFarmer() {
   const { loading, error } = useSelector((state: RootState) => state.kycReducer);
  
 
-
   useEffect(() => {
     async function fetchPrefillData() {
       try {

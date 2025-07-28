@@ -76,8 +76,8 @@ class InvestorKYC(models.Model):
 
     id_type = models.CharField(max_length=20, choices=ID_TYPE_CHOICES)
     id_number = models.CharField(max_length=100)
-    id_document = models.FileField(upload_to='documents/id/')
-    profile_picture = models.ImageField(upload_to='profiles/')
+    id_document = models.FileField(upload_to='documents/id/', storage=MediaStorage())
+    profile_picture = models.ImageField(upload_to='profiles/', storage=MediaStorage())
 
     address = models.TextField()
     occupation = models.CharField(max_length=200)
@@ -93,15 +93,16 @@ class InvestorKYC(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        """Override save to prevent updates after creation except allowed fields"""
+        """Allow file uploads (id_document, profile_picture) while blocking other updates"""
         if self.pk is not None:
             try:
                 original = InvestorKYC.objects.get(pk=self.pk)
                 admin_updatable_fields = ['is_verified', 'verification_date', 'changes_allowed']
+                file_fields = ['id_document', 'profile_picture']  # Allow these fields to change
 
                 for field in self._meta.fields:
                     field_name = field.name
-                    if field_name not in admin_updatable_fields and field_name not in ['updated_at']:
+                    if field_name not in admin_updatable_fields + file_fields + ['updated_at']:
                         old_value = getattr(original, field_name)
                         new_value = getattr(self, field_name)
                         if old_value != new_value:
@@ -177,8 +178,8 @@ class FarmerKYC(models.Model):
 
     id_type = models.CharField(max_length=20, choices=ID_TYPE_CHOICES)
     id_number = models.CharField(max_length=100)
-    id_document = models.FileField(upload_to='documents/id/')
-    profile_picture = models.ImageField(upload_to='profiles/')
+    id_document = models.FileField(upload_to='documents/id/', storage=MediaStorage())
+    profile_picture = models.ImageField(upload_to='profiles/', storage=MediaStorage())
 
     is_verified = models.BooleanField(default=False)
     verification_date = models.DateTimeField(null=True, blank=True)
@@ -188,15 +189,16 @@ class FarmerKYC(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        """Override save to prevent updates after creation except allowed fields"""
+        """Allow file uploads (id_document, profile_picture) while blocking other updates"""
         if self.pk is not None:
             try:
                 original = FarmerKYC.objects.get(pk=self.pk)
                 admin_updatable_fields = ['is_verified', 'verification_date', 'changes_allowed']
+                file_fields = ['id_document', 'profile_picture']  # Allow these fields to change
 
                 for field in self._meta.fields:
                     field_name = field.name
-                    if field_name not in admin_updatable_fields and field_name not in ['updated_at']:
+                    if field_name not in admin_updatable_fields + file_fields + ['updated_at']:
                         old_value = getattr(original, field_name)
                         new_value = getattr(self, field_name)
                         if old_value != new_value:

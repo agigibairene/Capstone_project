@@ -93,7 +93,6 @@ export default function KYCInvestor() {
     const maxNameLength = maxLength - extension.length - 1; 
     const truncatedName = nameWithoutExt.substring(0, maxNameLength);
     
-    console.log(`Truncating filename: ${file.name} -> ${truncatedName}.${extension}`);
     
     const newFile = new File([file], `${truncatedName}.${extension}`, {
       type: file.type,
@@ -227,11 +226,6 @@ export default function KYCInvestor() {
         formDataToSend.append('profile_picture', truncatedProfileFile);
       }
 
-      console.log('Submitting KYC with files:', {
-        idDocument: formData.idUpload?.name,
-        profilePicture: formData.profilePicture?.name,
-        phoneNumber: `${formData.countryCode}${formData.phoneNumber}`
-      });
 
       await dispatch(investorKYC(formDataToSend));
     } catch (err) {
@@ -477,7 +471,7 @@ export default function KYCInvestor() {
                         onChange={handleChange}
                         className={selectClass}
                       >
-                        <option disabled value="">Select Source</option>
+                        <option disabled value="">Select Source of income</option>
                         {
                           ['Salary', 'Business', 'Investment', 'Other'].map(item=>
                             <option key={item} value={item.toLowerCase()}>{item}</option>
@@ -494,7 +488,7 @@ export default function KYCInvestor() {
                         value={formData.annualIncome}
                         onChange={handleChange}
                         className={inputClass}
-                        placeholder='Annual Income (USD)'
+                        placeholder='Annual Income (GHS)'
                       />
                       {errors.annualIncome && <p className="text-xs font-bold text-red-600 mt-1 drop-shadow">{errors.annualIncome}</p>}
                     </div>
