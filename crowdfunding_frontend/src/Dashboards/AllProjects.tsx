@@ -46,6 +46,11 @@ type Props = {
   } | null;
 };
 
+ interface SortOption {
+    value: string;
+    label: string;
+  }
+
 const PROJECTS_PER_PAGE = 12;
 
 export default function AllProjects({ loading, forbidden, projects, error, onProjectClick, accessMeta }: Props) {
@@ -55,7 +60,7 @@ export default function AllProjects({ loading, forbidden, projects, error, onPro
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
-  const handleProjectClick = (project: Project) => {
+  function handleProjectClick(project: Project){
     if (onProjectClick) {
       onProjectClick(project);
     } else {
@@ -182,6 +187,15 @@ export default function AllProjects({ loading, forbidden, projects, error, onPro
     return pages;
   };
 
+ const sortOptions: SortOption[] = [
+  { value: "newest", label: "Sort by: Newest First" },
+  { value: "oldest", label: "Sort by: Oldest First" },
+  { value: "deadline", label: "Sort by: Deadline" },
+  { value: "amount_high", label: "Sort by: Amount (High to Low)" },
+  { value: "amount_low", label: "Sort by: Amount (Low to High)" },
+];
+
+
   return (
     <section className="px-4 font-Outfit md:px-10 py-8">
       <div className="mb-8">
@@ -243,11 +257,10 @@ export default function AllProjects({ loading, forbidden, projects, error, onPro
                   backgroundSize: '1.5em 1.5em'
                 }}
               >
-                <option value="newest">Sort by: Newest First</option>
-                <option value="oldest">Sort by: Oldest First</option>
-                <option value="deadline">Sort by: Deadline</option>
-                <option value="amount_high">Sort by: Amount (High to Low)</option>
-                <option value="amount_low">Sort by: Amount (Low to High)</option>
+
+              {
+                sortOptions.map((item: SortOption)=><option value={item.value}>{item.label}</option>)
+              }
               </select>
             </div>
           </div>

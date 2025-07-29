@@ -58,12 +58,13 @@ export default function ProjectCard({
   };
 
   return (
-    <div className="block group cursor-pointer">
-      <div className="w-80 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group-hover:scale-[1.02] border border-gray-100"
-           onClick={handleCardClick}>
-        
-        {/* Header with status */}
-        <div className="p-4 pb-3">
+    <div className="block group cursor-pointer h-full">
+      <div
+        className="w-80 h-full flex flex-col justify-between bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group-hover:scale-[1.02] border border-gray-100"
+        onClick={handleCardClick}
+      >
+        {/* Main content */}
+        <div className="p-4 pb-3 flex-grow">
           <div className="flex items-center justify-between mb-3">
             <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusConfig.color}`}>
               {statusConfig.label}
@@ -75,20 +76,19 @@ export default function ProjectCard({
               </div>
             )}
           </div>
-          
+
           <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-emerald-600 transition-colors">
             {title}
           </h3>
-          
+
           <p className="text-sm text-gray-600 line-clamp-2 mb-3">
             {brief}
           </p>
         </div>
 
         {/* Footer */}
-        <div className="px-4 pb-4">
+        <div className="px-4 pb-4 mt-auto">
           <div className="flex items-center justify-between">
-            {/* Farmer avatar and info */}
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full flex items-center justify-center">
                 <span className="text-white font-semibold text-xs">
@@ -101,7 +101,6 @@ export default function ProjectCard({
               </div>
             </div>
 
-            {/* Target amount */}
             <div className="flex items-center space-x-1">
               <span className="text-sm font-semibold text-emerald-600">
                 GHC {parseFloat(target_amount).toLocaleString()}
@@ -109,7 +108,6 @@ export default function ProjectCard({
             </div>
           </div>
 
-          {/* Deadline and proposal link */}
           {(deadline || watermarked_proposal) && (
             <div className="flex items-center justify-between mt-2">
               {deadline && (
@@ -120,7 +118,7 @@ export default function ProjectCard({
                   </span>
                 </div>
               )}
-              
+
               {watermarked_proposal && (
                 <a 
                   href={watermarked_proposal}

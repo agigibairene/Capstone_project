@@ -18,6 +18,7 @@ import KYCInvestor from "./authForms/KYCInvestor.tsx";
 import OTPLogin from "./authForms/OTP.tsx";
 import ProjectDetails from "./Dashboards/ProjectDetails.tsx";
 import ErrorPage from "./components/Error.tsx";
+import Ethics from "./authForms/Ethics.tsx";
 
 
 const routes = createBrowserRouter([
@@ -43,6 +44,14 @@ const routes = createBrowserRouter([
         element: <LandingPage />,
       },
     ],
+  },
+  {
+    path: '/privacy',
+    element: <Ethics isOpen={false} onClose={function (): void {
+      throw new Error("Function not implemented.");
+    } } onAccept={function (): void {
+      throw new Error("Function not implemented.");
+    } } />
   },
   {
     path: "/signup",

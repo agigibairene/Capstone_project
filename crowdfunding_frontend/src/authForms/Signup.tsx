@@ -45,7 +45,7 @@ export default function Signup() {
     confirm_password: "",
   });
 
-  const [selectedCountryCode, setSelectedCountryCode] = useState("+250"); // Default to Rwanda
+  const [selectedCountryCode, setSelectedCountryCode] = useState("+233");
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -53,7 +53,7 @@ export default function Signup() {
   const [pendingFormData, setPendingFormData] = useState<any>(null);
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [hasSubmitted, setHasSubmitted] = useState(false); // Track if form has been submitted
+  const [hasSubmitted, setHasSubmitted] = useState(false); 
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
@@ -241,9 +241,9 @@ const selectedCountry = countryCodes.find(country => country.code === selectedCo
           </ul>
           <div className="text-xs text-gray-500 pt-10">
             © {new Date().getFullYear()} SEEDLINQ –{" "}
-            <a href="#" className="underline">
+            <Link to="/privacy" className="underline">
               Privacy & Terms
-            </a>
+            </Link>
           </div>
         </div>
 
