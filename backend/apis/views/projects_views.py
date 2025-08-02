@@ -21,6 +21,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
 from reportlab.lib.units import inch
 from io import BytesIO
 import urllib.request
+import pytz
 
 
 logger = logging.getLogger(__name__)
@@ -285,6 +286,21 @@ def check_nda_status(request):
 
 
 
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from django.http import HttpResponse
+from django.utils.timezone import localtime
+from datetime import timedelta
+from io import BytesIO
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from urllib.parse import urljoin
+import urllib.request
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def download_nda(request):
@@ -297,77 +313,57 @@ def download_nda(request):
         if not nda:
             return Response({'error': 'No NDA found for this user'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Generate PDF
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="NDA_{nda.full_name}_{nda.date_signed}.pdf"'
 
         buffer = BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=letter)
 
-        # Define styles
         base_styles = getSampleStyleSheet()
-        normal_style = ParagraphStyle(
-            name='CustomNormal',
-            parent=base_styles['Normal'],
-            fontSize=12,
-            leading=15
-        )
-        title_style = ParagraphStyle(
-            name='CustomTitle',
-            parent=base_styles['Title'],
-            fontSize=20,
-            leading=24,
-            alignment=1 
-        )
+        normal_style = ParagraphStyle(name='CustomNormal', parent=base_styles['Normal'], fontSize=12, leading=15)
+        title_style = ParagraphStyle(name='CustomTitle', parent=base_styles['Title'], fontSize=20, leading=24, alignment=1)
 
         story = []
-
-        # Title
         story.append(Paragraph("NON-DISCLOSURE AGREEMENT", title_style))
         story.append(Spacer(1, 12))
 
-        nda_content = f"""
+        nda_content = """
             <b>1. Purpose</b><br/>
             The purpose of this Agreement is to prevent unauthorized use, disclosure, or reproduction of confidential information and intellectual property belonging to project owners (Farmers or Agricultural Entrepreneurs) listed on the Platform.<br/><br/>
-
             <b>2. Definitions</b><br/>
             <b>2.1 Confidential Information</b><br/>
             Includes all business proposals, documentation, business plans, financial projections, technological concepts, sustainable methods, or any materials uploaded by project owners, whether marked as confidential or not.<br/><br/>
             <b>2.2 Intellectual Property (IP)</b><br/>
             Includes all trademarks, copyrights, trade secrets, processes, techniques, ideas, inventions, and other proprietary content disclosed through proposal documents or listed projects.<br/><br/>
-
             <b>3. Obligations of Recipient</b><br/>
             3.1 Recipient agrees not to copy, reproduce, disclose, reverse-engineer, exploit, or use any part of the Confidential Information or IP for personal or commercial gain without express written consent of the rightful owner.<br/>
             3.2 Recipient shall not implement, replicate, or attempt to profit from any idea, concept, or structure disclosed through the Platform's proposals.<br/>
             3.3 Recipient agrees not to share, distribute, or disclose any content to third parties, including colleagues, partners, or competing platforms.<br/>
             3.4 Recipient agrees to use all reasonable means to protect and maintain the confidentiality and integrity of such information.<br/><br/>
-
             <b>4. Access Limitations</b><br/>
             4.1 Only investors who have signed this NDA via digital e-signature may view watermarked PDF proposals on a read-only basis through the Platform.<br/>
             4.2 Farmers are restricted from accessing or viewing other users' proposals or project documents.<br/><br/>
-
             <b>5. Ownership & IPR</b><br/>
             5.1 All Confidential Information and associated Intellectual Property remains the sole property of the original project owner.<br/>
             5.2 This Agreement does not transfer any ownership rights to the Recipient, nor does it grant any license or rights beyond those expressly stated.<br/><br/>
-
             <b>6. Watermarking & Content Protection</b><br/>
             6.1 All uploaded proposals are automatically embedded with "SeedLinq" watermarks using PyPDF2 and displayed in a secure PDF format.<br/>
             6.2 This protection is enforced to prevent unauthorized reproduction or sharing of materials.<br/><br/>
-
             <b>7. Legal Enforcement</b><br/>
             7.1 Any breach of this Agreement, including misuse, unauthorized implementation, or disclosure of confidential material, will result in immediate legal action.<br/>
             7.2 The Platform reserves the right to suspend, terminate, or permanently ban users in breach of this Agreement and seek damages, injunctive relief, and/or prosecution.<br/><br/>
-
             <b>8. E-Signature & Acceptance</b><br/>
             By signing electronically, the Recipient acknowledges that:<br/>
             • They have read and understood this Agreement<br/>
             • They agree to be legally bound by its terms<br/>
             • They accept that a violation may result in legal liability.<br/><br/>
-
             <b>9. Governing Law</b><br/>
-            This Agreement shall be governed by and construed in accordance with the laws of the Republic of Ghana, according to the Copyright Act, 2005 (Act 690), the Patents Act, 2003 (Act 657), the Trademarks Act, 2004 (Act 664), the Industrial Designs Act, 2003 (Act 660), and the Protection Against Unfair Competition Act, 2000 (Act 589), without applying any rules that might direct the use of another jurisdiction's laws.<br/><br/>
+            This Agreement shall be governed by and construed in accordance with the laws of the Republic of Ghana...
         """
 
+        johannesburg_tz = pytz.timezone('Africa/Johannesburg')
+        submitted_time = nda.submitted_at.astimezone(johannesburg_tz)
+        
         content = f"""
         This Non-Disclosure Agreement is entered into on {nda.date_signed} by and between 
         <b>SeedLinq</b>, an agricultural non-governmental platform, and the undersigned 
@@ -376,16 +372,13 @@ def download_nda(request):
         {nda_content}
         
         <br/><br/>
-        
         <b>Signatory Information:</b><br/>
         Full Name: {nda.full_name}<br/>
         Email: {nda.email}<br/>
         Company: {nda.company or 'N/A'}<br/>
         Date Signed: {nda.date_signed}<br/>
         IP Address: {nda.ip_address}<br/>
-        Submitted At: {nda.submitted_at.strftime('%Y-%m-%d %H:%M:%S')}<br/>
-        
-        <br/><br/>
+        Submitted At: {submitted_time.strftime('%Y-%m-%d %H:%M:%S')}<br/><br/>
         
         <b>Electronic Signature:</b><br/>
         This document has been electronically signed by {nda.full_name} on {nda.date_signed}.
@@ -393,17 +386,20 @@ def download_nda(request):
 
         story.append(Paragraph(content, normal_style))
 
-        # Add the signature if available from S3 URL
+        # Load digital signature image if available
         if nda.signature and nda.signature.url:
             try:
                 story.append(Spacer(1, 12))
                 story.append(Paragraph("<b>Digital Signature:</b>", normal_style))
 
-                # Load the image from the S3 URL
-                with urllib.request.urlopen(nda.signature.url) as url_response:
+                # Ensure full URL in development
+                base_url = request.build_absolute_uri('/')  
+                full_signature_url = urljoin(base_url, nda.signature.url.lstrip('/'))
+
+                with urllib.request.urlopen(full_signature_url) as url_response:
                     img_data = url_response.read()
                     img_stream = BytesIO(img_data)
-                    signature_img = Image(img_stream, width=3*inch, height=1*inch)
+                    signature_img = Image(img_stream, width=3 * inch, height=1 * inch)
                     story.append(signature_img)
             except Exception as e:
                 story.append(Paragraph(f"Signature image not available: {str(e)}", normal_style))
@@ -417,6 +413,7 @@ def download_nda(request):
 
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
