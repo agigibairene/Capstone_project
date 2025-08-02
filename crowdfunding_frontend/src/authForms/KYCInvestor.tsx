@@ -8,7 +8,10 @@ import logo from '../assets/green_logo.png';
 import image from '../assets/login_img.jpg';
 import Loader from '../Utils/Loader';
 import { countryCodes } from '../data/data'
-import { API_URL } from '../Utils/constants';
+// import { API_URL } from '../Utils/constants';
+
+const API_URL  = import.meta.env.VITE_API_URL;
+
 
 interface IDCard{
   "Passport": string,

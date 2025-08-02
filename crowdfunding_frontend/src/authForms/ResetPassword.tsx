@@ -6,7 +6,10 @@ import image from '../assets/login_img.jpg';
 import logo from '../assets/green_logo.png';
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
-import { API_URL } from '../Utils/constants';
+// import { API_URL } from '../Utils/constants';
+
+const API_URL  = import.meta.env.VITE_API_URL;
+
 
 export default function ResetPassword() {
   const { reset_id } = useParams();

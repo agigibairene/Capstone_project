@@ -9,7 +9,10 @@ import type { AppDispatch, RootState } from '../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import Loader from '../Utils/Loader';
 import { countryCodes } from '../data/data';
-import { API_URL } from '../Utils/constants';
+// import { API_URL } from '../Utils/constants';
+
+const API_URL  = import.meta.env.VITE_API_URL;
+
 
 export default function KYCFarmer() {
   const navigate = useNavigate();

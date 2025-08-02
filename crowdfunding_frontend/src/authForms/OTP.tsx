@@ -4,12 +4,15 @@ import { useDispatch } from 'react-redux';
 import { setAuthTokens } from '../redux/login_auth'; 
 import type { AppDispatch } from '../redux/store';
 import image from '../assets/login_img.jpg';
-import { API_URL } from "../Utils/constants";
+// import { API_URL } from "../Utils/constants";
 import { toast, ToastContainer } from 'react-toastify';
 
 interface OTPLoginProps {
   length?: number;
 }
+
+const API_URL  = import.meta.env.VITE_API_URL;
+
 
 export default function OTPLogin({ length = 5}: OTPLoginProps) {
   const [otp, setOtp] = useState<string[]>(new Array(length).fill(""));
