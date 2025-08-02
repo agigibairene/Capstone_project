@@ -1,4 +1,4 @@
-# Capstone_project
+# Capstone_project - Backend
 The backend is a Django RESTful API serving as the core of the Agriconnect platform. It manages user authentication with JWT, role-based access for farmers and investors, project and opportunity listings, secure file uploads with watermarking, and KYC verification. The backend integrates with PostgreSQL for data persistence and employs DigitalOcean Spaces for media storage. It provides secure, scalable APIs consumed by the React frontend to facilitate agricultural investment.
 
 ## 🛡️ Security & IP Protection

@@ -1,4 +1,4 @@
-# Capstone_project
+# Capstone_project - Frontend
 Seedlinq is a secure, all-in-one digital investment platform designed to bridge the gap between young Ghanaian farmers/agricultural entrepreneurs and investors. Similar in spirit to GoFundMe, it empowers users to fund viable agricultural projects while protecting intellectual property and ensuring transparency.
 
 ## 🖥️ Dashboards
