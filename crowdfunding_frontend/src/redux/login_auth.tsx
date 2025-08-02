@@ -44,6 +44,8 @@ const REFRESH_TOKEN = 'REFRESH_TOKEN';
 
 const API_URL  = import.meta.env.VITE_API_URL;
 
+console.log(API_URL)
+
 
 export const loginUser = createAsyncThunk(
   'auth/loginUser',
