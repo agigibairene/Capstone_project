@@ -56,9 +56,18 @@ docker run -d -p 5173:5173 crowdfunding_frontend
 ```
 
 
-![Image](https://github.com/user-attachments/assets/00c36c09-2984-4e97-befc-7f0a28511cea)
-![Image](https://github.com/user-attachments/assets/812f4d20-9b71-4747-8f0d-49b8acf4b28b)
-![Image](https://github.com/user-attachments/assets/7659d9f3-2147-422b-bb16-88b23599896f)
-![Image](https://github.com/user-attachments/assets/2529ed9e-0d50-46a6-8464-f4a6b60ba386)
-![Image](https://github.com/user-attachments/assets/451f83ff-b673-4bb7-86f2-ecc35287faae)
-![Image](https://github.com/user-attachments/assets/6d505450-2a1f-41ef-84e7-726b6f6f9bfe)
+<img width="1365" height="715" alt="Image" src="https://github.com/user-attachments/assets/48fe870a-7f8a-45e9-ae99-6555a5e81b34" />
+
+<img width="526" height="629" alt="Image" src="https://github.com/user-attachments/assets/c097c65b-83c6-4d0b-97bb-3e5042ceeaae" />
+
+<img width="1366" height="728" alt="Image" src="https://github.com/user-attachments/assets/293b5019-d63e-4771-8ef8-07a15625d7a7" />
+
+<img width="1362" height="718" alt="Image" src="https://github.com/user-attachments/assets/1344a671-0f2f-4ced-a4a5-9daa53dbcb83" />
+
+<img width="1366" height="719" alt="Image" src="https://github.com/user-attachments/assets/581583d9-fb6b-403d-b668-aac7142c89c9" />
+
+<img width="1366" height="706" alt="Image" src="https://github.com/user-attachments/assets/f1fc9ce7-628a-4ed3-a2a5-a607d3570826" />
+
+<img width="1358" height="716" alt="Image" src="https://github.com/user-attachments/assets/28fc9af6-2178-4cbf-a2c6-4353dcabd48a" />
+
+<img width="1366" height="711" alt="Image" src="https://github.com/user-attachments/assets/b3f19941-10b3-454b-a698-eb6bb2e66405" />
