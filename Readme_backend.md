@@ -275,6 +275,7 @@ The API path `http://localhost:8000/`
 python manage.py test
 ```
 
+### Admin's dashboard
 <img width="1365" height="718" alt="Image" src="https://github.com/user-attachments/assets/18da5e61-1b6a-4eda-9fd1-f6d94d3955e8" />
 
 ## Contributor
