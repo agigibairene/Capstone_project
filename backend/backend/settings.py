@@ -254,7 +254,7 @@ WHITENOISE_AUTOREFRESH = True
 
 
 
-ENVIRONMENT = os.getenv("ENVIRONMENT", "development")  
+ENVIRONMENT = os.getenv("ENV", "development")  
 if ENVIRONMENT == "production":
     AWS_ACCESS_KEY_ID = os.getenv("SPACES_KEY")
     AWS_SECRET_ACCESS_KEY = os.getenv("SPACES_SECRET")
