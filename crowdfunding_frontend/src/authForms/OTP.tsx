@@ -4,7 +4,6 @@ import { useDispatch } from 'react-redux';
 import { setAuthTokens } from '../redux/login_auth'; 
 import type { AppDispatch } from '../redux/store';
 import image from '../assets/login_img.jpg';
-// import { API_URL } from "../Utils/constants";
 import { toast, ToastContainer } from 'react-toastify';
 
 interface OTPLoginProps {

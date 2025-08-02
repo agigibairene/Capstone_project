@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-// import { API_URL } from '../Utils/constants';
+
+
 
 interface SignupProps {
   first_name: string;

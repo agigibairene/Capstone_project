@@ -3,7 +3,10 @@
 import { X, Phone, Mail } from 'lucide-react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { API_URL } from './constants';
+
+
+const API_URL  = import.meta.env.VITE_API_URL;
+
 
 type InterestProps = {
   isOpen: boolean;

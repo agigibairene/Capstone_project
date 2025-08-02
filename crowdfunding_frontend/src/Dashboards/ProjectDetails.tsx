@@ -40,6 +40,8 @@ export default function ProjectDetails({ project: propProject}: ProjectDetailsPr
   const backToDashboard = location.state?.project.is_farmer ? '/farmer' : '/investor'
   const handleBack = () => navigate(backToDashboard);
 
+  console.log(project)
+
  const documents: { key: DocumentType; label: string; icon: React.ElementType }[] = [
   {
     key: 'proposal',

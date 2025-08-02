@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { FileText, Download, Check, AlertCircle, ArrowLeft, Loader2 } from 'lucide-react';
 import { useSelector } from 'react-redux';
-// import { API_URL } from '../Utils/constants';
 import { toast } from 'react-toastify';
 import type { RootState } from '../redux/store';
 import { NDAsections } from '../data/data';
