@@ -396,7 +396,7 @@ class Project(models.Model):
     deadline = models.DateField()
     original_proposal = models.FileField(
         upload_to='proposals/original/',
-        help_text="Upload your project proposal PDF"
+        help_text="Upload your project proposal PDF",
     )
     watermarked_proposal = models.FileField(
         upload_to='proposals/watermarked/',
@@ -411,7 +411,7 @@ class Project(models.Model):
     watermarked_business_plan = models.FileField(
         upload_to='proposals/watermarked/',
         blank=True,
-        editable=False
+        editable=False,
     )
     status = models.CharField(
         max_length=20,

@@ -19,9 +19,6 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.colors import gray
 from PyPDF2 import PdfReader, PdfWriter
 import uuid
-from django.contrib.auth import get_user_model
-User = get_user_model()
-from django.core.files.storage import DefaultStorage  
 
 
 
@@ -493,6 +490,28 @@ class ProjectSerializer(serializers.ModelSerializer):
         return False
 
 
+import os
+import uuid
+import logging
+from io import BytesIO
+
+from django.conf import settings
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.colors import gray
+from reportlab.pdfgen import canvas
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from PyPDF2 import PdfReader, PdfWriter
+
+from rest_framework import serializers
+from .models import Project
+
+logger = logging.getLogger(__name__)
+
+S3_STORAGE = hasattr(settings, "USE_S3") and settings.USE_S3  # Custom flag
+
 
 class ProjectCreateSerializer(serializers.ModelSerializer):
     proposal = serializers.FileField(write_only=True)
@@ -512,18 +531,18 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
         business_plan = validated_data.pop('business_plan')
         phone_number = validated_data.pop('phone_number', '').strip()
 
-        # Remove farmer from validated_data if it exists (to prevent duplicate farmer argument)
+        # Remove farmer if already in validated_data
         validated_data.pop('farmer', None)
-
         farmer = self.context['request'].user
 
+        # Update phone number if present
         if phone_number:
             profile = getattr(farmer, 'profile', None)
             if profile:
                 profile.phone_number = phone_number
                 profile.save(update_fields=['phone_number'])
 
-        # Create project - now farmer won't be duplicated
+        # Create base project
         project = Project.objects.create(
             farmer=farmer,
             original_proposal=proposal,
@@ -532,47 +551,53 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
         )
 
         try:
+            # Register watermark font
             font_path = os.path.join(settings.BASE_DIR, "apis", "fonts", "DynaPuff.ttf")
             if not os.path.exists(font_path):
                 raise FileNotFoundError(f"Font not found at {font_path}")
             pdfmetrics.registerFont(TTFont("DynaPuff", font_path))
 
             def watermark_pdf(input_file, label):
-                wm_stream = BytesIO()
-                c = canvas.Canvas(wm_stream, pagesize=letter)
-                c.setFont("DynaPuff", 80)
-                c.setFillColor(gray)
-                c.setFillAlpha(0.4)
-                width, height = letter
-                c.translate(width / 2, height / 2)
-                c.rotate(45)
-                c.drawCentredString(0, 0, "SeedLinq")
-                c.save()
-                wm_stream.seek(0)
+                try:
+                    wm_stream = BytesIO()
+                    c = canvas.Canvas(wm_stream, pagesize=letter)
+                    c.setFont("DynaPuff", 80)
+                    c.setFillColor(gray)
+                    c.setFillAlpha(0.5)
+                    width, height = letter
+                    c.translate(width / 2, height / 2)
+                    c.rotate(45)
+                    c.drawCentredString(0, 0, "SeedLinq")
+                    c.save()
+                    wm_stream.seek(0)
 
-                input_file.seek(0)
-                reader = PdfReader(input_file)
-                watermark_reader = PdfReader(wm_stream)
-                watermark_page = watermark_reader.pages[0]
-                writer = PdfWriter()
+                    input_file.seek(0)
+                    reader = PdfReader(input_file)
+                    watermark_reader = PdfReader(wm_stream)
+                    watermark_page = watermark_reader.pages[0]
+                    writer = PdfWriter()
 
-                for i, page in enumerate(reader.pages):
-                    try:
-                        page.merge_page(watermark_page)
-                    except Exception as e:
-                        print(f"Failed to watermark {label} page {i}: {e}")
-                    writer.add_page(page)
+                    for i, page in enumerate(reader.pages):
+                        try:
+                            page.merge_page(watermark_page)
+                        except Exception as e:
+                            logger.warning(f"Failed to watermark {label} page {i}: {e}")
+                        writer.add_page(page)
 
-                output_stream = BytesIO()
-                writer.write(output_stream)
-                output_stream.seek(0)
+                    output_stream = BytesIO()
+                    writer.write(output_stream)
+                    output_stream.seek(0)
 
-                media_storage = MediaStorage()
-                watermarked_name = f"proposals/watermarked/watermarked_{uuid.uuid4()}.pdf"
-                media_storage.save(watermarked_name, ContentFile(output_stream.read()))
+                    storage = MediaStorage() if S3_STORAGE else default_storage
+                    file_name = f"proposals/watermarked/watermarked_{uuid.uuid4()}.pdf"
+                    storage.save(file_name, ContentFile(output_stream.read()))
 
-                return watermarked_name
+                    return file_name
+                except Exception as e:
+                    logger.error(f"Watermarking error for {label}: {e}")
+                    raise
 
+            # Watermark and assign paths
             project.watermarked_proposal.name = watermark_pdf(proposal, "proposal")
             project.watermarked_business_plan.name = watermark_pdf(business_plan, "business plan")
             project.save(update_fields=[
@@ -581,12 +606,9 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
             ])
 
         except Exception as e:
-            logger = logging.getLogger(__name__)
             logger.error(f"Watermarking failed for project {project.id}: {e}")
 
         return project
-
-
 
 class KYCPreFillSerializer(serializers.Serializer):
     full_name = serializers.CharField()
