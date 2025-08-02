@@ -1,5 +1,5 @@
 # Capstone_project
-AgriConnect is a secure, all-in-one digital investment platform designed to bridge the gap between young Ghanaian farmers/agricultural entrepreneurs and investors. Similar in spirit to GoFundMe, it empowers users to fund viable agricultural projects while protecting intellectual property and ensuring transparency.
+Seedlinq is a secure, all-in-one digital investment platform designed to bridge the gap between young Ghanaian farmers/agricultural entrepreneurs and investors. Similar in spirit to GoFundMe, it empowers users to fund viable agricultural projects while protecting intellectual property and ensuring transparency.
 
 ## 🖥️ Dashboards
 Admin Dashboard: Manage users, verify users, projects, and monitor activities on the platform.
@@ -39,8 +39,8 @@ Farmer Dashboard: create projects and monitor project submissions.
 
 ## Set up project
 ```
-    unzip Capstone_project.zip
-    cd Capstone_project
+unzip Capstone_project.zip
+cd Capstone_project
 ```
 
 ## Create a .env file for development mode
@@ -51,9 +51,9 @@ API_URL=http://127.0.0.1:8000
 
 ## Setting up Frontend:
 ```
-    cd crowdfunding_frontend
-    docker build -t crowdfunding_frontend .
-    docker run -d -p 5173:5173 crowdfunding_frontend
+cd crowdfunding_frontend
+docker build -t crowdfunding_frontend .
+docker run -d -p 5173:5173 crowdfunding_frontend
 ```
 
 

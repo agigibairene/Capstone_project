@@ -201,6 +201,8 @@ python manage.py runserver
 http://127.0.0.1:8000/auth/create-admin/
 ```
 
+### Note
+``` All uploaded files in development mode would be found in media/```
 
 
 **Static files not loading:**
