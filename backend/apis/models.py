@@ -13,7 +13,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-S3_STORAGE = settings.ENVIRONMENT == 'production'
+S3_STORAGE = settings.ENV == 'production'
 
 
 class UserProfile(models.Model):
