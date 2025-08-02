@@ -275,7 +275,7 @@ The API path `http://localhost:8000/`
 python manage.py test
 ```
 
-<img width="1366" height="768" alt="Image" src="https://github.com/user-attachments/assets/8c220451-4f61-46f3-af95-a738f3bf295a" />
+<img width="1365" height="718" alt="Image" src="https://github.com/user-attachments/assets/18da5e61-1b6a-4eda-9fd1-f6d94d3955e8" />
 
 ## Contributor
 [Irene Akawin Agigiba](https://portfolio-hdhr.vercel.app/)  - Full Stack developer
