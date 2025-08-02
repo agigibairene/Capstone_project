@@ -493,7 +493,22 @@ class ProjectSerializer(serializers.ModelSerializer):
         return False
 
 
+from rest_framework import serializers
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from PyPDF2 import PdfReader, PdfWriter
+from io import BytesIO
+import uuid
+import os
+import logging
+from django.conf import settings
+from apis.models import Project
 
+logger = logging.getLogger(__name__)
 
 class ProjectCreateSerializer(serializers.ModelSerializer):
     proposal = serializers.FileField(write_only=True)
@@ -512,9 +527,8 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
         proposal = validated_data.pop('proposal')
         business_plan = validated_data.pop('business_plan')
         phone_number = validated_data.pop('phone_number', '').strip()
-        
         validated_data.pop('farmer', None)
-        
+
         farmer = self.context['request'].user
 
         if phone_number:
@@ -523,7 +537,6 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
                 profile.phone_number = phone_number
                 profile.save(update_fields=['phone_number'])
 
-        # Create project - now farmer won't be duplicated
         project = Project.objects.create(
             farmer=farmer,
             original_proposal=proposal,
@@ -541,7 +554,7 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
                 wm_stream = BytesIO()
                 c = canvas.Canvas(wm_stream, pagesize=letter)
                 c.setFont("DynaPuff", 80)
-                c.setFillColor(gray)
+                c.setFillColorRGB(0.5, 0.5, 0.5)
                 c.setFillAlpha(0.5)
                 width, height = letter
                 c.translate(width / 2, height / 2)
@@ -560,32 +573,33 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
                     try:
                         page.merge_page(watermark_page)
                     except Exception as e:
-                        print(f"Failed to watermark {label} page {i}: {e}")
+                        logger.warning(f"Failed to watermark {label} page {i}: {e}")
                     writer.add_page(page)
 
                 output_stream = BytesIO()
                 writer.write(output_stream)
                 output_stream.seek(0)
 
-                default_storage = DefaultStorage()
-                watermarked_name = f"proposals/watermarked/watermarked_{uuid.uuid4()}.pdf"
-                default_storage.save(watermarked_name, ContentFile(output_stream.read()))
+                # Save to default storage (S3 or local)
+                file_name = f"proposals/watermarked/watermarked_{uuid.uuid4()}.pdf"
+                saved_path = default_storage.save(file_name, ContentFile(output_stream.read()))
 
-                return watermarked_name
+                # Ensure it exists
+                if not default_storage.exists(saved_path):
+                    raise IOError(f"Failed to save watermarked {label} to storage.")
+
+                logger.info(f"{label.capitalize()} watermarked file saved to: {saved_path}")
+                return saved_path
 
             project.watermarked_proposal.name = watermark_pdf(proposal, "proposal")
             project.watermarked_business_plan.name = watermark_pdf(business_plan, "business plan")
-            project.save(update_fields=[
-                'watermarked_proposal',
-                'watermarked_business_plan'
-            ])
+            project.save(update_fields=['watermarked_proposal', 'watermarked_business_plan'])
 
         except Exception as e:
-            logger = logging.getLogger(__name__)
             logger.error(f"Watermarking failed for project {project.id}: {e}")
+            raise e  # Optional: raise so devs catch errors in staging
 
         return project
-
 
 class KYCPreFillSerializer(serializers.Serializer):
     full_name = serializers.CharField()
