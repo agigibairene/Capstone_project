@@ -490,27 +490,11 @@ class ProjectSerializer(serializers.ModelSerializer):
         return False
 
 
-import os
-import uuid
-import logging
-from io import BytesIO
 
-from django.conf import settings
-from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.colors import gray
-from reportlab.pdfgen import canvas
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from PyPDF2 import PdfReader, PdfWriter
-
-from rest_framework import serializers
-from .models import Project
 
 logger = logging.getLogger(__name__)
 
-S3_STORAGE = hasattr(settings, "USE_S3") and settings.USE_S3  # Custom flag
+S3_STORAGE = hasattr(settings, "USE_S3") and settings.USE_S3  
 
 
 class ProjectCreateSerializer(serializers.ModelSerializer):
@@ -609,6 +593,9 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
             logger.error(f"Watermarking failed for project {project.id}: {e}")
 
         return project
+
+
+
 
 class KYCPreFillSerializer(serializers.Serializer):
     full_name = serializers.CharField()
