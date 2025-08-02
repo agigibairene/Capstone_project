@@ -18,7 +18,12 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.colors import gray
 from PyPDF2 import PdfReader, PdfWriter
+from django.core.files.storage import default_storage
 import uuid
+
+
+logger = logging.getLogger(__name__)
+S3_STORAGE = hasattr(settings, "USE_S3") and settings.USE_S3  
 
 
 
@@ -491,12 +496,6 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 
-
-logger = logging.getLogger(__name__)
-
-S3_STORAGE = hasattr(settings, "USE_S3") and settings.USE_S3  
-
-
 class ProjectCreateSerializer(serializers.ModelSerializer):
     proposal = serializers.FileField(write_only=True)
     business_plan = serializers.FileField(write_only=True)
@@ -515,11 +514,9 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
         business_plan = validated_data.pop('business_plan')
         phone_number = validated_data.pop('phone_number', '').strip()
 
-        # Remove farmer if already in validated_data
         validated_data.pop('farmer', None)
         farmer = self.context['request'].user
 
-        # Update phone number if present
         if phone_number:
             profile = getattr(farmer, 'profile', None)
             if profile:
@@ -581,7 +578,6 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
                     logger.error(f"Watermarking error for {label}: {e}")
                     raise
 
-            # Watermark and assign paths
             project.watermarked_proposal.name = watermark_pdf(proposal, "proposal")
             project.watermarked_business_plan.name = watermark_pdf(business_plan, "business plan")
             project.save(update_fields=[

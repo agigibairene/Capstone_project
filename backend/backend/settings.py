@@ -107,7 +107,7 @@ CELERY_BEAT_SCHEDULE = {
 DATABASE_URL = os.environ.get('DATABASE_URL')
 db_info = urlparse(DATABASE_URL) if DATABASE_URL else None
 
-# Use consistent environment variable
+
 ENV = os.getenv("ENV", "development")
 
 if ENV == "production" and db_info:
@@ -163,7 +163,6 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -218,39 +217,31 @@ X_FRAME_OPTIONS = 'ALLOWALL'
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_AUTOREFRESH = True
 
-# Storage configuration - FIXED
 if ENV == "production":
-    # S3/DigitalOcean Spaces configuration
     USE_S3 = True
     
-    # AWS/S3 compatible settings for DigitalOcean Spaces
     AWS_ACCESS_KEY_ID = os.getenv("SPACES_KEY")
     AWS_SECRET_ACCESS_KEY = os.getenv("SPACES_SECRET")
     AWS_STORAGE_BUCKET_NAME = 'agriconnect-storage'
     AWS_S3_ENDPOINT_URL = 'https://sgp1.digitaloceanspaces.com'
     AWS_S3_OBJECT_PARAMETERS = {
         'CacheControl': 'max-age=86400',
-        'ACL': 'public-read'  # Make files publicly readable
+        'ACL': 'public-read'  
     }
     
-    # Set the location for media files
     AWS_LOCATION = 'media'
     AWS_DEFAULT_ACL = 'public-read'
     AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.sgp1.digitaloceanspaces.com'
     
-    # Use the custom storage backend
     DEFAULT_FILE_STORAGE = 'backend.storage_backends.MediaStorage'
     
-    # Media URL construction
     MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
     
-    # Additional S3 settings for better compatibility
     AWS_S3_FILE_OVERWRITE = False
     AWS_QUERYSTRING_AUTH = False
     AWS_S3_VERIFY = True
     
 else:
-    # Development - use local storage
     USE_S3 = False
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
