@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { API_URL } from '../Utils/constants';
+// import { API_URL } from '../Utils/constants';
 
 interface Props {
   email: string;
@@ -41,6 +41,9 @@ const initialState: AuthProps = {
 
 const ACCESS_TOKEN = 'ACCESS_TOKEN';
 const REFRESH_TOKEN = 'REFRESH_TOKEN';
+
+const API_URL  = import.meta.env.VITE_API_URL;
+
 
 export const loginUser = createAsyncThunk(
   'auth/loginUser',

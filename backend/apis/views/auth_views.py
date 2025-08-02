@@ -1,5 +1,6 @@
 from datetime import timedelta
 import json
+from django.shortcuts import redirect, render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -23,6 +24,9 @@ import traceback
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from django.http import JsonResponse
+from django.contrib import messages
+from ..forms import SuperuserCreationForm
+from django.contrib.auth import login, get_backends
 
 
 # Set up logging
@@ -98,6 +102,8 @@ def signup_view(request):
             'success': False,
             'errors': {'general': 'An error occurred during registration. Please try again.'}
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -581,4 +587,27 @@ def update_user_view(request):
             'success': False,
             'error': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+
+
+# ADMINISTRATOR SIGN UP FORM  
+
+def create_superuser_view(request):
+    superuser_count = User.objects.filter(is_superuser=True).count()
+    if superuser_count >= 3:
+        messages.error(request, "Maximum of 3 superusers already exist.")
+        return redirect('login')
+
+    if request.method == 'POST':
+        form = SuperuserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            # ✅ Set the backend explicitly
+            backend = get_backends()[0]
+            user.backend = f"{backend.__module__}.{backend.__class__.__name__}"
+            login(request, user)  
+            messages.success(request, 'Superuser account created successfully!')
+            return redirect('/admin/') 
+    else:
+        form = SuperuserCreationForm()
+
+    return render(request, 'create_superuser.html', {'form': form})

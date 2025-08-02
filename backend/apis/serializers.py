@@ -19,6 +19,8 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.colors import gray
 from PyPDF2 import PdfReader, PdfWriter
 import uuid
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -489,6 +491,22 @@ class ProjectSerializer(serializers.ModelSerializer):
         return False
 
 
+from rest_framework import serializers
+from .models import Project
+from django.core.files.base import ContentFile
+from PyPDF2 import PdfReader, PdfWriter
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
+from reportlab.lib.colors import gray
+from io import BytesIO
+from django.conf import settings
+import os
+import uuid
+import logging
+from django.core.files.storage import DefaultStorage  # Updated storage here
+
 class ProjectCreateSerializer(serializers.ModelSerializer):
     proposal = serializers.FileField(write_only=True)
     business_plan = serializers.FileField(write_only=True)
@@ -537,7 +555,7 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
                 c = canvas.Canvas(wm_stream, pagesize=letter)
                 c.setFont("DynaPuff", 80)
                 c.setFillColor(gray)
-                c.setFillAlpha(0.4)
+                c.setFillAlpha(0.5)
                 width, height = letter
                 c.translate(width / 2, height / 2)
                 c.rotate(45)
@@ -562,9 +580,9 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
                 writer.write(output_stream)
                 output_stream.seek(0)
 
-                media_storage = MediaStorage()
+                default_storage = DefaultStorage()
                 watermarked_name = f"proposals/watermarked/watermarked_{uuid.uuid4()}.pdf"
-                media_storage.save(watermarked_name, ContentFile(output_stream.read()))
+                default_storage.save(watermarked_name, ContentFile(output_stream.read()))
 
                 return watermarked_name
 
@@ -594,3 +612,26 @@ class NDAAgreementSerializer(serializers.ModelSerializer):
     class Meta:
         model = NDAAgreement
         fields = '__all__'
+        
+        
+# ADMINISTRATOR CREATE ACCOUNT
+
+class SuperuserSignupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password', 'is_superuser', 'is_staff']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        # Explicitly set user as staff and superuser
+        validated_data['is_superuser'] = True
+        validated_data['is_staff'] = True
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data.get('email'),
+            password=validated_data['password'],
+        )
+        user.is_superuser = True
+        user.is_staff = True
+        user.save()
+        return user

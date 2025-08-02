@@ -122,7 +122,7 @@ export default function ProjectDetails({ project: propProject}: ProjectDetailsPr
         </button>
       </div>
 
-      {/* Document Toggle - positioned above PDF viewer */}
+      {/* Document Toggle - business plan and  proposal*/}
       <div className="bg-bgColor border-b  border-gray-700 px-4 py-3">
         <div className="flex space-x-1 bg-gray-700 mx-auto rounded-lg p-1 max-w-md">
           {documents.map(({ key, label, icon: Icon}) => (
@@ -189,10 +189,7 @@ export default function ProjectDetails({ project: propProject}: ProjectDetailsPr
               onClick={() => setSidebarOpen(false)}
               className="p-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors"
             >
-              <div className="w-6 h-6 flex items-center justify-center relative">
-                <div className="w-4 h-0.5 bg-white rotate-45 absolute" />
-                <div className="w-4 h-0.5 bg-white -rotate-45 absolute" />
-              </div>
+              <MenuIcon />
             </button>
           </div>
 

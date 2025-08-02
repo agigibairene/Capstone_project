@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import { TrendingUp, Wallet, Loader2 } from 'lucide-react';
-import { API_URL } from '../Utils/constants';
+// import { API_URL } from '../Utils/constants';
 
 interface TotalAmountData {
   total_amount_needed: number;
   project_count: number;
   currency?: string;
 }
+
+const API_URL  = import.meta.env.VITE_API_URL;
+
 
 export default function TotalAmount() {
   const [data, setData] = useState<TotalAmountData | null>(null);

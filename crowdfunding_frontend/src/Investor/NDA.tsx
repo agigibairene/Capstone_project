@@ -1,11 +1,16 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from 'react';
 import { FileText, Download, Check, AlertCircle, ArrowLeft, Loader2 } from 'lucide-react';
 import { useSelector } from 'react-redux';
-import { API_URL } from '../Utils/constants';
+// import { API_URL } from '../Utils/constants';
 import { toast } from 'react-toastify';
 import type { RootState } from '../redux/store';
 import { NDAsections } from '../data/data';
 import ESignature from './E_Signature';
+
+
+
+const API_URL  = import.meta.env.VITE_API_URL;
 
 
 export default function NDA() {

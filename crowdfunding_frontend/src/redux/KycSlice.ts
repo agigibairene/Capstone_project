@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { API_URL } from '../Utils/constants';
+// import { API_URL } from '../Utils/constants';
+
+
+const API_URL  = import.meta.env.VITE_API_URL;
+
 
 interface KYCState {
   loading: boolean;

@@ -1,0 +1,79 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create Superuser</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link rel="stylesheet" href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" />
+  <link rel="stylesheet" href="{% static 'vendor/adminlte/css/adminlte.min.css' %}" />
+  <link rel="stylesheet" href="{% static 'signup.css'%}" />
+  <link rel="stylesheet" href="{% static 'custom_admin.css' %}" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet" />
+
+  
+</head>
+<body class="hold-transition signup-page">
+  <div class="signup-box" role="main" aria-label="Create superuser form">
+    <div class="signup-logo">
+      <img src="{% static 'green_logo.png' %}" alt="Logo" />
+      Create Superuser
+    </div>
+    <div class="card">
+      <div class="card-body signup-card-body">
+        <p class="signup-box-msg">Fill the form to create a superuser (max 3 allowed)</p>
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+          {% for field in form %}
+            <div class="form-group">
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {% if field.field.widget.input_type == 'password' %}
+                {{ field }}
+                <span class="fas fa-eye toggle-password"></span>
+              {% else %}
+                {{ field }}
+              {% endif %}
+              {% if field.errors %}
+                <div class="text-danger">{{ field.errors }}</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+          <button type="submit" class="btn btn-primary btn-block" aria-label="Submit create superuser form">Create Superuser</button>
+        </form>
+
+        {% if messages %}
+          <div>
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const toggleIcons = document.querySelectorAll('.toggle-password');
+
+      toggleIcons.forEach(icon => {
+        icon.addEventListener('click', function () {
+          const input = this.previousElementSibling;
+          if (input && input.type === "password") {
+            input.type = "text";
+            this.classList.remove("fa-eye");
+            this.classList.add("fa-eye-slash");
+          } else {
+            input.type = "password";
+            this.classList.remove("fa-eye-slash");
+            this.classList.add("fa-eye");
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

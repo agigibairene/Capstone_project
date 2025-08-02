@@ -6,8 +6,9 @@ import { GrFavorite } from "react-icons/gr";
 import ScrollToTop from "react-scroll-to-top";
 import { FaArrowUp } from "react-icons/fa";
 import Loader from "../Utils/Loader";
-import { API_URL } from "../Utils/constants";
+// import { API_URL } from "../Utils/constants";
 
+const API_URL  = import.meta.env.VITE_API_URL;
 
 interface Stats {
   total_opportunities: number;

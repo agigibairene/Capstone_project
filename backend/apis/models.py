@@ -76,8 +76,8 @@ class InvestorKYC(models.Model):
 
     id_type = models.CharField(max_length=20, choices=ID_TYPE_CHOICES)
     id_number = models.CharField(max_length=100)
-    id_document = models.FileField(upload_to='documents/id/', storage=MediaStorage())
-    profile_picture = models.ImageField(upload_to='profiles/', storage=MediaStorage())
+    id_document = models.FileField(upload_to='documents/id/')
+    profile_picture = models.ImageField(upload_to='profiles/')
 
     address = models.TextField()
     occupation = models.CharField(max_length=200)
@@ -178,8 +178,8 @@ class FarmerKYC(models.Model):
 
     id_type = models.CharField(max_length=20, choices=ID_TYPE_CHOICES)
     id_number = models.CharField(max_length=100)
-    id_document = models.FileField(upload_to='documents/id/', storage=MediaStorage())
-    profile_picture = models.ImageField(upload_to='profiles/', storage=MediaStorage())
+    id_document = models.FileField(upload_to='documents/id/')
+    profile_picture = models.ImageField(upload_to='profiles/')
 
     is_verified = models.BooleanField(default=False)
     verification_date = models.DateTimeField(null=True, blank=True)
@@ -194,7 +194,7 @@ class FarmerKYC(models.Model):
             try:
                 original = FarmerKYC.objects.get(pk=self.pk)
                 admin_updatable_fields = ['is_verified', 'verification_date', 'changes_allowed']
-                file_fields = ['id_document', 'profile_picture']  # Allow these fields to change
+                file_fields = ['id_document', 'profile_picture']  
 
                 for field in self._meta.fields:
                     field_name = field.name
@@ -459,7 +459,6 @@ class NDAAgreement(models.Model):
     #  Signature as uploaded image (not base64)
     signature = models.FileField(
         upload_to='documents/signatures/',
-        storage=MediaStorage(),
         blank=False,
         null=False
     )

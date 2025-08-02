@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { API_URL } from '../Utils/constants';
+// import { API_URL } from '../Utils/constants';
 
 interface SignupProps {
   first_name: string;
@@ -30,6 +30,9 @@ interface AuthResponse {
   access: string;
   refresh: string;
 }
+
+const API_URL  = import.meta.env.VITE_API_URL;
+
 
 export interface AuthState {
   user: User | null;

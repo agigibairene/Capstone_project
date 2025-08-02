@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from 'react';
 import { Edit, Check, X, User } from 'lucide-react';
-import { API_URL } from '../Utils/constants';
+// import { API_URL } from '../Utils/constants';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../redux/store';
 
@@ -16,6 +16,9 @@ interface Profile {
     investor_type: string;
   };
 }
+
+const API_URL  = import.meta.env.VITE_API_URL;
+
 
 export default function EditProfile() {
   const [profileData, setProfileData] = useState<Profile>({

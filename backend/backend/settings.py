@@ -112,28 +112,33 @@ CELERY_BEAT_SCHEDULE = {
 DATABASE_URL = os.environ.get('DATABASE_URL')
 db_info = urlparse(DATABASE_URL)
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'defaultdb',
-        'USER': db_info.username,
-        'PASSWORD': db_info.password,
-        'HOST': db_info.hostname,
-        'PORT': db_info.port,
-        'OPTIONS': {'sslmode': 'require'}
-    }
-}
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'capstone',
-#         'USER': os.getenv('DB_USER'),
-#         'PASSWORD': os.getenv('DB_PASSWORD'),
-#         'HOST': os.getenv('DB_HOST'),
-#         'PORT': os.getenv('DB_PORT'),
-#     }
-# }
+ENV = os.getenv("ENV", "development")
+
+if ENV == "production":
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'defaultdb',
+            'USER': db_info.username,
+            'PASSWORD': db_info.password,
+            'HOST': db_info.hostname,
+            'PORT': db_info.port,
+            'OPTIONS': {'sslmode': 'require'}
+        }
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.getenv('DB_NAME'),
+            'USER': os.getenv('DB_USER'),
+            'PASSWORD': os.getenv('DB_PASSWORD'),
+            'HOST': os.getenv('DB_HOST'),
+            'PORT': os.getenv('DB_PORT'),
+        }
+    }
+
 
 
 # Password validation
@@ -248,11 +253,29 @@ WHITENOISE_AUTOREFRESH = True
 
 
 
-AWS_ACCESS_KEY_ID = os.environ.get('SPACES_KEY')
-AWS_SECRET_ACCESS_KEY = os.environ.get('SPACES_SECRET')
-AWS_STORAGE_BUCKET_NAME = 'agriconnect-storage'  
-AWS_S3_ENDPOINT_URL = 'https://sgp1.digitaloceanspaces.com'
-AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
-AWS_LOCATION = 'media' 
-DEFAULT_FILE_STORAGE = 'backend.storage_backends.MediaStorage'
-MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.sgp1.digitaloceanspaces.com/media/'
+# AWS_ACCESS_KEY_ID = os.environ.get('SPACES_KEY')
+# AWS_SECRET_ACCESS_KEY = os.environ.get('SPACES_SECRET')
+# AWS_STORAGE_BUCKET_NAME = 'agriconnect-storage'  
+# AWS_S3_ENDPOINT_URL = 'https://sgp1.digitaloceanspaces.com'
+# AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+# AWS_LOCATION = 'media' 
+# DEFAULT_FILE_STORAGE = 'backend.storage_backends.MediaStorage'
+# MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.sgp1.digitaloceanspaces.com/media/'
+
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")  
+if ENVIRONMENT == "production":
+    # Use DigitalOcean Spaces
+    AWS_ACCESS_KEY_ID = os.getenv("SPACES_KEY")
+    AWS_SECRET_ACCESS_KEY = os.getenv("SPACES_SECRET")
+    AWS_STORAGE_BUCKET_NAME = 'agriconnect-storage'
+    AWS_S3_ENDPOINT_URL = 'https://sgp1.digitaloceanspaces.com'
+    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+    AWS_LOCATION = 'media'
+
+    DEFAULT_FILE_STORAGE = 'backend.storage_backends.MediaStorage'
+    MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.sgp1.digitaloceanspaces.com/media/'
+else:
+    # Use local file system
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+

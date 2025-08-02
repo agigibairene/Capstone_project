@@ -1,11 +1,16 @@
 import { useSelector } from "react-redux";
 import type { RootState } from "../redux/store";
-import { API_URL } from "../Utils/constants";
+// import { API_URL } from "../Utils/constants";
 import BudgetCard from "./BudgetCard";
 import CloserDeadlines from "./CloserDeadline";
 import { useEffect, useState } from "react";
 import type { Project } from "../Farmer/FarmerProjectAccordion";
 import { User } from "lucide-react";
+
+
+
+const API_URL  = import.meta.env.VITE_API_URL;
+
 
 export default function InvestorHome(){
     const { kycData, role, loading, error } = useSelector((state: RootState) => state.kycReducer);
@@ -114,7 +119,7 @@ export default function InvestorHome(){
                             <div className="bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex-shrink-0 w-16 h-16 xs:w-20 xs:h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 overflow-hidden ring-2 sm:ring-4 ring-white/20">
                                 {user.profile_picture ? (
                                     <img
-                                        src={user.profile_picture}
+                                        src={ API_URL === 'http://127.0.0.1:8000' ? `http://localhost:8000${user.profile_picture}` : user.profile_picture}
                                         className="w-full h-full object-cover"
                                         alt="Profile"
                                     />

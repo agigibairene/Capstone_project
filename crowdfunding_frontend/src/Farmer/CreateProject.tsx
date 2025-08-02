@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-useless-escape */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
@@ -5,7 +6,7 @@ import InputField from "../Utils/InputField";
 import Loader from "../Utils/Loader";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { API_URL } from "../Utils/constants";
+// import { API_URL } from "../Utils/constants";
 import { Loader2 } from "lucide-react";
 
 export default function CreateProject() {
@@ -29,6 +30,9 @@ export default function CreateProject() {
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
+
+  const API_URL  = import.meta.env.VITE_API_URL;
+
 
 
  async function checkKycStatus() {
@@ -94,6 +98,8 @@ export default function CreateProject() {
     setFormErrors(prev => ({ ...prev, [fieldName]: '' }));
   };
 
+
+
   function validateForm (): boolean{
     const errors: Record<string, string> = {};
 
@@ -149,6 +155,8 @@ export default function CreateProject() {
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
+
+
 
   async function handleSubmit (e: React.FormEvent){
     e.preventDefault();
@@ -235,6 +243,8 @@ export default function CreateProject() {
     }
   };
 
+  
+
   function resetForm(){
     setForm({
       title: '',
@@ -286,14 +296,14 @@ export default function CreateProject() {
         </div>
         <h3 className="text-lg font-semibold text-red-800 mb-2">Verification Required</h3>
         <p className="text-red-700 text-sm mb-4">
-          You need to complete KYC verification before you can submit a project.
+          Please wait for the administrator to verify your KYC data before you are authorized to create a project.
         </p>
         <div className="space-y-2">
           <button
-            onClick={() => navigate("/kyc-verification")}
+            // onClick={() => navigate("/kyc-verification")}
             className="bg-red-600 hover:bg-red-700 cursor-pointer text-white font-medium py-2 px-4 rounded-md transition duration-200 w-full"
           >
-            Complete KYC Verification
+            Wait for Admin's Verification
           </button>
         </div>
       </div>

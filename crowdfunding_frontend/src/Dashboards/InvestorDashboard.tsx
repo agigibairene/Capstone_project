@@ -9,7 +9,7 @@ import { fetchUserKYC } from "../redux/KycSlice";
 import type { AppDispatch, RootState } from "../redux/store";
 import Loader from "../Utils/Loader";
 import InvestorHome from "../Investor/InvestorHome";
-import { API_URL } from "../Utils/constants";
+// import { API_URL } from "../Utils/constants";
 import UserProfile from "./UserProfile";
 import NDA from "../Investor/NDA";
 
@@ -36,6 +36,9 @@ export interface Project {
 type MainContentMap = {
   [key: string]: JSX.Element;
 };
+
+const API_URL  = import.meta.env.VITE_API_URL;
+
 
 export default function InvestorDashboard() {
   const [activeItem, setActiveItem] = useState("Dashboard");

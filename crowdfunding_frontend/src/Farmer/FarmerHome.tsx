@@ -1,12 +1,17 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useSelector } from 'react-redux';
 import type { RootState } from '../redux/store';
-import { API_URL } from '../Utils/constants';
+// import { API_URL } from '../Utils/constants';
 import FarmerProjectsAccordion from './FarmerProjectAccordion';
 import TotalAmount from './TotalAmount';
 import { useEffect, useState } from 'react';
 import type { Project } from './FarmerProjectAccordion';
 import { User } from 'lucide-react';
+
+
+const API_URL  = import.meta.env.VITE_API_URL;
+
 
 export default function FarmerHome() {
   const { kycData, role, loading, error } = useSelector((state: RootState) => state.kycReducer);
@@ -39,7 +44,6 @@ export default function FarmerHome() {
       }
 
       if (!response.ok) {
-        // Check if it's a verification/authentication error
         if (response.status === 401 || response.status === 403) {
           setProjects([]);
           setError(null);
@@ -102,6 +106,8 @@ export default function FarmerHome() {
   }
 
   const user = kycData.kyc;
+
+ 
   
   const sections = [
     {
@@ -144,7 +150,7 @@ export default function FarmerHome() {
               <div className="bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex-shrink-0 w-24 h-24 sm:w-32 sm:h-32 overflow-hidden ring-4 ring-white/20">
                 {user.profile_picture ? (
                   <img
-                    src={user.profile_picture}
+                    src={ API_URL === 'http://127.0.0.1:8000' ? `http://localhost:8000${user.profile_picture}` : user.profile_picture}
                     className="w-full h-full object-cover"
                     alt="Profile"
                   />

@@ -51,6 +51,10 @@ urlpatterns = [
     path('check-nda-status/', projects_views.check_nda_status, name='check-nda-status'),
     path('download-nda/', projects_views.download_nda, name='download-nda-pdf'),
     path('projects/access-check/', projects_views.check_project_access, name='check_project_access'),
-    path('projects/<uuid:project_id>/investors_interest/', projects_views.confirm_interest_in_project)
+    path('projects/<uuid:project_id>/investors_interest/', projects_views.confirm_interest_in_project),
+    
+    # create super user/admin
+    path('auth/create-admin/', auth_views.create_superuser_view, name='create_superuser'),
+
 ]
 
