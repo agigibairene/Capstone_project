@@ -21,6 +21,8 @@ from PyPDF2 import PdfReader, PdfWriter
 import uuid
 from django.contrib.auth import get_user_model
 User = get_user_model()
+from django.core.files.storage import DefaultStorage  
+
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -491,21 +493,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         return False
 
 
-from rest_framework import serializers
-from .models import Project
-from django.core.files.base import ContentFile
-from PyPDF2 import PdfReader, PdfWriter
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfbase import pdfmetrics
-from reportlab.lib.colors import gray
-from io import BytesIO
-from django.conf import settings
-import os
-import uuid
-import logging
-from django.core.files.storage import DefaultStorage  # Updated storage here
+
 
 class ProjectCreateSerializer(serializers.ModelSerializer):
     proposal = serializers.FileField(write_only=True)
@@ -525,7 +513,6 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
         business_plan = validated_data.pop('business_plan')
         phone_number = validated_data.pop('phone_number', '').strip()
         
-        # Remove farmer from validated_data if it exists (to prevent duplicate farmer argument)
         validated_data.pop('farmer', None)
         
         farmer = self.context['request'].user

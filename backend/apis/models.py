@@ -13,6 +13,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+S3_STORAGE = settings.ENVIRONMENT == 'production'
+
 
 class UserProfile(models.Model):
     ROLE_CHOICES = [
@@ -76,8 +78,8 @@ class InvestorKYC(models.Model):
 
     id_type = models.CharField(max_length=20, choices=ID_TYPE_CHOICES)
     id_number = models.CharField(max_length=100)
-    id_document = models.FileField(upload_to='documents/id/')
-    profile_picture = models.ImageField(upload_to='profiles/')
+    id_document = models.FileField(upload_to='documents/id/', storage=MediaStorage() if S3_STORAGE else None)
+    profile_picture = models.ImageField(upload_to='profiles/', storage=MediaStorage() if S3_STORAGE else None)
 
     address = models.TextField()
     occupation = models.CharField(max_length=200)
@@ -98,7 +100,7 @@ class InvestorKYC(models.Model):
             try:
                 original = InvestorKYC.objects.get(pk=self.pk)
                 admin_updatable_fields = ['is_verified', 'verification_date', 'changes_allowed']
-                file_fields = ['id_document', 'profile_picture']  # Allow these fields to change
+                file_fields = ['id_document', 'profile_picture']  
 
                 for field in self._meta.fields:
                     field_name = field.name
@@ -108,7 +110,7 @@ class InvestorKYC(models.Model):
                         if old_value != new_value:
                             raise ValidationError(f"KYC data is immutable. Cannot update field: {field_name}")
             except InvestorKYC.DoesNotExist:
-                pass  # New instance, allow creation
+                pass  
 
         super().save(*args, **kwargs)
 
@@ -178,8 +180,8 @@ class FarmerKYC(models.Model):
 
     id_type = models.CharField(max_length=20, choices=ID_TYPE_CHOICES)
     id_number = models.CharField(max_length=100)
-    id_document = models.FileField(upload_to='documents/id/')
-    profile_picture = models.ImageField(upload_to='profiles/')
+    id_document = models.FileField(upload_to='documents/id/', storage=MediaStorage() if S3_STORAGE else None)
+    profile_picture = models.ImageField(upload_to='profiles/', storage=MediaStorage() if S3_STORAGE else None)
 
     is_verified = models.BooleanField(default=False)
     verification_date = models.DateTimeField(null=True, blank=True)
@@ -442,8 +444,8 @@ class Project(models.Model):
 
 
 class MyModel(models.Model):
-    image = models.ImageField(upload_to='images/') 
-    document = models.FileField(upload_to='documents/') 
+    image = models.ImageField(upload_to='images/', storage=MediaStorage() if S3_STORAGE else None) 
+    document = models.FileField(upload_to='documents/', storage=MediaStorage() if S3_STORAGE else None) 
     
 
 # NDA DOCUMENT

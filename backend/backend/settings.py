@@ -246,25 +246,16 @@ JAZZMIN_SETTINGS = {
 
 
 
-X_FRAME_OPTIONS = 'SAMEORIGIN'
+X_FRAME_OPTIONS = 'ALLOWALL'
 
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_AUTOREFRESH = True
 
 
 
-# AWS_ACCESS_KEY_ID = os.environ.get('SPACES_KEY')
-# AWS_SECRET_ACCESS_KEY = os.environ.get('SPACES_SECRET')
-# AWS_STORAGE_BUCKET_NAME = 'agriconnect-storage'  
-# AWS_S3_ENDPOINT_URL = 'https://sgp1.digitaloceanspaces.com'
-# AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
-# AWS_LOCATION = 'media' 
-# DEFAULT_FILE_STORAGE = 'backend.storage_backends.MediaStorage'
-# MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.sgp1.digitaloceanspaces.com/media/'
 
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")  
 if ENVIRONMENT == "production":
-    # Use DigitalOcean Spaces
     AWS_ACCESS_KEY_ID = os.getenv("SPACES_KEY")
     AWS_SECRET_ACCESS_KEY = os.getenv("SPACES_SECRET")
     AWS_STORAGE_BUCKET_NAME = 'agriconnect-storage'
@@ -275,7 +266,6 @@ if ENVIRONMENT == "production":
     DEFAULT_FILE_STORAGE = 'backend.storage_backends.MediaStorage'
     MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.sgp1.digitaloceanspaces.com/media/'
 else:
-    # Use local file system
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
