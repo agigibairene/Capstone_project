@@ -23,18 +23,17 @@ Farmer Dashboard: create projects and monitor project submissions.
 
 ## Technologies and Packages used
 ```
-    1. Frontend: 
-       - React TypeScript + vite
-       - Tailwind CSS (A CSS framework for styling) & vanilla CSS
-       - Framer motion for animation
-       - React icons
-       - Redux and Redux toolkit for state management
-       - React Router DOM for routing
-       - Animated images from lottie files
-
-    2. Backend: 
-       -  Django
-       -  Postgresql for the Database
+1. Frontend: 
+   - React TypeScript + vite
+   - Tailwind CSS (A CSS framework for styling) & vanilla CSS
+   - Framer motion for animation
+   - React icons
+   - Redux and Redux toolkit for state management
+   - React Router DOM for routing
+   - Animated images from lottie files
+2. Backend: 
+   -  Django
+   -  Postgresql for the Database
 ```
 
 ## Set up project
