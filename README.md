@@ -44,7 +44,7 @@ cd Capstone_project
 
 ## Create a .env file for development mode
 ```
-API_URL=http://127.0.0.1:8000
+VITE_API_URL=http://127.0.0.1:8000
 ```
 
 
@@ -52,9 +52,13 @@ API_URL=http://127.0.0.1:8000
 ```
 cd crowdfunding_frontend
 docker build -t crowdfunding_frontend .
-docker run -d -p 5173:5173 crowdfunding_frontend
+docker run -d -p 5173:8080 crowdfunding_frontend
 ```
 
+### visit site on localhost
+```
+http://localhost:5173
+```
 
 <img width="1365" height="715" alt="Image" src="https://github.com/user-attachments/assets/48fe870a-7f8a-45e9-ae99-6555a5e81b34" />
 
