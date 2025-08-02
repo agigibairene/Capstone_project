@@ -35,6 +35,12 @@
     cd Capstone_project
 ```
 
+## Create a .env file for development mode
+```
+    API_URL=http://127.0.0.1:8000
+```
+
+
 ## Setting up Frontend:
 ```
     cd crowdfunding_frontend

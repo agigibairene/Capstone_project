@@ -152,6 +152,7 @@ EMAIL_HOST_USER=your@gmail.com
 EMAIL_HOST_PASSWORD=your-email-password
 SPACES_KEY=your-digitalocean-access-key
 SPACES_SECRET=your-digitalocean-secret
+ENV=development
 ```
 
 ### 5. Database setup
@@ -160,6 +161,7 @@ SPACES_SECRET=your-digitalocean-secret
 
 0. Use digital ocean
 1. Set `DEBUG=False` in production
+2. Set  `ENV=production` in production
 2. Configure a production database (PostgreSQL recommended on digital ocean)
 3. Set proper `ALLOWED_HOSTS`
 4. Configure static files serving (add app component on )
@@ -170,18 +172,26 @@ SPACES_SECRET=your-digitalocean-secret
 ```bash
 python manage.py makemigrations
 python manage.py migrate
-python manage.py createsuperuser
 ```
 
 ```bash
 python manage.py collectstatic
 ```
 
+
 ### 6. Run the development server
 
 ```bash
 python manage.py runserver
 ```
+
+### 7. Create super user or Admin
+
+```
+    http://127.0.0.1:8000/auth/create-admin/
+```
+
+
 
 **Static files not loading:**
 Run `python manage.py collectstatic` and check `STATIC_URL` settings.

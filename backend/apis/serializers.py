@@ -495,7 +495,6 @@ class ProjectSerializer(serializers.ModelSerializer):
         return False
 
 
-
 class ProjectCreateSerializer(serializers.ModelSerializer):
     proposal = serializers.FileField(write_only=True)
     business_plan = serializers.FileField(write_only=True)
@@ -589,8 +588,6 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
             logger.error(f"Watermarking failed for project {project.id}: {e}")
 
         return project
-
-
 
 
 class KYCPreFillSerializer(serializers.Serializer):
