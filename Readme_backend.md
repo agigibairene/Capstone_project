@@ -1,6 +1,15 @@
 # Capstone_project
 The backend is a Django RESTful API serving as the core of the Agriconnect platform. It manages user authentication with JWT, role-based access for farmers and investors, project and opportunity listings, secure file uploads with watermarking, and KYC verification. The backend integrates with PostgreSQL for data persistence and employs DigitalOcean Spaces for media storage. It provides secure, scalable APIs consumed by the React frontend to facilitate agricultural investment.
 
+## 🛡️ Security & IP Protection
+To address idea theft:
+
+NDA with Legal Enforcement: All investors must sign a legal agreement not to implement ideas without consent—violations face legal consequences.
+
+Proposal Access Restriction: Only investors/admins can view full proposals; farmers cannot view others' ideas.
+
+PDF Watermarking: Uploaded proposals are watermarked using PyPDF2 .
+
 ## Prerequisites
 1. [Python](https://www.python.org/downloads/)
 
@@ -62,7 +71,8 @@ backend/
 │   ├──__init__.py              
 │   ├── admin.py                
 │   ├──apps.py                  
-│   ├──backends.py              
+│   ├──backends.py 
+|   |──forms.py             
 │   ├── models.py               
 │   ├──opportunities.py        
 │   ├──permissions.py           
@@ -185,10 +195,10 @@ python manage.py collectstatic
 python manage.py runserver
 ```
 
-### 7. Create super user or Admin
+### 7. Create super user or Admin account
 
 ```
-    http://127.0.0.1:8000/auth/create-admin/
+http://127.0.0.1:8000/auth/create-admin/
 ```
 
 

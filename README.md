@@ -1,4 +1,12 @@
 # Capstone_project
+AgriConnect is a secure, all-in-one digital investment platform designed to bridge the gap between young Ghanaian farmers/agricultural entrepreneurs and investors. Similar in spirit to GoFundMe, it empowers users to fund viable agricultural projects while protecting intellectual property and ensuring transparency.
+
+## 🖥️ Dashboards
+Admin Dashboard: Manage users, verify users, projects, and monitor activities on the platform.
+
+Investor Dashboard: view projects, reach out to farmers if interested and available opportunities.
+
+Farmer Dashboard: create projects and monitor project submissions.
 
 ## Prerequisites
 1. [Docker](https://www.docker.com/get-started/)
@@ -37,7 +45,7 @@
 
 ## Create a .env file for development mode
 ```
-    API_URL=http://127.0.0.1:8000
+API_URL=http://127.0.0.1:8000
 ```
 
 
