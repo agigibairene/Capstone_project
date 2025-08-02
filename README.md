@@ -75,3 +75,7 @@ docker run -d -p 5173:5173 crowdfunding_frontend
 <img width="1366" height="697" alt="Image" src="https://github.com/user-attachments/assets/62621df3-03f2-4ac7-8348-1f74f14d9501" />
 
 <img width="1366" height="715" alt="Image" src="https://github.com/user-attachments/assets/eaece7bb-e797-4578-9d15-bc02639fc0a5" />
+
+<img width="1366" height="706" alt="Image" src="https://github.com/user-attachments/assets/7b793419-9b65-437e-82b7-551da39e49e5" />
+
+
