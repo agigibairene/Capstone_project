@@ -273,10 +273,9 @@ The API path `http://localhost:8000/`
 ```bash
 # Run all tests
 python manage.py test
-
-
-
 ```
+
+<img width="1366" height="768" alt="Image" src="https://github.com/user-attachments/assets/8c220451-4f61-46f3-af95-a738f3bf295a" />
 
 ## Contributor
 [Irene Akawin Agigiba](https://portfolio-hdhr.vercel.app/)  - Full Stack developer
