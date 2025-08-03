@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import logo from '../assets/logo.png';
-
 import {  NavLink } from "react-router-dom";
+
 
 export default function GrantsHeader(){
 

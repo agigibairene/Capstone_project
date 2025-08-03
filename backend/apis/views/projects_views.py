@@ -22,6 +22,7 @@ from reportlab.lib.units import inch
 from io import BytesIO
 import urllib.request
 import pytz
+from urllib.parse import urljoin
 
 
 logger = logging.getLogger(__name__)
@@ -286,20 +287,8 @@ def check_nda_status(request):
 
 
 
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status
-from django.http import HttpResponse
-from django.utils.timezone import localtime
-from datetime import timedelta
-from io import BytesIO
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
-from urllib.parse import urljoin
-import urllib.request
+
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

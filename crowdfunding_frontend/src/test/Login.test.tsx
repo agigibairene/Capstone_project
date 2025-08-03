@@ -32,7 +32,7 @@ const sampleUser = {
   profile: {
     phone_number: '1234567890',
     role: 'Farmer' as 'Farmer',
-    organization: 'FarmCo',
+    organization: 'world vision',
     investor_type: null,
   }
 };
@@ -47,8 +47,8 @@ describe('loginSlice', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
-        access: 'mock-access-token',
-        refresh: 'mock-refresh-token',
+        access: 'access-token',
+        refresh: 'refresh-token',
         user: sampleUser,
         success: true,
       }),
@@ -60,9 +60,9 @@ describe('loginSlice', () => {
     const state = store.getState();
 
     expect(state.user?.email).toBe('test@example.com');
-    expect(state.access).toBe('mock-access-token');
-    expect(state.refresh).toBe('mock-refresh-token');
-    expect(localStorage.getItem(ACCESS_TOKEN)).toBe('mock-access-token');
+    expect(state.access).toBe('access-token');
+    expect(state.refresh).toBe('refresh-token');
+    expect(localStorage.getItem(ACCESS_TOKEN)).toBe('access-token');
   });
 
   it('handles login requiring OTP', async () => {

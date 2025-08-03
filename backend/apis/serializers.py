@@ -613,7 +613,6 @@ class SuperuserSignupSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        # Explicitly set user as staff and superuser
         validated_data['is_superuser'] = True
         validated_data['is_staff'] = True
         user = User.objects.create_user(

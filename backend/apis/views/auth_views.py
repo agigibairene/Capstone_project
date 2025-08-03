@@ -491,7 +491,7 @@ def forgot_password_view(request):
 def reset_password_view(request, reset_id):
     '''View to reset password'''
     if request.method == 'GET':
-        frontend_url = f"https://agriconnect-frontend-rzd2q.ondigitalocean.app/reset/{reset_id}"
+        frontend_url = f"{settings.FRONTEND_URL}/reset/{reset_id}"
         return HttpResponseRedirect(frontend_url)
 
     serializer = PasswordResetSerializer(data=request.data)
@@ -601,7 +601,6 @@ def create_superuser_view(request):
         form = SuperuserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            # ✅ Set the backend explicitly
             backend = get_backends()[0]
             user.backend = f"{backend.__module__}.{backend.__class__.__name__}"
             login(request, user)  

@@ -113,13 +113,13 @@ export default function Ethics({ isOpen, onClose, onAccept } : PoliciesModalProp
         <div className="border-t border-gray-200 p-4 sm:p-6 flex-shrink-0">
           <div className="flex items-start sm:items-center space-x-3 mb-4">
             <input
-              type="checkbox"
-              id="accept-policies"
-              checked={isAccepted}
-              onChange={(e) => setIsAccepted(e.target.checked)}
-              className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500 mt-0.5 sm:mt-0 flex-shrink-0"
-            />
-            <label htmlFor="accept-policies" className="text-sm sm:text-base font-400 text-red-500 leading-tight">
+                type="checkbox"
+                id="accept-policies"
+                checked={isAccepted}
+                onChange={(e) => setIsAccepted(e.target.checked)}
+                className="w-4 h-4 accent-teal-600 border-gray-300 rounded focus:ring-teal-500 mt-0.5 sm:mt-0 flex-shrink-0"
+              />
+              <label htmlFor="accept-policies" className="text-sm sm:text-base font-400 text-red-500 leading-tight">
               I have read and agree to the above policies and terms
             </label>
           </div>

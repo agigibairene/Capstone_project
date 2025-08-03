@@ -163,9 +163,7 @@ class CanViewProject(BasePermission):
 
 
 class IsProjectOwner(BasePermission):
-    """
-    Check if user is the owner of the project
-    """
+    """Check if user is the owner of the project"""
     message = "You can only modify your own projects."
     
     def has_object_permission(self, request, view, obj):
@@ -173,15 +171,12 @@ class IsProjectOwner(BasePermission):
     
 
 class HasSubmittedNDA(BasePermission):
-    """
-    Custom permission to only allow investors who have submitted NDA to access projects
-    """
+    """Custom permission to only allow investors who have submitted NDA to access projects """
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
             return False
         
         try:
-            # Check if user has a profile and is an investor
             profile = request.user.profile
             if profile.role != 'Investor':
                 return True  # Non-investors (farmers, admins) can access without NDA
@@ -209,7 +204,6 @@ class CanViewProjectWithNDA(BasePermission):
             if profile.role == 'Investor':
                 return NDAAgreement.objects.filter(user=request.user).exists()
             
-            # Farmers, admins, and other roles can access without NDA
             return True
             
         except UserProfile.DoesNotExist:

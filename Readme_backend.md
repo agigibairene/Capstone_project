@@ -163,6 +163,7 @@ EMAIL_HOST_PASSWORD=your-email-password
 SPACES_KEY=your-digitalocean-access-key
 SPACES_SECRET=your-digitalocean-secret
 ENV=development
+FRONTEND_URL=your_frontend_url
 ```
 
 ### 5. Database setup

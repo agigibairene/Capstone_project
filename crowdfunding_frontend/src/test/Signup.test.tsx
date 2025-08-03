@@ -47,8 +47,8 @@ describe('signupSlice', () => {
       investor_type: 'Organization',
     };
 
-    const access = 'mock_access';
-    const refresh = 'mock_refresh';
+    const access = 'access';
+    const refresh = 'refresh';
 
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,

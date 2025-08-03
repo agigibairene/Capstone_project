@@ -51,7 +51,6 @@ export default function FarmerDashboard() {
   const userKYC = kycData.kyc;
   const initials = userKYC?.full_name?.split(" ").map((name: string) => name[0]).join("").toUpperCase() || "";
 
-  console.log(userKYC)
 
   const mainContent: MainContentMap = {
     Dashboard: <FarmerHome />,

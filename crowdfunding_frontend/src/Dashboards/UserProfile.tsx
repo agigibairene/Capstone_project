@@ -8,7 +8,6 @@ export default function UserProfile() {
   return (
     <div className="min-h-screen flex items-center justify-center lg:bg-white/5 sm:bg-none">
       <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 w-full max-w-md border border-white/20 space-y-6">
-        {/* Navigation */}
         <nav className="w-full">
           <ul className="flex justify-between font-semibold">
             {["Edit Profile", "Edit KYC"].map((name) => (

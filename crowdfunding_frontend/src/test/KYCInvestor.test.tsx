@@ -28,11 +28,11 @@ vi.mock('../Utils/Loader', () => ({
 }));
 
 vi.mock('../assets/green_logo.png', () => ({
-  default: 'mocked-logo.png',
+  default: 'logo.png',
 }));
 
 vi.mock('../assets/login_img.jpg', () => ({
-  default: 'mocked-bg.jpg',
+  default: 'bg.jpg',
 }));
 
 vi.mock('./KYC', () => ({

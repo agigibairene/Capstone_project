@@ -2,7 +2,7 @@
 venv/
 Dockerfile
 docker-compose.yml
-# media/
+media/
 staticfiles/
 **/migrations/*
 !**/migrations/__init__.py

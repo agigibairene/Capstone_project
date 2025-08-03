@@ -83,7 +83,6 @@ export const signupUser = createAsyncThunk<AuthResponse, SignupProps, { rejectVa
       const data = await response.json();
 
       if (!response.ok) {
-        console.log('Error response data:', data);
         
         if (typeof data === 'object' && data !== null) {
           const fieldErrors = data.errors || data;
