@@ -20,14 +20,40 @@ interface Chat {
 
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${keys}`;
 
-export default function ChatBot(){
+export default function ChatBot() {
   const [chats, setChats] = useState<Chat[]>([]);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
-  const [isMinimized, setIsMinimized] = useState<boolean>(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const [editingChatId, setEditingChatId] = useState<string | null>(null);
-  const [editTitle, setEditTitle] = useState<string>("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const chatBodyRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const storedChats = localStorage.getItem("chatbot_chats");
+    const storedCurrentChatId = localStorage.getItem("chatbot_currentChatId");
+
+    if (storedChats) {
+      const parsedChats = JSON.parse(storedChats) as Chat[];
+      setChats(parsedChats);
+
+      if (storedCurrentChatId && parsedChats.some(chat => chat.id === storedCurrentChatId)) {
+        setCurrentChatId(storedCurrentChatId);
+      } else {
+        setCurrentChatId(parsedChats[0]?.id || null);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("chatbot_chats", JSON.stringify(chats));
+  }, [chats]);
+
+  useEffect(() => {
+    if (currentChatId) {
+      localStorage.setItem("chatbot_currentChatId", currentChatId);
+    }
+  }, [currentChatId]);
 
   const currentChat = chats.find((chat) => chat.id === currentChatId);
   const chatHistory = currentChat?.messages || [];
@@ -42,13 +68,10 @@ export default function ChatBot(){
   };
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      scrollToBottom();
-    }, 100);
+    const timer = setTimeout(scrollToBottom, 100);
     return () => clearTimeout(timer);
   }, [chatHistory, currentChatId]);
 
-  // Close sidebar when chat is selected on mobile
   useEffect(() => {
     if (currentChatId && window.innerWidth < 768) {
       setIsSidebarOpen(false);
@@ -73,23 +96,19 @@ export default function ChatBot(){
     };
     setChats((prev) => [newChat, ...prev]);
     setCurrentChatId(newChat.id);
-    // Close sidebar on mobile after creating new chat
-    if (window.innerWidth < 768) {
-      setIsSidebarOpen(false);
-    }
+    if (window.innerWidth < 768) setIsSidebarOpen(false);
   };
 
   const deleteChat = (chatId: string) => {
     setChats((prev) => prev.filter((chat) => chat.id !== chatId));
     if (currentChatId === chatId) {
-      const remainingChats = chats.filter((chat) => chat.id !== chatId);
-      setCurrentChatId(remainingChats.length > 0 ? remainingChats[0].id : null);
+      const remaining = chats.filter((c) => c.id !== chatId);
+      setCurrentChatId(remaining.length > 0 ? remaining[0].id : null);
     }
   };
 
   const setChatHistory = (updater: React.SetStateAction<Messages[]>) => {
     if (!currentChatId) return;
-
     setChats((prev) =>
       prev.map((chat) => {
         if (chat.id === currentChatId) {
@@ -97,10 +116,9 @@ export default function ChatBot(){
           return {
             ...chat,
             messages: newMessages,
-            title:
-              newMessages.length > 0 && chat.title === "New Chat"
-                ? generateChatTitle(newMessages)
-                : chat.title,
+            title: newMessages.length > 0 && chat.title === "New Chat"
+              ? generateChatTitle(newMessages)
+              : chat.title,
           };
         }
         return chat;
@@ -109,7 +127,7 @@ export default function ChatBot(){
   };
 
   async function generateBotResponse(history: Messages[]): Promise<void> {
-    function updateHistory(text: string, isError: boolean = false): void {
+    function updateHistory(text: string, isError = false): void {
       setChatHistory((prev) => [
         ...prev.filter((msg) => msg.text !== "Typing..."),
         { role: "model", text, isError },
@@ -123,35 +141,27 @@ export default function ChatBot(){
 
     const requestOptions = {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ contents: formattedHistory }),
     };
 
     try {
-      if (!keys) {
-        throw new Error("API key is not configured. Please API_KEY.");
-      }
+      if (!keys) throw new Error("API key is missing.");
+      const res = await fetch(API_URL, requestOptions);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || "Unknown error");
 
-      const response = await fetch(API_URL, requestOptions);
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error?.message || "Something went wrong!");
-      }
-
-      const apiResponse = data.candidates[0].content.parts[0].text;
-      updateHistory(apiResponse);
+      const reply = data.candidates[0].content.parts[0].text;
+      updateHistory(reply);
     } catch (e) {
-      console.error("API Error:", e);
-      updateHistory("Sorry, I encountered an error. Please try again.", true);
+      console.error("Bot error:", e);
+      updateHistory("Sorry, something went wrong.", true);
     }
   }
 
-  const startEditingTitle = (chatId: string, currentTitle: string) => {
+  const startEditingTitle = (chatId: string, title: string) => {
     setEditingChatId(chatId);
-    setEditTitle(currentTitle);
+    setEditTitle(title);
   };
 
   const saveEditedTitle = () => {
@@ -167,8 +177,7 @@ export default function ChatBot(){
   };
 
   return (
-    <div className="flex h-screen w-full mx-auto bg-white/20 backdrop-blur-sm border-r rounded-none md:rounded-lg md:h-[75vh] md:w-[90%] border-white/30 relative">
-      {/* Mobile Sidebar Overlay */}
+    <div className="flex mt-5 h-screen w-full mx-auto bg-white/20 backdrop-blur-sm border-r rounded-none md:rounded-lg md:h-[90vh] md:w-[90%] border-white/30 relative">
       {isSidebarOpen && (
         <div 
           className="fixed inset-0 bg-black/50 z-40 md:hidden"
@@ -187,7 +196,6 @@ export default function ChatBot(){
         z-50 md:z-auto
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
-        {/* Mobile Close Button */}
         <div className="flex justify-end p-4 md:hidden">
           <button
             onClick={() => setIsSidebarOpen(false)}
@@ -204,6 +212,17 @@ export default function ChatBot(){
           >
             <Plus size={20} />
             <span className="font-medium">New Chat</span>
+          </button>
+          <button
+            onClick={() => {
+              localStorage.removeItem("chatbot_chats");
+              localStorage.removeItem("chatbot_currentChatId");
+              setChats([]);
+              setCurrentChatId(null);
+            }}
+            className="mt-2 w-full text-sm text-red-500 hover:text-red-700"
+          >
+            Clear All Chats
           </button>
         </div>
 
@@ -277,14 +296,13 @@ export default function ChatBot(){
           <>
             <div className="flex items-center justify-between p-4 backdrop-blur-sm border-b border-white/30">
               <div className="flex items-center gap-3">
-                {/* Mobile Menu Button */}
                 <button
                   onClick={() => setIsSidebarOpen(true)}
                   className="md:hidden p-2 hover:bg-gray-100 rounded-lg"
                 >
                   <Menu size={20} />
                 </button>
-                
+
                 <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-bgColor flex items-center justify-center">
                   <Bot size={16} className="text-white md:w-5 md:h-5" />
                 </div>
@@ -347,9 +365,7 @@ export default function ChatBot(){
                 <MessageCircle size={24} className="text-bgColor md:w-8 md:h-8" />
               </div>
               <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-2">No chat selected</h3>
-              <p className="text-sm text-gray-500 mb-4">
-                Choose a chat from the sidebar or create a new one
-              </p>
+              <p className="text-sm text-gray-500 mb-4">Choose a chat from the sidebar or create a new one</p>
               <div className="space-y-2">
                 <button
                   onClick={createNewChat}
