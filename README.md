@@ -15,7 +15,7 @@ Farmer Dashboard: create projects and monitor project submissions.
 ## Visit Frontend here  
 👉 [Visit UI](https://agriconnect-frontend-rzd2q.ondigitalocean.app/)
 
-## GitHuB Repository URL
+## GitHub Repository URL
 [GITHUB LINK](https://github.com/agigibairene/Capstone_project)
 
 ## Demo video
@@ -37,9 +37,19 @@ Farmer Dashboard: create projects and monitor project submissions.
 ```
 
 ## Set up project
+
+### 0. For zipped folder
 ```
 unzip Capstone_project.zip
 cd Capstone_project
+cd crowdfunding_frontend
+```
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/agigibairene/Capstone_project.git
+cd crowdfunding_frontend
 ```
 
 ## Create a .env file for development mode
