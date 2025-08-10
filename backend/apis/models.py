@@ -458,9 +458,9 @@ class NDAAgreement(models.Model):
     company = models.CharField(max_length=200, blank=True)
     date_signed = models.DateField()
     
-    #  Signature as uploaded image (not base64)
     signature = models.FileField(
         upload_to='documents/signatures/',
+        storage=MediaStorage() if S3_STORAGE else None,
         blank=False,
         null=False
     )
