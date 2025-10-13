@@ -17,6 +17,8 @@ import os
 from urllib.parse import urlparse
 from celery.schedules import crontab
 from django.core.management.utils import get_random_secret_key
+import dj_database_url
+from decouple import config
 
 load_dotenv()
 
@@ -115,7 +117,7 @@ ENV = os.getenv("ENV", "development")
 if ENV == "production" and db_info:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'ENGINE': dj_database_url.parse(config('DATABASE_URL')),
             'NAME': 'defaultdb',
             'USER': db_info.username,
             'PASSWORD': db_info.password,
