@@ -43,6 +43,7 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
+        
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20
@@ -114,17 +115,13 @@ db_info = urlparse(DATABASE_URL) if DATABASE_URL else None
 
 ENV = os.getenv("ENV", "development")
 
-if ENV == "production" and db_info:
+if ENV == "production" and DATABASE_URL:
     DATABASES = {
-        'default': {
-            'ENGINE': dj_database_url.parse(config('DATABASE_URL')),
-            'NAME': 'defaultdb',
-            'USER': db_info.username,
-            'PASSWORD': db_info.password,
-            'HOST': db_info.hostname,
-            'PORT': db_info.port,
-            'OPTIONS': {'sslmode': 'require'}
-        }
+        'default': dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=True
+        )
     }
 else:
     DATABASES = {
@@ -133,8 +130,8 @@ else:
             'NAME': os.getenv('DB_NAME'),
             'USER': os.getenv('DB_USER'),
             'PASSWORD': os.getenv('DB_PASSWORD'),
-            'HOST': os.getenv('DB_HOST'),
-            'PORT': os.getenv('DB_PORT'),
+            'HOST': os.getenv('DB_HOST', 'localhost'),
+            'PORT': os.getenv('DB_PORT', '5432'),
         }
     }
 
