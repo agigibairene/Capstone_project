@@ -51,12 +51,22 @@ VITE_API_URL=http://127.0.0.1:8000
 ```
 
 
-## Setting up Frontend:
+## Setting up Frontend
+
+### Option 1: Using Docker
 ```
 cd crowdfunding_frontend
 docker build -t crowdfunding_frontend .
 docker run -d -p 5173:8080 crowdfunding_frontend
 ```
+
+### Option 2: Using npm (Local Development)
+```
+cd crowdfunding_frontend
+npm install
+npm run dev
+```
+
 
 ### visit site on localhost
 ```

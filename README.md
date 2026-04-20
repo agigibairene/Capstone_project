@@ -12,6 +12,9 @@ PDF Watermarking: Uploaded proposals are watermarked using PyPDF2 .
 
 ## Prerequisites
 1. [Python](https://www.python.org/downloads/)
+2. [DOCKER](https://docs.docker.com/engine/install/) - optional
+3. [NODE](https://nodejs.org/en/download)
+4. [TYPESCRIPT](https://www.typescriptlang.org/download/)
 
 ## Deployed Links  
 1. [Visit UI](https://capstone-project-lyart-eta.vercel.app/)
