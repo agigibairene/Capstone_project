@@ -1,95 +1,287 @@
-# Capstone_project - Frontend
-Seedlinq is a secure, all-in-one digital investment platform designed to bridge the gap between young Ghanaian farmers/agricultural entrepreneurs and investors. Similar in spirit to GoFundMe, it empowers users to fund viable agricultural projects while protecting intellectual property and ensuring transparency.
+# Backend
+The backend is a Django RESTful API serving as the core of the Agriconnect platform. It manages user authentication with JWT, role-based access for farmers and investors, project and opportunity listings, secure file uploads with watermarking, and KYC verification. The backend integrates with PostgreSQL for data persistence and employs DigitalOcean Spaces for media storage. It provides secure, scalable APIs consumed by the React frontend to facilitate agricultural investment.
 
-## 🖥️ Dashboards
-Admin Dashboard: Manage users, verify users, projects, and monitor activities on the platform.
+## 🛡️Security & IP Protection
+To address idea theft:
 
-Investor Dashboard: view projects, reach out to farmers if interested and available opportunities.
+NDA with Legal Enforcement: All investors must sign a legal agreement not to implement ideas without consent—violations face legal consequences.
 
-Farmer Dashboard: create projects and monitor project submissions.
+Proposal Access Restriction: Only investors/admins can view full proposals; farmers cannot view others' ideas.
+
+PDF Watermarking: Uploaded proposals are watermarked using PyPDF2 .
 
 ## Prerequisites
-1. [Docker](https://www.docker.com/get-started/)
-2. [Python](https://www.python.org/downloads/)
+1. [Python](https://www.python.org/downloads/)
 
-## Visit Frontend here  
-👉 [Visit UI](https://agriconnect-frontend-rzd2q.ondigitalocean.app/)
+## Deployed Links  
+1. [Visit UI](https://capstone-project-lyart-eta.vercel.app/)
+2. [Backend](https://agriconnect-p2ssy.ondigitalocean.app/)
 
-## GitHub Repository URL
-[GITHUB LINK](https://github.com/agigibairene/Capstone_project)
+## Important links
+- [GITHUB LINK](https://github.com/agigibairene/Capstone_project)
+- [CLICK TO WATCH DEMO VIDEO](https://drive.google.com/file/d/1R9orJ9pQj0RfunIJnrlT65NmklQze5aF/view?usp=drive_link)
+- [RESEARCH WORK](https://docs.google.com/document/d/1xdZxv64Y0VpNwxVow29hGNlV_T7a4Uhc/edit)
 
-## Demo video
-📍 [CLICK TO WATCH DEMO VIDEO](https://drive.google.com/file/d/1R9orJ9pQj0RfunIJnrlT65NmklQze5aF/view?usp=drive_link)
+## Features
+- Farmer and Investor Registration with Role-Based Access
+- JWT Authentication (via djangorestframework-simplejwt)
+- Secure Email Login with Custom Backend
+- NDA Enforcement with E-Signature Tracking
+- Watermarked PDF Uploads for Idea Protection (PyPDF2)
+- Admin Dashboard for Approvals and Monitoring
+- GPT-Powered Chatbot (via API integration)
+- Project Listings with Detailed Proposals
+- CORS Support for Cross-Origin API Access
+- Environment-based Configuration (python-dotenv)
+- Secure File Uploads (DigitalOcean Spaces)
+- Unit and Integration Tests
+- Admin UI Theming with Jazzmin
+- API Integration for React Frontend
+- Grants and Opportunities
+- Database Migrations
+- Whitenoise for Static File Serving
+- Comprehensive Error Handling
+- User Authentication and Authorization
 
-## Technologies and Packages used
+
+## Tech Stack
+
+
+| Component         | Technology                          |
+|------------------|-------------------------------------|
+| Backend           | Django 5.2                          |
+| Database          | PostgreSQL                          |
+| Authentication    | Django REST Framework + SimpleJWT  |
+| Admin Interface   | Jazzmin (enhanced Django admin)     |
+| File Storage      | DigitalOcean Spaces                 |
+| Task Queue        | Celery with Beat Scheduler          |
+| Email             | SMTP (Gmail)                        |
+| Static Files      | WhiteNoise                          |
+| CORS              | django-cors-headers                 |
+
+## Project Structure
+
+A robust Django REST API backend built with Django and Django REST Framework.
+
 ```
-1. Frontend: 
-   - React TypeScript + vite
-   - Tailwind CSS (A CSS framework for styling) & vanilla CSS
-   - Framer motion for animation
-   - React icons
-   - Redux and Redux toolkit for state management
-   - React Router DOM for routing
-   - Animated images from lottie files
-2. Backend: 
-   -  Django
-   -  Postgresql for the Database
+backend/
+├── apis/                                        
+│   ├──fonts/                    
+│   ├──migrations/              
+│   ├──templates/               
+│   ├──views/                    
+│   ├──__init__.py              
+│   ├── admin.py                
+│   ├──apps.py                  
+│   ├──backends.py 
+|   |──forms.py             
+│   ├── models.py               
+│   ├──opportunities.py        
+│   ├──permissions.py           
+│   ├──serializers.py          
+│   ├──signals.py               
+│   ├──tests.py                 
+│   └──urls.py                 
+├──  backend/                       
+│   ├──__init__.py               
+│   ├──asgi.py                 
+│   ├── settings.py            
+│   ├──storage_backends.py      
+│   └──urls.py                                 
+├── static/                  
+├── venv/                    
+├──.env                    
+├──.gitignore               
+├── manage.py               
+└──requirements.txt         
 ```
 
-## Set up project
+### Key Directories & Files
+
+#### APIs App (`apis/`)
+- **`models.py`** - Database models for core functionality
+- **`serializers.py`** - DRF serializers for API request/response handling
+- **`views/`** - Organized API view classes and functions
+- **`permissions.py`** - Custom permission classes for authorization
+- **`opportunities.py`** - Cleaning up expired opportunities 
+- **`backends.py`** - Custom authentication backend implementations
+- **`signals.py`** - Automated tasks triggered by model events
+- **`migrations/`** - Database schema migration files
+- **`templates/`** - HTML templates for admin dashboard
+- **`urls.py`** - URL routing to different views
+
+#### Project Configuration (`backend/`)
+- **`settings.py`** - Django configuration, database, middleware settings
+- **`urls.py`** - Main URL routing to different apps
+- **`storage_backends.py`** - Custom storage configurations (AWS S3, etc.)
+- **`asgi.py`** - ASGI server configuration for async operations
+
+
+## Installation
 
 ### 0. For zipped folder
 ```
-unzip Capstone_project.zip
-cd Capstone_project
-cd crowdfunding_frontend
+    unzip Capstone_project.zip
+    cd Capstone_project
+    cd backend
 ```
 
 ### 1. Clone the repository
 
 ```bash
 git clone https://github.com/agigibairene/Capstone_project.git
-cd crowdfunding_frontend
+cd backend
 ```
 
-## Create a .env file for development mode
-```
-VITE_API_URL=http://127.0.0.1:8000
-```
+### 2. Create and activate virtual environment
 
-
-## Setting up Frontend:
-```
-cd crowdfunding_frontend
-docker build -t crowdfunding_frontend .
-docker run -d -p 5173:8080 crowdfunding_frontend
+```bash
+python -m venv venv
+source venv/bin/activate  
 ```
 
-### visit site on localhost
+### 3. Install dependencies
+
+```bash
+pip install -r requirements.txt
 ```
-http://localhost:5173
+
+### 4. Environment setup
+
+Create a `.env` file in the project root:
+
+#### Environment Configuration:
+Create a `.env` file in the project root with the required variables:
+
+```
+SECRET_KEY=your-django-secret
+DEBUG=True
+DB_NAME=db_name
+DB_USER=postgres
+DB_PASSWORD=yourpassword
+DB_HOST=localhost
+DB_PORT=5432
+EMAIL_HOST_USER=your@gmail.com
+EMAIL_HOST_PASSWORD=your-email-password
+SPACES_KEY=your-digitalocean-access-key
+SPACES_SECRET=your-digitalocean-secret
+ENV=development
+FRONTEND_URL=your_frontend_url
 ```
 
-<img width="1365" height="715" alt="Image" src="https://github.com/user-attachments/assets/48fe870a-7f8a-45e9-ae99-6555a5e81b34" />
+### 5. Database setup
 
-<img width="526" height="629" alt="Image" src="https://github.com/user-attachments/assets/c097c65b-83c6-4d0b-97bb-3e5042ceeaae" />
+### Production Settings
 
-<img width="1366" height="728" alt="Image" src="https://github.com/user-attachments/assets/293b5019-d63e-4771-8ef8-07a15625d7a7" />
-
-<img width="1362" height="718" alt="Image" src="https://github.com/user-attachments/assets/1344a671-0f2f-4ced-a4a5-9daa53dbcb83" />
-
-<img width="1366" height="719" alt="Image" src="https://github.com/user-attachments/assets/581583d9-fb6b-403d-b668-aac7142c89c9" />
-
-<img width="1366" height="706" alt="Image" src="https://github.com/user-attachments/assets/f1fc9ce7-628a-4ed3-a2a5-a607d3570826" />
-
-<img width="1358" height="716" alt="Image" src="https://github.com/user-attachments/assets/28fc9af6-2178-4cbf-a2c6-4353dcabd48a" />
-
-<img width="1366" height="711" alt="Image" src="https://github.com/user-attachments/assets/b3f19941-10b3-454b-a698-eb6bb2e66405" />
-
-<img width="1366" height="697" alt="Image" src="https://github.com/user-attachments/assets/62621df3-03f2-4ac7-8348-1f74f14d9501" />
-
-<img width="1366" height="768" alt="Image" src="https://github.com/user-attachments/assets/8c220451-4f61-46f3-af95-a738f3bf295a" />
-
-<img width="1366" height="706" alt="Image" src="https://github.com/user-attachments/assets/7b793419-9b65-437e-82b7-551da39e49e5" />
+0. Use digital ocean
+1. Set `DEBUG=False` in production
+2. Set  `ENV=production` in production
+2. Configure a production database (PostgreSQL recommended on digital ocean)
+3. Set proper `ALLOWED_HOSTS`
+4. Configure static files serving (add app component on )
+5. Upload .env
 
 
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+```bash
+python manage.py collectstatic
+```
+
+
+### 6. Run the development server
+
+```bash
+python manage.py runserver
+```
+
+### 7. Create super user or Admin account
+
+```
+http://127.0.0.1:8000/auth/create-admin/
+```
+
+### Note
+``` All uploaded files in development mode would be found in media/```
+``` When testing on localhost, create an admin account to verify users (farmers and investors) before they can access or perform certain actions, such as uploading or viewing proposals.```
+
+
+**Static files not loading:**
+Run `python manage.py collectstatic` and check `STATIC_URL` settings.
+
+
+The API path `http://localhost:8000/`
+
+
+
+#### Feature Apps
+- **`profiles/`** - User profile models, views, and profile management when in dev mode
+- **`proposals/`** - Proposal creation, management, and workflow  when in dev mode
+- **`documents/`** - File upload, storage, and document processing  when in dev mode
+
+## API Endpoints
+
+
+###  Authentication
+- `POST /auth/signup/` – User registration  
+- `POST /auth/login/` – User login  
+- `POST /auth/logout/` – User logout  
+- `POST /auth/forgot-password/` – Password reset request  
+- `POST /auth/reset-password/<reset_id>/` – Password reset confirmation  
+- `POST /auth/token/refresh/` – JWT token refresh  
+- `GET /auth/profile/` – Get user profile  
+- `PUT /auth/profile-update/` – Update user profile  
+
+### OTP Management
+- `POST /auth/verify-otp/` – Verify login OTP  
+- `POST /auth/resend-otp/` – Resend login OTP  
+
+### KYC Management
+- `POST /kyc/investor/submit/` – Submit investor KYC  
+- `POST /kyc/farmer/submit/` – Submit farmer KYC  
+- `GET /admin/kyc/pending/` – List pending KYC submissions (admin)  
+- `POST /admin/kyc/verify/<user_id>/` – Verify KYC (admin)  
+- `POST /kyc/request-change/` – Request KYC changes  
+- `GET /kyc/user/` – Get user KYC information  
+- `GET /kyc/status/` – Get KYC verification status  
+- `GET /kyc/autofill/` – Get autofill data for KYC  
+
+### Opportunities
+- `GET /opportunities/` – List all opportunities  
+- `GET /opportunities/<id>/` – Get opportunity details  
+- `POST /opportunities/create/` – Create new opportunity  
+- `PUT /opportunities/<id>/update/` – Update opportunity  
+- `DELETE /opportunities/<id>/delete/` – Delete opportunity  
+- `GET /opportunities/stats/` – Get opportunity statistics  
+
+### Projects
+- `POST /projects/create/` – Create new project  
+- `GET /projects/` – List all projects  
+- `GET /projects/<uuid>/` – Get project details  
+- `GET /farmer/projects/` – List farmer's projects  
+- `GET /projects/search/` – Search projects  
+- `GET /projects/sum/` – Get farmer project summaries  
+- `GET /projects/recommended/` – Get recommended projects  
+- `POST /submit-nda/` – Submit NDA agreement  
+- `GET /check-nda-status/` – Check NDA status  
+- `GET /download-nda/` – Download NDA PDF  
+
+
+## Development
+
+### Running Tests
+
+```bash
+# Run all tests
+python manage.py test
+```
+
+### Admin's dashboard
+<img width="1365" height="718" alt="Image" src="https://github.com/user-attachments/assets/18da5e61-1b6a-4eda-9fd1-f6d94d3955e8" />
+
+## Contributor
+[Irene Akawin Agigiba](https://portfolio-hdhr.vercel.app/)  - Full Stack developer
