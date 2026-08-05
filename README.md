@@ -154,23 +154,10 @@ pip install -r requirements.txt
 Create a `.env` file in the project root:
 
 #### Environment Configuration:
-Create a `.env` file in the project root with the required variables:
+```
+cp .env.example .env
+```
 
-```
-SECRET_KEY=your-django-secret
-DEBUG=True
-DB_NAME=db_name
-DB_USER=postgres
-DB_PASSWORD=yourpassword
-DB_HOST=localhost
-DB_PORT=5432
-EMAIL_HOST_USER=your@gmail.com
-EMAIL_HOST_PASSWORD=your-email-password
-SPACES_KEY=your-digitalocean-access-key
-SPACES_SECRET=your-digitalocean-secret
-ENV=development
-FRONTEND_URL=your_frontend_url
-```
 
 ### 5. Database setup
 
