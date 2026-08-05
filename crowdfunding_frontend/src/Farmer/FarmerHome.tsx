@@ -149,12 +149,16 @@ export default function FarmerHome() {
             <div className="flex flex-col sm:flex-row xl:flex-col 2xl:flex-row gap-4 sm:gap-6 items-center sm:items-start xl:items-center 2xl:items-start">
               <div className="bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex-shrink-0 w-24 h-24 sm:w-32 sm:h-32 overflow-hidden ring-4 ring-white/20">
                 {user.profile_picture ? (
-                  <img
-                    src={ API_URL === 'http://127.0.0.1:8000' ? `http://localhost:8000${user.profile_picture}` : user.profile_picture}
-                    className="w-full h-full object-cover"
-                    alt="Profile"
-                  />
-                ) : (
+                    <img
+                      src={
+                        user.profile_picture.startsWith("http")
+                          ? user.profile_picture
+                          : `http://localhost:8000${user.profile_picture}`
+                      }
+                      className="w-full h-full object-cover"
+                      alt="Profile"
+                    />
+                  ) : (
                   <div className="w-full h-full flex items-center justify-center text-purple-600 text-2xl sm:text-4xl font-bold">
                     <User />
                   </div>
