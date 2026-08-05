@@ -112,7 +112,7 @@ CELERY_BEAT_SCHEDULE = {
 DATABASE_URL = os.environ.get('DATABASE_URL')
 db_info = urlparse(DATABASE_URL) if DATABASE_URL else None
 
-
+DATABASE_URL='postgresql://seedlinq_db_r8mi_user:VRoCG1mnoQ15nfn9eA7XUepWf21x8srS@dpg-d9pa90lbedkc73bk9f70-a.oregon-postgres.render.com/seedlinq_db_r8mi'
 ENV = os.getenv("ENV", "development")
 
 if ENV == "production" and DATABASE_URL:
