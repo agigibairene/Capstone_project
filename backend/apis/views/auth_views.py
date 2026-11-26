@@ -18,6 +18,8 @@ from ..serializers import (
     UserSerializer, UserSignUpSerializer,UserUpdateSerializer, 
 )
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework_simplejwt.exceptions import TokenError
 from django.http import  HttpResponseRedirect
 import logging
 import traceback
@@ -33,6 +35,18 @@ from django.contrib.auth import login, get_backends
 logger = logging.getLogger(__name__)
 
 User = get_user_model()
+
+def set_refresh_cookie(response, refresh_token):
+    response.set_cookie(
+        key="refresh_token",
+        value=str(refresh_token),
+        httponly=True,
+        secure=not settings.DEBUG,
+        samesite="Lax",
+        path="/auth/",
+        max_age=7 * 24 * 60 * 60,  
+    )
+    return response
 
 def home(request):
     return JsonResponse({"message": "Welcome to SeedLinq API!"})
@@ -73,13 +87,16 @@ def signup_view(request):
 
                     logger.info(f"User {user.email} registered successfully")
 
-                    return Response({
-                        'success': True,
-                        'message': 'Account created successfully',
-                        'user': user_data,
-                        'access': str(refresh.access_token),
-                        'refresh': str(refresh)
+                    response = Response({
+                        "success": True,
+                        "message": "Account created successfully",
+                        "user": user_data,
+                        "access": str(refresh.access_token),
                     }, status=status.HTTP_201_CREATED)
+
+                    set_refresh_cookie(response, refresh)
+
+                    return response
 
             except Exception as e:
                 logger.error(f"Error creating user: {str(e)}")
@@ -109,9 +126,7 @@ def signup_view(request):
 @permission_classes([AllowAny])
 def login_view(request):
     """Login endpoint that sends OTP after successful authentication"""
-    try:
-        logger.info(f"Login attempt for data: {request.data}")
-        
+    try:        
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
             user = authenticate(
@@ -134,9 +149,7 @@ def login_view(request):
                         otp = OTPToken.objects.create(
                             user=user,
                             otp_expires_at=timezone.now() + timedelta(minutes=5)
-                        )
-                        logger.info(f"Created OTP {otp.otp_code} for user {user.email}")
-                        
+                        )                        
                         message =  (
                         f"Hello {user.first_name},\n\n"
                         f"Your One-Time Password (OTP) is: {otp.otp_code}\n\n"
@@ -289,13 +302,15 @@ def verify_login_otp(request):
 
                 logger.info(f"Login successful for user: {user.email}")
 
-                return Response({
+                response = Response({
                     'success': True,
                     'message': 'Login successful',
                     'user': user_data,
                     'access': str(access_token),
-                    'refresh': str(refresh)
                 }, status=status.HTTP_200_OK)
+                
+                set_refresh_cookie(response, refresh)
+                return response
 
         except User.DoesNotExist:
             logger.warning(f"User not found for OTP verification: {username}")
@@ -404,22 +419,33 @@ def resend_login_otp(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
-    """User logout endpoint"""
-    try:
-        logout(request)
-        return Response({
-            'success': True, 
-            'message': 'Logged out successfully'
-        }, status=status.HTTP_200_OK)
-    except Exception as e:
-        logger.error(f"Logout error: {str(e)}")
-        return Response({
-            'success': False,
-            'errors': {'general': 'Error during logout'}
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    refresh_token = request.COOKIES.get("refresh_token")
+
+    response = Response(
+        {
+            "success": True,
+            "message": "Logged out successfully",
+        },
+        status=status.HTTP_200_OK,
+    )
+
+    response.delete_cookie(
+        "refresh_token",
+        path="/auth/",
+        samesite="Lax",
+    )
+
+    if refresh_token:
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+        except TokenError:
+            pass
+
+    return response
 
 
 @api_view(['POST'])
@@ -610,3 +636,41 @@ def create_superuser_view(request):
         form = SuperuserCreationForm()
 
     return render(request, 'create_superuser.html', {'form': form})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def refresh_token_view(request):
+    refresh_token = request.COOKIES.get("refresh_token")
+
+    if not refresh_token:
+        return Response(
+            {"detail": "Refresh token not found"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    serializer = TokenRefreshSerializer(
+        data={"refresh": refresh_token}
+    )
+
+    try:
+        serializer.is_valid(raise_exception=True)
+    except TokenError:
+        return Response(
+            {"detail": "Invalid or expired refresh token"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    data = serializer.validated_data
+
+    response = Response(
+        {"access": data["access"]},
+        status=status.HTTP_200_OK,
+    )
+
+    # If refresh-token rotation is enabled, SimpleJWT may
+    # return a replacement refresh token.
+    if "refresh" in data:
+        set_refresh_cookie(response, data["refresh"])
+
+    return response

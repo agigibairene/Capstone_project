@@ -1,9 +1,13 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-// import { API_URL } from '../Utils/constants';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 interface Props {
   email: string;
   password: string;
+}
+
+interface VerifyOTPProps {
+  username: string;
+  otp_code: string;
 }
 
 interface UserProfile {
@@ -19,42 +23,35 @@ interface User {
   email: string;
   first_name: string;
   last_name: string;
-  date_joined: string;
+  date_joined?: string;
   profile: UserProfile;
 }
 
 interface AuthProps {
   user: User | null;
   access: string | null;
-  refresh: string | null;
   loading: boolean;
-  error: null | number | string;
+  error: string | null;
 }
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const initialState: AuthProps = {
   user: null,
-  refresh: localStorage.getItem('REFRESH_TOKEN'),
-  access: localStorage.getItem('ACCESS_TOKEN'), 
+  access: null,
   loading: false,
-  error: null
-}
+  error: null,
+};
 
-const ACCESS_TOKEN = 'ACCESS_TOKEN';
-const REFRESH_TOKEN = 'REFRESH_TOKEN';
-
-const API_URL  = import.meta.env.VITE_API_URL;
-
-
-
-export const loginUser = createAsyncThunk(
-  'auth/loginUser',
-  async ({ email, password }: Props, thunkAPI) => {
+export const loginUser = createAsyncThunk<{ requires_otp: boolean; username?: string }, Props,{ rejectValue: string }>(
+  "auth/loginUser",
+  async ({ email, password }, thunkAPI) => {
     try {
       const response = await fetch(`${API_URL}/auth/login/`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify({ email, password }),
       });
@@ -62,115 +59,205 @@ export const loginUser = createAsyncThunk(
       const data = await response.json();
 
       if (!response.ok) {
-        return thunkAPI.rejectWithValue(data.errors?.general || data.detail || 'Login failed');
+        return thunkAPI.rejectWithValue(
+          data.errors?.general || data.detail || "Login failed"
+        );
       }
 
-      if (data.requires_otp) {
-        return { 
-          requires_otp: true, 
-          username: data.username,
-          success: true 
-        };
-      } else {
-        const { access, refresh, user } = data;
-        
-        // Store tokens with consistent keys
-        localStorage.setItem(ACCESS_TOKEN, access);
-        localStorage.setItem(REFRESH_TOKEN, refresh);
-        localStorage.setItem('role', user.profile.role);
-
-        return { user, access, refresh, success: true };
-      }
-    } 
-    catch (error) {
-      console.error('Login error:', error);
-      return thunkAPI.rejectWithValue('Failed to login');
+      return {
+        requires_otp: data.requires_otp,
+        username: data.username,
+      };
+    } catch {
+      return thunkAPI.rejectWithValue("Failed to login");
     }
   }
 );
 
+export const verifyLoginOTP = createAsyncThunk<
+  { user: User; access: string },
+  VerifyOTPProps,
+  { rejectValue: string }
+>(
+  "auth/verifyLoginOTP",
+  async ({ username, otp_code }, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/auth/verify-otp/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ username, otp_code }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return thunkAPI.rejectWithValue(
+          data.errors?.general || data.detail || "OTP verification failed"
+        );
+      }
+
+      return {
+        user: data.user,
+        access: data.access,
+      };
+    } catch {
+      return thunkAPI.rejectWithValue("OTP verification failed");
+    }
+  }
+);
+
+// Refresh access token using HttpOnly cookie
+export const refreshAccessToken = createAsyncThunk<
+  string,
+  void,
+  { rejectValue: string }
+>(
+  "auth/refreshAccessToken",
+  async (_, thunkAPI) => {
+    try {
+      const response = await fetch(
+        `${API_URL}/auth/refresh/`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return thunkAPI.rejectWithValue("Session expired");
+      }
+
+      return data.access;
+    } catch {
+      return thunkAPI.rejectWithValue("Unable to refresh session");
+    }
+  }
+);
+
+// Logout
+export const logoutUser = createAsyncThunk(
+  "auth/logoutUser",
+  async (_, thunkAPI) => {
+    const state = thunkAPI.getState() as {
+      login: AuthProps;
+    };
+
+    const access = state.login.access;
+
+    try {
+      await fetch(`${API_URL}/auth/logout/`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          ...(access
+            ? { Authorization: `Bearer ${access}` }
+            : {}),
+        },
+      });
+    } catch (error) {
+      console.error("Logout request failed:", error);
+    }
+  }
+);
+
+// Fetch current user
+export const fetchCurrentUser = createAsyncThunk<
+  User,
+  void,
+  { rejectValue: string }
+>("auth/fetchCurrentUser", async (_, thunkAPI) => {
+  const access = (thunkAPI.getState() as { loginReducer: AuthProps }).loginReducer.access;
+  if (!access) return thunkAPI.rejectWithValue("Not authenticated");
+
+  try {
+    const response = await fetch(`${API_URL}/auth/profile/`, {
+      headers: { Authorization: `Bearer ${access}`, Accept: "application/json" },
+      credentials: "include",
+    });
+    const data = await response.json();
+    if (!response.ok) return thunkAPI.rejectWithValue("Unable to load user");
+    return data.data; // backend wraps in { success, data }
+  } catch {
+    return thunkAPI.rejectWithValue("Unable to load user");
+  }
+});
+
 const loginSlice = createSlice({
-  name: 'login',
+  name: "login",
   initialState,
   reducers: {
     logout(state) {
       state.user = null;
       state.access = null;
-      state.refresh = null;
-      localStorage.removeItem(ACCESS_TOKEN);
-      localStorage.removeItem(REFRESH_TOKEN);
-      localStorage.removeItem('role');
+      state.error = null;
     },
-    setAuthTokens(state, action) {
-      const { user, access, refresh } = action.payload;
-      state.user = user;
-      state.access = access;
-      state.refresh = refresh;
-      localStorage.setItem(ACCESS_TOKEN, access);
-      localStorage.setItem(REFRESH_TOKEN, refresh);
-      localStorage.setItem('role', user.profile.role);
-    },
-    initializeAuth(state) {
-      const token = localStorage.getItem(ACCESS_TOKEN);
-      const role = localStorage.getItem('role');
-      
-      
-      if (token && role && role !== 'undefined') {
-        try {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          const currentTime = Date.now() / 1000;
-          
-          if (payload.exp && payload.exp > currentTime) {
-            state.user = {
-              id: payload.user_id || 0,
-              username: payload.username || payload.email || '',
-              email: payload.email || '',
-              first_name: payload.first_name || '',
-              last_name: payload.last_name || '',
-              date_joined: payload.date_joined || '',
-              profile: {
-                phone_number: payload.phone_number || '',
-                role: role as "Farmer" | "Investor",
-                organization: payload.organization || '',
-                investor_type: payload.investor_type || null,
-              }
-            };
-            state.access = token;
-            state.refresh = localStorage.getItem(REFRESH_TOKEN);
-          } else {
-            localStorage.removeItem(ACCESS_TOKEN);
-            localStorage.removeItem(REFRESH_TOKEN);
-            localStorage.removeItem('role');
-          }
-        } catch (error) {
-          console.error('Login slice - Failed to parse token:', error);
-          localStorage.removeItem(ACCESS_TOKEN);
-          localStorage.removeItem(REFRESH_TOKEN);
-          localStorage.removeItem('role');
-        }
-      }
+
+    clearAuthError(state) {
+      state.error = null;
     },
   },
+
   extraReducers: (builder) => {
     builder
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(loginUser.fulfilled, (state, action) => {
+
+      .addCase(loginUser.fulfilled, (state) => {
         state.loading = false;
-        if (!action.payload.requires_otp) {
-          state.user = action.payload.user;
-          state.access = action.payload.access;
-          state.refresh = action.payload.refresh;
-        }
       })
+
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string | number | string;
-      });
+        state.error = action.payload ?? "Login failed";
+      })
+
+      .addCase(verifyLoginOTP.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+
+      .addCase(verifyLoginOTP.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+        state.access = action.payload.access;
+      })
+
+      .addCase(verifyLoginOTP.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload ?? "OTP verification failed";
+      })
+
+      .addCase(refreshAccessToken.fulfilled, (state, action) => {
+        state.access = action.payload;
+      })
+
+      .addCase(refreshAccessToken.rejected, (state) => {
+        state.user = null;
+        state.access = null;
+      })
+
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.user = null;
+        state.access = null;
+        state.error = null;
+      })
+
+      .addCase(fetchCurrentUser.fulfilled, (state, action) => {
+        state.user = action.payload;
+      })
   },
 });
 
-export const { logout, setAuthTokens, initializeAuth } = loginSlice.actions;
+export const { logout, clearAuthError } = loginSlice.actions;
 export const loginReducer = loginSlice.reducer;

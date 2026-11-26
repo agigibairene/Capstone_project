@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-
-
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 interface SignupProps {
   first_name: string;
@@ -29,32 +27,33 @@ interface User {
 interface AuthResponse {
   user: User;
   access: string;
-  refresh: string;
 }
-
-const API_URL  = import.meta.env.VITE_API_URL;
-
 
 export interface AuthState {
   user: User | null;
   access: string | null;
-  refresh: string | null;
   loading: boolean;
   error: string | null;
   success: boolean;
 }
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const initialState: AuthState = {
   user: null,
-  access: localStorage.getItem('ACCESS_TOKEN'),
-  refresh: localStorage.getItem('REFRESH_TOKEN'),
+  access: null,
   loading: false,
   error: null,
   success: false,
 };
 
-export const signupUser = createAsyncThunk<AuthResponse, SignupProps, { rejectValue: string }>(
-  'auth/signupUser',
+// SIGNUP
+export const signupUser = createAsyncThunk<
+  AuthResponse,
+  SignupProps,
+  { rejectValue: string }
+>(
+  "auth/signupUser",
   async (signupData, thunkAPI) => {
     try {
       const apiData = {
@@ -65,168 +64,153 @@ export const signupUser = createAsyncThunk<AuthResponse, SignupProps, { rejectVa
         confirm_password: signupData.confirm_password,
         role: signupData.role,
         phone_number: signupData.phone_number,
-        ...(signupData.organization && { organization: signupData.organization }),
-        ...(signupData.investorType && { investor_type: signupData.investorType }),
+        ...(signupData.organization && {
+          organization: signupData.organization,
+        }),
+        ...(signupData.investorType && {
+          investor_type: signupData.investorType,
+        }),
       };
 
-
       const response = await fetch(`${API_URL}/auth/signup/`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify(apiData),
       });
 
-
       const data = await response.json();
 
       if (!response.ok) {
-        
-        if (typeof data === 'object' && data !== null) {
+        if (typeof data === "object" && data !== null) {
           const fieldErrors = data.errors || data;
-          const errorMessages = [];
-          
-          const hasFieldErrors = Object.keys(fieldErrors).some(key => 
-            Array.isArray(fieldErrors[key]) || typeof fieldErrors[key] === 'string'
+          const errorMessages: string[] = [];
+
+          const hasFieldErrors = Object.keys(fieldErrors).some(
+            (key) =>
+              Array.isArray(fieldErrors[key]) ||
+              typeof fieldErrors[key] === "string"
           );
-          
+
           if (hasFieldErrors) {
             for (const [field, messages] of Object.entries(fieldErrors)) {
               if (Array.isArray(messages) && messages.length > 0) {
-                const processedMessages = messages.map(msg => {
-                  if (field === 'email' && msg.toLowerCase().includes('email already exists')) {
-                    return 'This email is already registered';
+                const processedMessages = messages.map((msg: any) => {
+                  const message = String(msg);
+
+                  if (
+                    field === "email" &&
+                    message.toLowerCase().includes("email already exists")
+                  ) {
+                    return "This email is already registered";
                   }
-                  if (field === 'phone_number' && msg.toLowerCase().includes('phone')) {
-                    return msg.replace(/phone\s+number\s+/i, '').replace(/phone\s+/i, '');
+
+                  if (
+                    field === "phone_number" &&
+                    message.toLowerCase().includes("phone")
+                  ) {
+                    return message
+                      .replace(/phone\s+number\s+/i, "")
+                      .replace(/phone\s+/i, "");
                   }
-                  const fieldWords = field.toLowerCase().split('_');
-                  let cleanMsg = msg;
-                  fieldWords.forEach(word => {
-                    const regex = new RegExp(`^${word}\\s+`, 'i');
-                    cleanMsg = cleanMsg.replace(regex, '');
+
+                  const fieldWords = field.toLowerCase().split("_");
+                  let cleanMsg = message;
+
+                  fieldWords.forEach((word) => {
+                    const regex = new RegExp(`^${word}\\s+`, "i");
+                    cleanMsg = cleanMsg.replace(regex, "");
                   });
+
                   return cleanMsg;
                 });
-                
+
                 errorMessages.push(...processedMessages);
-              } else if (typeof messages === 'string') {
+              } else if (typeof messages === "string") {
                 let cleanMsg = messages;
-                
-                if (field === 'email' && messages.toLowerCase().includes('email already exists')) {
-                  cleanMsg = 'This email is already registered';
-                } else if (field === 'phone_number' && messages.toLowerCase().includes('phone')) {
-                  cleanMsg = messages.replace(/phone\s+number\s+/i, '').replace(/phone\s+/i, '');
-                } else {
-                  const fieldWords = field.toLowerCase().split('_');
-                  fieldWords.forEach(word => {
-                    const regex = new RegExp(`^${word}\\s+`, 'i');
-                    cleanMsg = cleanMsg.replace(regex, '');
-                  });
+
+                if (
+                  field === "email" &&
+                  messages.toLowerCase().includes("email already exists")
+                ) {
+                  cleanMsg = "This email is already registered";
+                } else if (
+                  field === "phone_number" &&
+                  messages.toLowerCase().includes("phone")
+                ) {
+                  cleanMsg = messages
+                    .replace(/phone\s+number\s+/i, "")
+                    .replace(/phone\s+/i, "");
                 }
-                
+
                 errorMessages.push(cleanMsg);
               }
             }
-            
+
             if (errorMessages.length > 0) {
-              return thunkAPI.rejectWithValue(errorMessages.join('. '));
+              return thunkAPI.rejectWithValue(errorMessages.join(". "));
             }
           }
         }
-        
-        const errorMsg = data.detail || data.message || 'Signup failed. Please try again.';
-        return thunkAPI.rejectWithValue(errorMsg);
+
+        return thunkAPI.rejectWithValue(
+          data.detail || data.message || "Signup failed. Please try again."
+        );
       }
 
-      const { user, access, refresh } = data;
-
-      const userRole = user?.role || signupData.role;
-
-      localStorage.setItem('ACCESS_TOKEN', access);
-      localStorage.setItem('REFRESH_TOKEN', refresh);
-      localStorage.setItem('role', userRole);
+      const userRole = data.user?.role || signupData.role;
 
       const correctedUser = {
-        ...user,
-        role: userRole
+        ...data.user,
+        role: userRole,
       };
 
-      return { user: correctedUser, access, refresh };
+      return {
+        user: correctedUser,
+        access: data.access,
+      };
     } catch (error: any) {
-      console.error('Signup error:', error);
-      return thunkAPI.rejectWithValue(error.message || 'Network error. Please check your connection.');
+      console.error("Signup error:", error);
+
+      return thunkAPI.rejectWithValue(
+        error.message || "Network error. Please check your connection."
+      );
     }
   }
 );
 
-
 const signupSlice = createSlice({
-  name: 'signup',
+  name: "signup",
   initialState,
+
   reducers: {
     logout(state) {
       state.user = null;
       state.access = null;
-      state.refresh = null;
       state.success = false;
-      localStorage.removeItem('ACCESS_TOKEN');
-      localStorage.removeItem('REFRESH_TOKEN');
-      localStorage.removeItem('role');
+      state.error = null;
     },
+
     resetSignupState(state) {
       state.loading = false;
       state.error = null;
       state.success = false;
     },
+
     clearError(state) {
       state.error = null;
     },
+
     setUserRole(state, action) {
       if (state.user) {
         state.user.role = action.payload;
-        localStorage.setItem('role', action.payload);
-      }
-    },
-    initializeAuth(state) {
-      const token = localStorage.getItem('ACCESS_TOKEN');
-      const role = localStorage.getItem('role');
-      
-      
-      if (token && role && role !== 'undefined') {
-        try {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          const currentTime = Date.now() / 1000;
-          
-          if (payload.exp && payload.exp > currentTime) {
-            state.user = {
-              id: payload.user_id || 0,
-              first_name: payload.first_name || '',
-              last_name: payload.last_name || '',
-              email: payload.email || '',
-              role: role as "Farmer" | "Investor",
-              phone_number: payload.phone_number || '',
-              organization: payload.organization || null,
-              investor_type: payload.investor_type || null,
-            };
-            state.access = token;
-            state.refresh = localStorage.getItem('REFRESH_TOKEN');
-          } else {
-            localStorage.removeItem('ACCESS_TOKEN');
-            localStorage.removeItem('REFRESH_TOKEN');
-            localStorage.removeItem('role');
-          }
-        } catch (error) {
-          console.error('Failed to parse token:', error);
-          localStorage.removeItem('ACCESS_TOKEN');
-          localStorage.removeItem('REFRESH_TOKEN');
-          localStorage.removeItem('role');
-        }
       }
     },
   },
+
   extraReducers: (builder) => {
     builder
       .addCase(signupUser.pending, (state) => {
@@ -234,23 +218,28 @@ const signupSlice = createSlice({
         state.error = null;
         state.success = false;
       })
+
       .addCase(signupUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
         state.access = action.payload.access;
-        state.refresh = action.payload.refresh;
         state.success = true;
         state.error = null;
-        const role = action.payload.user.role;
-        localStorage.setItem('role', role);
       })
+
       .addCase(signupUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload ?? 'Signup failed';
+        state.error = action.payload ?? "Signup failed";
         state.success = false;
       });
   },
 });
 
-export const { logout, resetSignupState, clearError, setUserRole, initializeAuth } = signupSlice.actions;
+export const {
+  logout,
+  resetSignupState,
+  clearError,
+  setUserRole,
+} = signupSlice.actions;
+
 export const signupReducer = signupSlice.reducer;

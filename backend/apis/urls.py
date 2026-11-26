@@ -10,10 +10,10 @@ urlpatterns = [
     path('auth/logout/', auth_views.logout_view, name='logout'),
     path('auth/forgot-password/', auth_views.forgot_password_view, name='forgot-password'),
     path('auth/reset-password/<str:reset_id>/', auth_views.reset_password_view, name='reset-password'),
-    path('auth/token/refresh/', TokenRefreshView.as_view(), name='refresh'),
     path('auth/token/', TokenObtainPairView.as_view(), name='get_token'),
     path('auth/profile/', auth_views.user_detail_view, name='user-profile'),
     path('auth/profile-update/', auth_views.update_user_view, name='update-profile'),
+    path("auth/refresh/", auth_views.refresh_token_view, name="token-refresh"),
     
     # OTP PATHS
     path("auth/verify-otp/", auth_views.verify_login_otp, name="verify-otp"),
